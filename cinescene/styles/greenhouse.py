@@ -136,7 +136,7 @@ def build(spec, R, q, mats, tex, hdri):
                     scatter.variant_collection("TrailingVariants", [o.copy() for o in fern_v]))
 
     # the tall palm at the far end (a big plant model, else a procedural tree)
-    big = vegetation.load_model(R["plants"]["hero"], "plant", max_objects=1, max_size=3.6)
+    big = vegetation.load_model(R["plants"]["hero"], "plant", max_objects=1, max_size=3.8)
     if big:
         palm = big[0]
         bpy.context.scene.collection.objects.link(palm)

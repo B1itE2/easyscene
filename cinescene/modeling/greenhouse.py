@@ -114,11 +114,12 @@ def build(rng, cfg: dict, mats: dict):
     # far-end display: iron bench and a planter for the tall palm
     disp = MeshBuilder()
     yd = L / 2 - 1.4
-    disp.box((1.5, 0.45, 0.06), m=Matrix.Translation((-1.2, yd, 0.45)), mat=0)
-    disp.box((1.5, 0.06, 0.45), m=Matrix.Translation((-1.2, yd + 0.22, 0.7)), mat=0)
-    for dx in (-0.65, 0.65):
-        disp.box((0.05, 0.4, 0.45), m=Matrix.Translation((-1.2 + dx, yd, 0.22)), mat=0)
-    disp.cylinder(0.75, 0.55, 0.45, segs=16, m=frame((1.0, yd, 0.0), (0, 0, 1), up=(1, 0, 0)), mat=1)
+    bx = -1.9
+    disp.box((1.4, 0.45, 0.06), m=Matrix.Translation((bx, yd - 0.4, 0.45)), mat=0)
+    disp.box((1.4, 0.06, 0.45), m=Matrix.Translation((bx, yd - 0.18, 0.7)), mat=0)
+    for dx in (-0.6, 0.6):
+        disp.box((0.05, 0.4, 0.45), m=Matrix.Translation((bx + dx, yd - 0.4, 0.22)), mat=0)
+    disp.cylinder(0.75, 0.65, 0.55, segs=16, m=frame((0.0, yd + 0.2, 0.0), (0, 0, 1), up=(1, 0, 0)), mat=1)
     disp_obj = disp.build("GH_Display", [mats["frame"], mats["terracotta"]], smooth=True)
 
     objs = [frame_obj, glass_obj, floor_obj, bench_obj, disp_obj]
@@ -128,7 +129,7 @@ def build(rng, cfg: dict, mats: dict):
         col.objects.link(o)
 
     hang = [(sx * (cfg["aisle_width"] / 2 - 0.1), y, H - 0.2) for sx in (-1, 1) for y in ys[1:-1:2]]
-    palm_spot = (1.0, yd, 0.75)
+    palm_spot = (0.0, yd + 0.2, 0.72)        # centred at the end of the aisle: the focal point
     pts = [(x, yd + dy, z) for x in (-2.0, 1.8) for dy in (-0.4, 0.4) for z in (0.0, 3.2)]
     return {
         "objects": objs, "collection": "Greenhouse", "bbox_points": pts,

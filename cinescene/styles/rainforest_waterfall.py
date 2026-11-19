@@ -86,14 +86,39 @@ def build(spec, R, q, mats, tex, hdri):
     fpts = vegetation.place_clustered(u_rng, R["undergrowth"]["ferns"], (gc["pool_r"] - 1, 45), G,
                                       on_bank, len(fern_v), per_cluster=(4, 12), spread=1.4, scale=(0.9, 1.8),
                                       center=(0.0, G.py))
+    # foreground: a dense fern bank around the camera's feet frames the bottom edge
+    fwd = (target - loc).normalized()
+    for _ in range(int(R["undergrowth"]["ferns"] * 0.12)):
+        d = u_rng.uniform(6.0, 16.0)
+        side = u_rng.uniform(-1.0, 1.0) * d * 0.8
+        x = loc.x + fwd.x * d - fwd.y * side
+        y = loc.y + fwd.y * d + fwd.x * side
+        if abs(side) < d * 0.3:                                  # keep a window down the middle
+            continue
+        fpts.append((x, y, G.height(x, y), 0, 0, u_rng.uniform(0, math.tau), u_rng.uniform(1.2, 2.0),
+                     u_rng.randrange(len(fern_v))))
     scatter.scatter("Ferns", fpts, scatter.variant_collection("FernVariants", fern_v))
-    big_v = vegetation.load_model("calathea_orbifolia_01", "plant", max_objects=2, max_size=1.6) + \
-        vegetation.load_model("anthurium_botany_01", "plant", max_objects=1, max_size=1.4)
+    # procedural elephant-ear plants: the scanned leaf sets are flat (0.4 m tall) and vanish
+    big_v = [vegetation.big_leaf_plant(u_rng, mats, f"BigLeaf{i}", size=u_rng.uniform(0.9, 1.4))
+             for i in range(5)]
+    fwd = (target - loc).normalized()
     if big_v:
         bpts = vegetation.place_clustered(u_rng, R["undergrowth"]["broadleaf"], (gc["pool_r"], 40), G,
                                           on_bank, len(big_v), per_cluster=(2, 6), spread=1.2,
                                           scale=(1.0, 2.0), center=(0.0, G.py))
         scatter.scatter("Broadleaf", bpts, scatter.variant_collection("BroadleafVariants", big_v))
+    # the rock ledge we stand on, with big leaves at its lip that frame the bottom corners
+    ledge_v = big_v[:] if big_v else fern_v[:]
+    lpts = []
+    right = Vector((fwd.y, -fwd.x, 0))
+    for side in (-1, 1):
+        for k in range(3):
+            # we stand ~5 m up looking level: the frame's bottom edge meets the ground ~20 m out
+            d = u_rng.uniform(19.0, 26.0)
+            p = loc + fwd * d + right * side * d * u_rng.uniform(0.3, 0.42)
+            lpts.append((p.x, p.y, G.height(p.x, p.y) - 0.05, 0, 0, u_rng.uniform(0, math.tau),
+                         u_rng.uniform(1.8, 2.6), u_rng.randrange(len(ledge_v))))
+    scatter.scatter("LedgePlants", lpts, scatter.variant_collection("LedgeVariants", [o.copy() for o in ledge_v]))
     rock_v = vegetation.load_model("rock_moss_set_01", "rocks", max_objects=6, max_size=2.4) or \
         [vegetation.rock(u_rng, mats, f"Rock{i}") for i in range(5)]
     rpts = vegetation.place(u_rng, R["undergrowth"]["boulders"], (gc["pool_r"] * 0.7, gc["pool_r"] + 5), G,

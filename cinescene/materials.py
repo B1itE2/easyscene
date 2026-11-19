@@ -551,6 +551,39 @@ def boat_paint():
     return mat
 
 
+def jungle_leaf():
+    """Large tropical leaf: smooth oval blade with a pale midrib, glossy, translucent."""
+    mat, nb = new_material("JungleLeaf")
+    u, v, _ = nb.sep(nb.coord("UV"))
+    x = nb.math("ABSOLUTE", nb.math("MULTIPLY", nb.math("SUBTRACT", u, 0.5), 2.0))
+    prof = nb.math("POWER", nb.math("SINE", nb.math("MULTIPLY", nb.maprange(v, 0, 1, 0.05, 1.0), 3.1416)), 0.6)
+    alpha = nb.math("LESS_THAN", x, prof)
+    rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
+    col = nb.ramp(rnd, [(0.0, (0.02, 0.07, 0.012)), (1.0, (0.05, 0.12, 0.02))])
+    rib = nb.maprange(x, 0.0, 0.05, 1.0, 0.0)
+    col = nb.mix(nb.math("MULTIPLY", rib, 0.6), col, (0.15, 0.22, 0.06))
+    veins = nb.maprange(nb.math("SINE", nb.math("SUBTRACT", nb.math("MULTIPLY", v, 40.0),
+                                                  nb.math("MULTIPLY", x, 12.0))), 0.85, 1.0, 1.0, 0.8)
+    col = nb.mix(1.0, col, nb.comb(veins, veins, veins), "MULTIPLY")
+    bsdf = nb.new("ShaderNodeBsdfPrincipled")
+    nb.set(bsdf, "Base Color", col)
+    nb.set(bsdf, "Roughness", 0.35)
+    nb.set(bsdf, "Alpha", alpha)
+    tr = nb.new("ShaderNodeBsdfTranslucent")
+    nb.set(tr, "Color", nb.mix(1.0, col, (1.4, 2.0, 0.9), "MULTIPLY"))
+    ms = nb.new("ShaderNodeMixShader", inputs={0: 0.3})
+    nb.links.new(bsdf.outputs[0], ms.inputs[1])
+    nb.links.new(tr.outputs[0], ms.inputs[2])
+    tp = nb.new("ShaderNodeBsdfTransparent")
+    ma = nb.new("ShaderNodeMixShader")
+    nb.set(ma, 0, alpha)
+    nb.links.new(tp.outputs[0], ma.inputs[1])
+    nb.links.new(ms.outputs[0], ma.inputs[2])
+    out = nb.new("ShaderNodeOutputMaterial")
+    nb.links.new(ma.outputs[0], nb.i(out, "Surface"))
+    return mat
+
+
 def jungle_ground(maps_rock, maps_moss):
     """Wet dark rock on steep faces, thick moss on anything not vertical, slick near water."""
     mat, nb = new_material("JungleGround")
@@ -565,12 +598,22 @@ def jungle_ground(maps_rock, maps_moss):
         cr, rr, nr = _proc_stone(nb, vr)
     if maps_moss:
         cm, rm, _ = _pbr_maps(nb, maps_moss, nb.mapping(world, scale=(0.6, 0.6, 0.6)), box=True,
-                              tint=(0.16, 0.26, 0.08))
+                              tint=(0.07, 0.13, 0.035))
     else:
         cm, rm = (0.03, 0.06, 0.01), 0.9
+    # horizontal strata on the rock: bands along z, warped so they are not ruler-straight
+    warp = nb.math("MULTIPLY", nb.noise(world, scale=0.15, detail=3.0), 2.5)
+    strata = nb.math("SINE", nb.math("MULTIPLY", nb.math("ADD", z, warp), 2.2))
+    band = nb.maprange(strata, -1.0, 1.0, 0.65, 1.15)
+    cr = nb.mix(1.0, cr, nb.comb(band, band, band), "MULTIPLY")
+    ledge = nb.maprange(strata, 0.75, 0.95)                    # thin moss-filled ledges
     wob = nb.math("MULTIPLY", nb.noise(world, scale=0.8, detail=5.0), 0.5)
-    m = nb.maprange(nb.math("ADD", nz, wob), 0.35, 0.65)
+    m = nb.math("MAXIMUM", nb.maprange(nb.math("ADD", nz, wob), 0.35, 0.65),
+                nb.math("MULTIPLY", ledge, 0.8))
     col = nb.mix(m, cr, cm)
+    hsv = nb.new("ShaderNodeHueSaturation", inputs={"Hue": 0.54, "Saturation": 0.9, "Value": 0.7})
+    nb.set(hsv, "Color", col)                     # shift the ground away from yellow toward moss green
+    col = hsv.outputs[0]
     rough = nb.mixf(m, nb.math("MULTIPLY", rr, 0.5), rm)          # wet rock is glossy
     col, rough = _moss(nb, col, rough, amount=0.5, scale=1.5, up_only=False)
     _finish(nb, col, rough, nr)
@@ -586,6 +629,7 @@ def library(tex: dict):
                                        [(0.02, 0.07, 0.01), (0.04, 0.11, 0.015), (0.07, 0.15, 0.02)]),
             "fern": fern_proc(), "grass": grass(), "leafcover": leaf_cover(),
             "rock": stone(tex.get("rock"), name="WetRock", moss=0.6), "moss": moss_cushion(),
+            "jungle_leaf": jungle_leaf(),
         }
     if tex.get("_style") == "greenhouse":
         return {

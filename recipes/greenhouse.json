@@ -9,9 +9,11 @@
 
   "lighting_by_time": {"morning": "soft_daylight", "noon": "soft_daylight", "dusk": "golden_dusk"},
   "lighting_overrides": {
-    "morning": {"sun": {"rel_azimuth": {"choice": [{"between": [120, 150]}, {"between": [-150, -120]}]},
-                        "elevation": {"between": [28, 42]}, "strength": {"between": [4.5, 6.0]},
-                        "kelvin": {"between": [4800, 5600]}, "angle": 4.0}},
+    "_doc": "sun from the side-front, low enough that roof bars cast a grid of light on the aisle; ambient low so the pattern reads",
+    "morning": {"sun": {"rel_azimuth": {"choice": [{"between": [60, 85]}, {"between": [-85, -60]}]},
+                        "elevation": {"between": [32, 45]}, "strength": {"between": [8.0, 10.0]},
+                        "kelvin": {"between": [4600, 5300]}, "angle": 1.5},
+                "env_strength": 0.7, "exposure": -0.2},
     "noon": {"sun": {"rel_azimuth": 160, "elevation": 60, "strength": 3.0, "kelvin": 5800, "angle": 4.0}}
   },
 
@@ -29,9 +31,9 @@
     "empty_ratio": {"between": [0.0, 0.08]}, "under_bench": {"int_between": [90, 140]}
   },
 
-  "fog": {"color": [1.0, 0.98, 0.95], "anisotropy": 0.6, "height_falloff_m": 6.0,
+  "fog": {"color": [1.0, 0.98, 0.95], "anisotropy": 0.75, "height_falloff_m": 6.0,
           "breakup_scale_m": 3.0, "breakup_amount": 0.4,
-          "density_by_weather": {"clear": 0.002, "haze": {"between": [0.005, 0.009]}},
+          "density_by_weather": {"clear": 0.003, "haze": {"between": [0.012, 0.018]}},
           "cloud_layer": {"center_m": 0.0, "thickness_m": 1.0, "density": 0.0}},
 
   "camera": {"inside_m": 0.6, "eye_height_m": {"between": [1.45, 1.7]}, "aim_z": 1.3, "fstop": 4.0},

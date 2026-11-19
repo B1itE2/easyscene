@@ -55,6 +55,30 @@ def leaf_rosette(rng, mats, name):
     return mb.build(name, [mats["leafcover"]], link=False)
 
 
+def big_leaf_plant(rng, mats, name, size=1.0):
+    """Elephant-ear / banana-like plant: 5-9 large drooping leaves on arching stalks."""
+    mb = MeshBuilder()
+    n = rng.randint(5, 9)
+    for k in range(n):
+        a = k * math.tau / n + rng.uniform(-0.3, 0.3)
+        d = Vector((math.cos(a), math.sin(a), 0))
+        side = Vector((-d.y, d.x, 0))
+        stalk = size * rng.uniform(0.6, 1.1)
+        rise = rng.uniform(0.7, 1.0)
+        tip = d * stalk * 0.45 + Vector((0, 0, stalk * rise))
+        mb.cylinder(tip.length, 0.018 * size, 0.01 * size, segs=4, m=frame((0, 0, 0), tip), caps=False, mat=1)
+        L = size * rng.uniform(0.6, 1.0)
+        rows = []
+        for i in range(7):
+            t = i / 6
+            c = tip + d * (L * t) + Vector((0, 0, L * (0.25 * t - 0.75 * t * t)))
+            w = L * 0.42 * math.sin(math.pi * min(1.0, 0.1 + t)) ** 0.7
+            sag = w * 0.25
+            rows.append([c - side * w - Vector((0, 0, sag)), c, c + side * w - Vector((0, 0, sag))])
+        mb.strip(rows, mat=0)
+    return mb.build(name, [mats["jungle_leaf"], mats["grass"]], link=False)
+
+
 def twig(rng, mats, name):
     """Small fallen dead branch with one or two forks."""
     mb = MeshBuilder()
