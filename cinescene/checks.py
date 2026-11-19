@@ -47,6 +47,9 @@ def scene_checks(layout: dict, terrain=None):
                            Vector((max(p.x for p in ws), max(p.y for p in ws), max(p.z for p in ws))))
         for p in sorted(ws, key=lambda p: p.z)[:12]:
             g = terrain.height(p.x, p.y) if terrain else 0.0
+            wl = layout["subject"].get("water_level")
+            if wl is not None:          # boats and posts are held by the water surface
+                g = max(g, wl)
             if p.z - g <= 0.08:
                 supported.add(obj.name)
                 break

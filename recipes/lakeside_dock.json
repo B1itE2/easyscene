@@ -27,14 +27,14 @@
   "lake": {"size_m": 320, "resolution": 260, "bay": {"between": [0.002, 0.006]},
            "hills": {"between": [4.0, 9.0]}, "depth": 3.5},
 
-  "dock": {"length": {"between": [9.0, 15.0]}, "width": {"between": [1.6, 2.2]}, "deck_z": 0.55,
+  "dock": {"length": {"between": [13.0, 20.0]}, "width": {"between": [1.8, 2.4]}, "deck_z": 0.55,
            "boat": {"choice": [true, true, false]}, "lantern_watts": 10},
 
   "forest": {
     "autumn_variants": 6, "conifer_variants": 3,
     "height_range_m": [9.0, 17.0], "conifer_height_m": [12.0, 22.0],
     "conifer_ratio": {"between": [0.1, 0.35]},
-    "min_spacing_m": 3.2, "extent_m": 240, "band_m": [1.5, 70.0],
+    "min_spacing_m": 2.6, "extent_m": 240, "band_m": [6.0, 70.0],
     "leaf_palette": {"choice": [
       [[0.38, 0.03, 0.01], [0.6, 0.1, 0.01], [0.75, 0.32, 0.02], [0.65, 0.5, 0.05], [0.16, 0.22, 0.03]],
       [[0.7, 0.45, 0.03], [0.8, 0.6, 0.08], [0.6, 0.3, 0.02], [0.45, 0.06, 0.02], [0.3, 0.32, 0.05]],
@@ -50,7 +50,7 @@
     "height_falloff_m": {"between": [2.5, 5.0]},
     "breakup_scale_m": 18.0,
     "breakup_amount": 0.7,
-    "density_by_weather": {"clear": 0.002, "light_fog": {"between": [0.008, 0.014]}, "fog": {"between": [0.02, 0.03]}},
+    "density_by_weather": {"clear": 0.002, "light_fog": {"between": [0.014, 0.022]}, "fog": {"between": [0.02, 0.03]}},
     "cloud_layer": {"center_m": 0.0, "thickness_m": 1.0, "density": 0.0}
   },
 
@@ -65,14 +65,14 @@
     "view_azimuth_deg": {"front": {"between": [-8, 8]}, "three_quarter_left": {"between": [-35, -20]},
                          "three_quarter_right": {"between": [20, 35]}},
     "eye_height_m": 1.4, "min_z": 1.3, "aim_height": 0.6,
-    "subject_fill": {"wide": 0.2, "medium": 0.3, "close": 0.45},
+    "subject_fill": {"wide": 0.16, "medium": 0.25, "close": 0.36},
     "fstop": 4.0, "foreground_dressing": false
   },
 
   "assets": {
     "hdri": "kloofendal_misty_morning_puresky",
     "textures": {"deck": "weathered_brown_planks", "bark": "bark_brown_02",
-                 "land": "forest_floor", "shore": "river_small_rocks", "rock": "mossy_rock"},
+                 "land": "forest_leaves_04", "shore": "river_small_rocks", "rock": "mossy_rock"},
     "models": {}
   },
 

@@ -488,6 +488,11 @@ def autumn_leaf(palette):
     col = nb.ramp(k, stops)
     vein = nb.math("MULTIPLY", nb.maprange(r, 0.0, 0.8, 0.75, 1.0), 1.0)
     col = nb.mix(1.0, col, nb.comb(vein, vein, vein), "MULTIPLY")
+    # per-leaf brightness jitter + crown self-shadow (inner/lower leaves darker, less saturated)
+    jit = nb.maprange(nb.noise(nb.coord("Object"), scale=9.0, detail=1.0), 0.3, 0.7, 0.55, 1.15)
+    ao = nb.o(nb.new("ShaderNodeAmbientOcclusion", inputs={"Distance": 1.2}), "AO")
+    shade = nb.math("MULTIPLY", jit, nb.maprange(ao, 0.0, 1.0, 0.35, 1.0))
+    col = nb.mix(1.0, col, nb.comb(shade, shade, shade), "MULTIPLY")
     bsdf = nb.new("ShaderNodeBsdfPrincipled")
     nb.set(bsdf, "Base Color", col)
     nb.set(bsdf, "Roughness", 0.55)
@@ -514,7 +519,7 @@ def lake_ground(maps_land, maps_shore):
     _, _, z = nb.sep(world)
     v = nb.mapping(world, scale=(0.5, 0.5, 0.5))
     if maps_land:
-        cl, rl, nl = _pbr_maps(nb, maps_land, v, box=True, tint=(0.75, 0.72, 0.68), bump=0.6)
+        cl, rl, nl = _pbr_maps(nb, maps_land, v, box=True, tint=(0.45, 0.4, 0.34), bump=0.6)
     else:
         cl, rl, nl = _proc_ground(nb, v)
     if maps_shore:
@@ -559,7 +564,7 @@ def library(tex: dict):
                                        [(0.35, 0.03, 0.01), (0.55, 0.12, 0.01), (0.7, 0.3, 0.02),
                                         (0.6, 0.45, 0.05), (0.15, 0.2, 0.03)]),
             "boat": boat_paint(),
-            "lantern_glow": emission("LanternGlow", (1.0, 0.6, 0.25), 8.0),
+            "lantern_glow": emission("LanternGlow", (1.0, 0.55, 0.22), 2.5),
             "grass": grass(), "rock": stone(tex.get("rock"), name="ShoreRock", moss=0.4),
             "leafcover": leaf_cover(), "moss": moss_cushion(),
         }

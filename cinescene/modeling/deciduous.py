@@ -49,7 +49,7 @@ def _leaf_clump(mb, rng, centre, size, n):
     for _ in range(n):
         off = Vector((rng.gauss(0, 1), rng.gauss(0, 1), rng.gauss(0, 0.7))) * size
         c = Vector(centre) + off
-        s = rng.uniform(0.12, 0.2)
+        s = rng.uniform(0.07, 0.11)
         yaw, pitch = rng.uniform(0, math.tau), rng.uniform(-0.6, 0.9)
         dx = Vector((math.cos(yaw), math.sin(yaw), 0)) * s
         dz = Vector((-math.sin(yaw) * math.sin(pitch), math.cos(yaw) * math.sin(pitch), math.cos(pitch))) * s
@@ -72,7 +72,7 @@ def tree(rng, height, mats, name="Maple", leaf_density=1.0):
         d = Vector((math.cos(a) * 0.9, math.sin(a) * 0.9, 0.8))
         _branch(mb, rng, top, d, height * rng.uniform(0.28, 0.36), r0 * 0.7, 0, tips)
     for p, d in tips:
-        _leaf_clump(mb, rng, p + d * 0.2, rng.uniform(0.5, 0.85), int(rng.randint(45, 70) * leaf_density))
+        _leaf_clump(mb, rng, p + d * 0.2, rng.uniform(0.45, 0.75), int(rng.randint(110, 160) * leaf_density))
     return mb.build(name, [mats["bark_birch" if "Birch" in name else "bark"], mats["autumn_leaf"]],
                     link=False)
 

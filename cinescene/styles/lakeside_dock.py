@@ -66,7 +66,7 @@ def build(spec, R, q, mats, tex, hdri):
     fx0, fx1, fy0, fy1 = dk["footprint"]
     tpts = []
     for x, y in pts:
-        s = T.signed(x, y)
+        s = T.signed(x, y) + p_rng.uniform(-2.5, 2.5)
         if not (fc["band_m"][0] < s < fc["band_m"][1]):
             continue
         if fx0 - 3 < x < fx1 + 3 and y < fy1 + 6:          # keep the dock's landing clear
@@ -89,6 +89,11 @@ def build(spec, R, q, mats, tex, hdri):
     rock_v = [vegetation.rock(u_rng, mats, f"Rock{i}") for i in range(5)]
     rpts = vegetation.place(u_rng, 120, (2.0, 90.0), T, bank(-1.5, 1.5), 5, scale=(0.2, 0.7), sink=0.05)
     scatter.scatter("Rocks", rpts, scatter.variant_collection("RockVariants", rock_v))
+    # low autumn shrubs along the bank hide the bare trunk line
+    shrub_v = [deciduous.tree(u_rng, u_rng.uniform(1.6, 2.8), mats, name=f"Shrub{i}") for i in range(4)]
+    spts = vegetation.place_clustered(u_rng, 260, (2.0, 90.0), T, bank(0.8, 6.0), 4,
+                                      per_cluster=(2, 6), spread=1.6, scale=(0.8, 1.4))
+    scatter.scatter("Shrubs", spts, scatter.variant_collection("ShrubVariants", shrub_v))
     grass_v = [vegetation.grass_clump(u_rng, mats, f"Grass{i}") for i in range(5)]
     gpts = vegetation.place_clustered(u_rng, 5000, (2.0, 80.0), T, bank(0.3, 12.0), 5,
                                       per_cluster=(6, 20), scale=(1.0, 1.8))
@@ -112,7 +117,8 @@ def build(spec, R, q, mats, tex, hdri):
         shot.info["min_height_m"] = round(min(c.z for c in shot.positions), 2)
         n0 = len(tpts)
     layout = {
-        "subject": {k: dk[k] for k in ("center", "height", "footprint", "bbox_points", "base_z", "collection")},
+        "subject": dict({k: dk[k] for k in ("center", "height", "footprint", "bbox_points", "base_z",
+                                             "collection")}, water_level=0.0),
         "camera": solved, "trees": [(round(p[0], 3), round(p[1], 3), round(p[6], 3)) for p in tpts],
         "sun_dir": linfo["sun_dir"],
     }
