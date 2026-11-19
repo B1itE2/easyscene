@@ -224,4 +224,4 @@ def build(spec, R, q, mats, tex, hdri):
     }
     log(f"style built in {time.time() - t0:.1f}s: {len(tpts)} trees, {len(gpts)} grass, "
         f"{len(fpts)} ferns, {len(rpts)} rocks")
-    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": shot}
+    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": shot, "terrain": T}

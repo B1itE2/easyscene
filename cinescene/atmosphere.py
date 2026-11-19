@@ -202,7 +202,8 @@ def chimney_smoke(fog_obj, top_pos, smoke: dict, seed: int):
     dens = nb.math("MULTIPLY", nb.math("MULTIPLY", radial, core_),
                    nb.math("MULTIPLY", nb.math("MULTIPLY", vert, smoke["density"]), walls))
     # low anisotropy: a forward-scattering plume glows like a searchlight in backlight
-    svol = nb.new("ShaderNodeVolumePrincipled", inputs={"Color": (0.78, 0.79, 0.81),
+    svol = nb.new("ShaderNodeVolumePrincipled", inputs={"Color": (0.55, 0.57, 0.6),
+                                                        "Absorption Color": (0.25, 0.25, 0.27),
                                                         "Anisotropy": 0.05})
     nb.set(svol, "Density", dens)
     out = [n for n in nb.nodes if n.bl_idname == "ShaderNodeOutputMaterial"][0]

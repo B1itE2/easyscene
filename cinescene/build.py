@@ -74,6 +74,7 @@ def build_scene(spec: dict):
     log(f"scene built in {time.time() - t0:.1f}s")
     return {"recipe": R, "recipe_raw": recipe_raw, "render": rinfo, "lighting": res["lighting"],
             "layout": layout, "camera_obj": res["camera_obj"], "shot": shot,
+            "terrain": res.get("terrain"),
             "build_seconds": time.time() - t0}
 
 
@@ -155,6 +156,23 @@ def render_animation(ctx, out: Path, spec: dict, step=1):
     except RuntimeError as e:                 # frames are safe on disk; video can be made later
         log(f"video encoding skipped: {e}")
     return res
+
+
+def run_checks(ctx, out: Path, still_path=None):
+    """Scene + render checks -> out/checks.json. Returns the summary."""
+    from . import checks
+    scene_c, geo = checks.scene_checks(ctx["layout"], ctx.get("terrain"))
+    allc = list(scene_c)
+    if still_path:
+        allc += checks.render_checks(still_path, ctx["recipe"]["checks"], geo["subject_area"])
+    summ = checks.summarize(allc)
+    summ["geometry"] = geo
+    checks.write(out / "checks.json", summ)
+    for c in allc:
+        log(f"check {'PASS' if c['ok'] else 'FAIL'} {c['id']}: {c['value']} (limit {c['limit']})"
+            + (f"  -> {c['hint']}" if c["hint"] else ""))
+    log(f"checks: {'ALL PASSED' if summ['passed'] else 'FAILED ' + ', '.join(summ['failed'])}")
+    return summ
 
 
 def write_manifest(out: Path, spec, ctx, extra):

@@ -359,8 +359,8 @@ def leaf_cover():
     r2 = nb.math("ADD", nb.math("MULTIPLY", du, du), nb.math("MULTIPLY", dv, dv))
     alpha = nb.math("LESS_THAN", r2, 0.9)
     rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
-    col = nb.ramp(rnd, [(0.0, (0.012, 0.028, 0.008)), (0.7, (0.03, 0.048, 0.012)),
-                        (1.0, (0.06, 0.035, 0.012))])
+    col = nb.ramp(rnd, [(0.0, (0.008, 0.02, 0.006)), (0.7, (0.02, 0.036, 0.01)),
+                        (1.0, (0.045, 0.026, 0.01))])
     bsdf = nb.new("ShaderNodeBsdfPrincipled")
     nb.set(bsdf, "Base Color", col)
     nb.set(bsdf, "Roughness", 0.75)

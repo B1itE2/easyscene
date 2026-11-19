@@ -56,6 +56,8 @@ def main():
         extra["still"] = build.render_still(ctx, out, spec)
         if shot is not None and not a.still_only:
             extra["animation"] = build.render_animation(ctx, out, spec, step=max(1, a.step))
+    still = extra.get("still", {}).get("final")
+    extra["checks"] = {k: v for k, v in build.run_checks(ctx, out, still).items() if k != "checks"}
     build.write_manifest(out, spec, ctx, extra)
     print(f"[cinescene] DONE -> {out}", flush=True)
 

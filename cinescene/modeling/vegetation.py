@@ -40,15 +40,15 @@ def grass_clump(rng, mats, name):
 def leaf_rosette(rng, mats, name):
     """A low patch (~40 cm) of small oval leaves on short stems."""
     mb = MeshBuilder()
-    for _ in range(rng.randint(14, 26)):
+    for _ in range(rng.randint(40, 70)):
         a = rng.uniform(0, math.tau)
         r0 = math.sqrt(rng.random()) * 0.2
-        c = Vector((math.cos(a) * r0, math.sin(a) * r0, rng.uniform(0.03, 0.12)))
-        s = rng.uniform(0.025, 0.05)
+        c = Vector((math.cos(a) * r0, math.sin(a) * r0, rng.uniform(0.02, 0.1)))
+        s = rng.uniform(0.012, 0.024)
         yaw = rng.uniform(0, math.tau)
         tilt = rng.uniform(-0.5, 0.5)
         dx = Vector((math.cos(yaw), math.sin(yaw), tilt)) * s
-        dy = Vector((-math.sin(yaw), math.cos(yaw), 0)) * s * 0.75
+        dy = Vector((-math.sin(yaw), math.cos(yaw), 0)) * s * 0.45
         base = len(mb.verts)
         mb.verts += [tuple(c - dx - dy), tuple(c + dx - dy), tuple(c + dx + dy), tuple(c - dx + dy)]
         mb.add_face((base, base + 1, base + 2, base + 3), ((0, 0), (1, 0), (1, 1), (0, 1)))
