@@ -140,6 +140,8 @@ def thin_toward_sun(points, sun_dir, seed, cfg):
         d = math.hypot(p[0], p[1])
         da = abs((math.atan2(p[1], p[0]) - az + math.pi) % math.tau - math.pi)
         if near < d < far and da < half:
+            if p[7] == cfg["variants"]:                       # no bare snag in full sun:
+                continue                                      # it glows like a white post
             edge = da / half                                  # soft wedge edges
             if r.random() > 0.15 + 0.6 * edge * edge:
                 continue

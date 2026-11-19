@@ -210,7 +210,7 @@ def ground(maps_a, maps_b, path=None, maps_path=None, clearing=12.0):
     world = nb.coord("Object")
     vec = nb.mapping(world, scale=(0.65, 0.65, 0.65))
     if maps_a:
-        col, rough, nor = _pbr_maps(nb, maps_a, vec, box=True, tint=(0.5, 0.56, 0.46), bump=0.6)
+        col, rough, nor = _pbr_maps(nb, maps_a, vec, box=True, tint=(0.4, 0.5, 0.36), bump=0.6)
         if maps_b:
             vb = nb.mapping(world, scale=(0.6, 0.6, 0.6), rot=(0, 0, 0.7))
             cb, rb, _ = _pbr_maps(nb, maps_b, vb, box=True, tint=(0.7, 0.68, 0.64))

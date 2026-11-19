@@ -55,16 +55,15 @@ def build(spec, R, q, mats, tex, hdri):
     solved = camera.solve_static(cab, T, cs, R["camera"])
     camera.apply_static(cam_obj, solved, R["camera"]["fstop"])
     shot = None
+    cloud = None
     if mv["preset"] != "none":
         sub_layout = {"subject": {"center": cab["center"]}, "camera": solved}
         shot = motion.plan(mv["preset"], sub_layout, T, R["motion"][mv["preset"]],
                            mv["duration_s"], mv["fps"])
         if mv["preset"] == "cloud_descent":   # local cloud bank around the opening shot
             mc = R["motion"]["cloud_descent"]
-            R["fog"]["cloud_layer"] = {
-                "center_m": shot.positions[0].z - mc["cloud_below_start_m"],
-                "thickness_m": mc["cloud_thickness_m"], "density": mc["cloud_density"],
-                "center_xy": shot.info["cloud_center_xy"], "radius_m": mc["cloud_radius_m"]}
+            cloud = (shot.info["cloud_center_xy"], shot.positions[0].z - mc["cloud_below_start_m"],
+                     mc["cloud_thickness_m"], mc["cloud_radius_m"], mc["cloud_density"])
     hfov, _ = camera.fovs(cs["lens_mm"], cs["aspect"])
     # footpath: from the door step to just beside the camera (a leading line into frame)
     uc = R["undergrowth"]
@@ -203,9 +202,13 @@ def build(spec, R, q, mats, tex, hdri):
 
     # ---- atmosphere ---------------------------------------------------------
     fog_d = R["fog"]["density_by_weather"][spec["weather"]]
-    atmosphere.height_fog(tc["size_m"] - 4, 75.0, R["fog"], fog_d)
+    fog_top = 75.0
+    if cloud is not None:
+        _, cloud_bottom = atmosphere.cloud_bank(*cloud, R["fog"])
+        fog_top = cloud_bottom - 0.5      # never coplanar: shared faces confuse the volume stack
+    fog_obj = atmosphere.height_fog(tc["size_m"] - 4, fog_top, R["fog"], fog_d)
     if sub["chimney_smoke"]:
-        atmosphere.chimney_smoke(cab["chimney_top"], R["smoke"], seed)
+        atmosphere.chimney_smoke(fog_obj, cab["chimney_top"], R["smoke"], seed)
 
     if sub["chimney_smoke"] and shot is not None:
         bx = atmosphere.smoke_bounds(cab["chimney_top"], R["smoke"])

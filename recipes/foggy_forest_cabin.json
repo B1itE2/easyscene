@@ -59,8 +59,8 @@
     "cloud_descent": {
       "_doc": "start inside a local cloud bank above the clearing; numbers are metres",
       "start_height_m": 55.0, "start_offset": 0.3, "drop_bias": 0.5, "level_out_m": 2.5,
-      "ease": 1.0,
-      "cloud_density": 0.45, "cloud_thickness_m": 10.0, "cloud_below_start_m": 0.0,
+      "ease": {"accel": 0.22, "decel": 0.4},
+      "cloud_density": 0.35, "cloud_thickness_m": 6.0, "cloud_below_start_m": 3.0,
       "cloud_radius_m": 32.0
     }
   },

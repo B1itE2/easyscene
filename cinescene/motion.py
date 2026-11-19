@@ -23,9 +23,32 @@ def smootherstep(u):
     return u * u * u * (u * (u * 6 - 15) + 10)
 
 
-def ease(u, strength=1.0):
-    """Blend linear -> smootherstep. strength 1 = slowest start/end."""
-    return (1 - strength) * u + strength * smootherstep(u)
+class Ease:
+    """Dolly-style speed profile: smooth (cosine) acceleration over the first
+    ``accel`` fraction of the shot, constant cruise, smooth deceleration over
+    the last ``decel``. Speed is exactly zero at both ends, but unlike
+    smootherstep it does not crawl for seconds before stopping.
+    """
+
+    def __init__(self, accel=0.25, decel=0.35, n=2000):
+        def v(u):
+            if u < accel:
+                return 0.5 - 0.5 * math.cos(math.pi * u / accel)
+            if u > 1 - decel:
+                return 0.5 - 0.5 * math.cos(math.pi * (1 - u) / decel)
+            return 1.0
+        self.table = [0.0]
+        for i in range(n):
+            self.table.append(self.table[-1] + v((i + 0.5) / n) / n)
+        total = self.table[-1]
+        self.table = [t / total for t in self.table]
+        self.n = n
+
+    def __call__(self, u):
+        u = max(0.0, min(1.0, u))
+        f = u * self.n
+        i = min(int(f), self.n - 1)
+        return self.table[i] + (self.table[i + 1] - self.table[i]) * (f - i)
 
 
 # ------------------------------------------------------------------ curves ---
@@ -186,11 +209,11 @@ class Shot:
                         kp.interpolation = "LINEAR"
 
 
-def _sample(route, t0, t1, frames, ease_strength):
+def _sample(route, t0, t1, frames, easing):
     positions, targets = [], []
     for i in range(frames):
         u = i / (frames - 1) if frames > 1 else 1.0
-        e = ease(u, ease_strength)
+        e = easing(u)
         positions.append(route.at_distance(e * route.length))
         targets.append(t0.lerp(t1, smootherstep(e)))
     return positions, targets
@@ -222,7 +245,8 @@ def cloud_descent(layout, terrain, cfg, duration_s, fps):
     t0 = Vector((C.x, C.y, 1.0))
     t1 = Vector(fin["target"])
     frames = int(round(duration_s * fps)) + 1
-    pos, tgt = _sample(route, t0, t1, frames, cfg.get("ease", 1.0))
+    ez = cfg.get("ease", {})
+    pos, tgt = _sample(route, t0, t1, frames, Ease(ez.get("accel", 0.25), ez.get("decel", 0.35)))
     # never closer than 1.2 m to the ground (terrain may bulge under the route)
     for i, c in enumerate(pos):
         g = terrain.height(c.x, c.y) + 1.2

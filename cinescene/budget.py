@@ -13,13 +13,13 @@ from pathlib import Path
 QUALITY = {
     "draft": {
         "short_side": 360, "samples": 16, "denoise": True,
-        "volume_step_rate": 6.0, "volume_max_steps": 128, "volume_bounces": 0,
+        "volume_step_rate": 3.0, "volume_max_steps": 256, "volume_bounces": 0,
         "max_bounces": 4, "transparent_bounces": 12, "texture_res": "1k",
         "texture_limit": "1024", "tree_density": 1.0, "undergrowth": 1.0,
     },
     "preview": {
         "short_side": 540, "samples": 32, "denoise": True,
-        "volume_step_rate": 4.0, "volume_max_steps": 256, "volume_bounces": 1,
+        "volume_step_rate": 2.0, "volume_max_steps": 512, "volume_bounces": 1,
         "max_bounces": 6, "transparent_bounces": 16, "texture_res": "1k",
         "texture_limit": "1024", "tree_density": 1.0, "undergrowth": 1.0,
     },

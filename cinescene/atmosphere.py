@@ -93,6 +93,50 @@ def PLUME_WIDTH(z):
     return 0.28 + 0.16 * z
 
 
+def cloud_bank(center_xy, center_z, thickness, radius, density, fog: dict):
+    """A local cloud bank as its *own* tight volume box (for the cloud-descent opening).
+
+    Why separate from the fog box: Cycles estimates volume density bounds per
+    object; inside a 250 m fog box a 15 m thin layer was under-sampled and
+    simply did not render. The box sits *above* the fog box (no overlap, so no
+    seams) and does not cast shadows, so it glows sun-lit white from inside
+    instead of going dark, and never darkens the scene below.
+    Returns (box object, bottom z) - the fog box must end at that bottom.
+    """
+    cx, cy = center_xy
+    z0, z1 = center_z - 2.2 * thickness, center_z + 2.2 * thickness
+    r = radius * 1.3
+    obj = _box("CloudBank", cx - r, cx + r, cy - r, cy + r, z0, z1)
+    mat, nb = new_material("CloudVolume")
+    p = nb.coord("Object")
+    x, y, z = nb.sep(p)
+    t = _time_node(nb)
+    g = nb.math("DIVIDE", nb.math("SUBTRACT", z, center_z), thickness)
+    layer = nb.math("EXPONENT", nb.math("MULTIPLY", nb.math("MULTIPLY", g, g), -1.0))
+    dx, dy = nb.math("SUBTRACT", x, cx), nb.math("SUBTRACT", y, cy)
+    rr = nb.math("SQRT", nb.math("ADD", nb.math("MULTIPLY", dx, dx), nb.math("MULTIPLY", dy, dy)))
+    wob = nb.math("MULTIPLY", nb.noise(p, scale=0.05, detail=2.0), radius * 0.5)
+    edge = nb.maprange(nb.math("ADD", rr, wob), radius * 0.5, radius * 1.2, 1.0, 0.0)
+    puff = nb.maprange(nb.noise(p, scale=1.0 / 14.0, detail=4.0, rough=0.55, dims="4D",
+                                w=nb.math("MULTIPLY", t, 0.04)), 0.35, 0.7, 0.25, 1.4)
+    # fade to zero before the box faces so they never show
+    walls = None
+    for coord, lo, hi in ((x, cx - r, cx + r), (y, cy - r, cy + r), (z, z0, z1)):
+        dmin = nb.math("MINIMUM", nb.math("SUBTRACT", coord, lo), nb.math("SUBTRACT", hi, coord))
+        f = nb.maprange(dmin, 0.0, 3.0)
+        walls = f if walls is None else nb.math("MULTIPLY", walls, f)
+    dens = nb.math("MULTIPLY", nb.math("MULTIPLY", layer, edge),
+                   nb.math("MULTIPLY", nb.math("MULTIPLY", puff, walls), density))
+    vol = nb.new("ShaderNodeVolumePrincipled", inputs={"Color": (0.93, 0.95, 0.97),
+                                                       "Anisotropy": 0.2})
+    nb.set(vol, "Density", dens)
+    out = nb.new("ShaderNodeOutputMaterial")
+    nb.links.new(vol.outputs[0], nb.i(out, "Volume"))
+    obj.data.materials.append(mat)
+    obj.visible_shadow = False
+    return obj, z0
+
+
 def smoke_bounds(top_pos, smoke: dict):
     """World-space XY rectangle (x0, x1, y0, y1) of the smoke domain.
 
@@ -107,18 +151,21 @@ def smoke_bounds(top_pos, smoke: dict):
             top_pos[1] + min(0, dy) - pad, top_pos[1] + max(0, dy) + pad)
 
 
-def chimney_smoke(top_pos, smoke: dict, seed: int):
-    """Soft rising plume above ``top_pos`` bending with the wind."""
+def chimney_smoke(fog_obj, top_pos, smoke: dict, seed: int):
+    """Soft rising plume above ``top_pos`` bending with the wind.
+
+    Added *into the fog material* instead of a separate box: two overlapping
+    volume objects made visible straight seams at the box faces (Cycles'
+    step sampling restarts at every volume boundary).
+    """
     H = smoke["height_m"]
     wx, wy = smoke["wind"]
-    # tight domain that follows the wind bend: small domains get fine ray-march steps
     x0, x1, y0, y1 = smoke_bounds((0, 0, 0), smoke)
-    obj = _box("Smoke", x0, x1, y0, y1, 0.0, H, origin=(0, 0, 0))
-    obj.location = top_pos
-    mat, nb = new_material("SmokeVolume")
-    p = nb.coord("Object")
+    mat = fog_obj.data.materials[0]
+    nb = NB(mat.node_tree, clear=False)
+    p = nb.vmath("SUBTRACT", nb.coord("Object"), tuple(top_pos))   # plume-local coords
     x, y, z = nb.sep(p)
-    t = _time_node(nb)
+    t = mat.node_tree.nodes["cinescene_time"].outputs[0]
     rise = nb.math("MULTIPLY", t, -smoke["rise_speed"])
     off = (seed % 97, seed % 89, seed % 83)
     # domain warp: a slow 3D noise pushes the plume sideways, more the higher it gets,
@@ -155,17 +202,16 @@ def chimney_smoke(top_pos, smoke: dict, seed: int):
     dens = nb.math("MULTIPLY", nb.math("MULTIPLY", radial, core_),
                    nb.math("MULTIPLY", nb.math("MULTIPLY", vert, smoke["density"]), walls))
     # low anisotropy: a forward-scattering plume glows like a searchlight in backlight
-    vol = nb.new("ShaderNodeVolumePrincipled", inputs={"Color": (0.78, 0.79, 0.81),
+    svol = nb.new("ShaderNodeVolumePrincipled", inputs={"Color": (0.78, 0.79, 0.81),
                                                         "Anisotropy": 0.05})
-    nb.set(vol, "Density", dens)
-    out = nb.new("ShaderNodeOutputMaterial")
-    nb.links.new(vol.outputs[0], nb.i(out, "Volume"))
-    obj.data.materials.append(mat)
-    try:
-        mat.cycles.volume_step_rate = 0.2     # finer steps than the fog: the plume is thin
-    except AttributeError:
-        pass
-    return obj
+    nb.set(svol, "Density", dens)
+    out = [n for n in nb.nodes if n.bl_idname == "ShaderNodeOutputMaterial"][0]
+    prev = out.inputs["Volume"].links[0].from_socket
+    add = nb.new("ShaderNodeAddShader")
+    nb.links.new(prev, add.inputs[0])
+    nb.links.new(svol.outputs[0], add.inputs[1])
+    nb.links.new(add.outputs[0], out.inputs["Volume"])
+    return fog_obj
 
 
 def _time_owners():
