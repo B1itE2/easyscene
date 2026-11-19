@@ -157,15 +157,15 @@ def roof(maps):
     mat, nb = new_material("Roof")
     vec = _uv(nb, scale=(0.45, 0.45, 1))
     if maps:
-        col, rough, nor = _pbr_maps(nb, maps, vec, tint=(0.36, 0.33, 0.31))
+        col, rough, nor = _pbr_maps(nb, maps, vec, tint=(0.22, 0.21, 0.2))
         hsv = nb.new("ShaderNodeHueSaturation", inputs={"Saturation": 0.55})
         nb.set(hsv, "Color", col)
         col = hsv.outputs[0]
     else:
         col, rough, nor = _proc_wood(nb, vec, base=(0.16, 0.13, 0.11))
-    col, rough = _moss(nb, col, rough, amount=0.7, scale=0.9)
-    # damp: slightly glossier where darker
-    _finish(nb, col, nb.math("MULTIPLY", rough, 0.85), nor)
+    col, rough = _moss(nb, col, rough, amount=0.5, scale=0.9)
+    # weathered boards are matte: a glossy roof reads as a white panel from above
+    _finish(nb, col, nb.math("MAXIMUM", rough, 0.8), nor, extra={"Specular IOR Level": 0.2})
     return mat
 
 
@@ -210,7 +210,7 @@ def ground(maps_a, maps_b, path=None, maps_path=None, clearing=12.0):
     world = nb.coord("Object")
     vec = nb.mapping(world, scale=(0.65, 0.65, 0.65))
     if maps_a:
-        col, rough, nor = _pbr_maps(nb, maps_a, vec, box=True, tint=(0.4, 0.5, 0.36), bump=0.6)
+        col, rough, nor = _pbr_maps(nb, maps_a, vec, box=True, tint=(0.3, 0.4, 0.27), bump=0.6)
         if maps_b:
             vb = nb.mapping(world, scale=(0.6, 0.6, 0.6), rot=(0, 0, 0.7))
             cb, rb, _ = _pbr_maps(nb, maps_b, vb, box=True, tint=(0.7, 0.68, 0.64))
@@ -225,7 +225,7 @@ def ground(maps_a, maps_b, path=None, maps_path=None, clearing=12.0):
     hsv = nb.new("ShaderNodeHueSaturation", inputs={"Saturation": 0.75})   # damp = less vivid
     nb.set(hsv, "Color", col)
     col = _variation(nb, hsv.outputs[0], world, scale=0.05, amount=0.2)
-    col, rough = _moss(nb, col, rough, amount=0.3, scale=0.15)     # big moss carpets
+    col, rough = _moss(nb, col, rough, amount=0.5, scale=0.15)     # big moss carpets
     # wet patches: darker and smoother (dew / last night's rain)
     wet = nb.maprange(nb.noise(world, scale=0.15, detail=4.0), 0.58, 0.7)
     col = nb.mix(nb.math("MULTIPLY", wet, 0.35), col, (0.0, 0.0, 0.0))
