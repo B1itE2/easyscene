@@ -12,6 +12,7 @@ STYLES = {
     "coastal_lighthouse": "coastal_lighthouse",
     "lakeside_dock": "lakeside_dock",
     "greenhouse": "greenhouse",
+    "rainforest_waterfall": "rainforest_waterfall",
 }
 
 

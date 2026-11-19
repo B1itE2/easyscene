@@ -1,0 +1,65 @@
+{
+  "id": "rainforest_waterfall",
+  "title": "雨林瀑布 / Rainforest Waterfall",
+  "card": "recipes/rainforest_waterfall.md",
+  "supports": {"time_of_day": ["morning", "noon"], "weather": ["haze", "light_fog"],
+               "motion": ["none"], "subject": ["waterfall"]},
+  "defaults": {"time_of_day": "morning", "weather": "haze", "subject": {"type": "waterfall"},
+               "motion": {"preset": "none"}},
+
+  "lighting_by_time": {"morning": "cold_fog_morning", "noon": "soft_daylight"},
+  "lighting_overrides": {
+    "_doc": "sun high behind the falls, slightly to one side: shafts come down through the canopy gap toward the camera",
+    "morning": {"sun": {"rel_azimuth": {"choice": [{"between": [-35, -15]}, {"between": [15, 35]}]},
+                        "elevation": {"between": [40, 55]}, "strength": {"between": [7.0, 10.0]},
+                        "kelvin": {"between": [5200, 6000]}, "angle": 1.0},
+                "env_strength": 1.1, "env_tint": [0.85, 1.0, 0.9], "exposure": 0.6}
+  },
+
+  "gorge": {"size_m": 200, "resolution": 320, "pool_r": {"between": [9.0, 13.0]},
+            "cliff_y": {"between": [11.0, 15.0]}, "cliff_h": {"between": [16.0, 26.0]},
+            "width": {"between": [22.0, 32.0]}, "fall_width": {"between": [3.5, 6.0]}},
+
+  "forest": {"height_range_m": [14.0, 26.0], "min_spacing_m": 4.0,
+             "leaf_palette": {"choice": [
+               [[0.02, 0.07, 0.01], [0.04, 0.11, 0.015], [0.07, 0.15, 0.02], [0.05, 0.09, 0.02]],
+               [[0.03, 0.08, 0.02], [0.06, 0.13, 0.03], [0.1, 0.17, 0.03], [0.04, 0.07, 0.02]]]}},
+
+  "undergrowth": {"ferns": {"int_between": [1400, 1900]}, "broadleaf": {"int_between": [350, 500]},
+                  "boulders": {"int_between": [25, 45]}},
+
+  "spray": {"radius_m": 7.0, "height_m": 5.0, "density": {"between": [0.5, 0.8]}},
+
+  "fog": {"color": [0.9, 0.97, 0.94], "anisotropy": 0.82, "height_falloff_m": 20.0,
+          "breakup_scale_m": 12.0, "breakup_amount": 0.5,
+          "density_by_weather": {"haze": {"between": [0.005, 0.009]}, "light_fog": {"between": [0.012, 0.018]}},
+          "cloud_layer": {"center_m": 0.0, "thickness_m": 1.0, "density": 0.0}},
+
+  "camera": {"back_m": {"between": [20.0, 28.0]}, "eye_height_m": {"between": [4.5, 6.0]}, "aim_frac": {"between": [0.3, 0.42]},
+             "fstop": 5.6},
+
+  "assets": {"hdri": "kloofendal_misty_morning_puresky",
+             "textures": {"rock": "rock_wall_08", "moss_ground": "forest_leaves_02", "bark": "bark_brown_02"},
+             "models": {}},
+
+  "post": {"contrast": 1.06, "saturation": 1.08, "gamma": 1.0,
+           "shadows_rgb": [-0.02, 0.01, 0.0], "highlights_rgb": [0.02, 0.02, -0.01],
+           "vignette_angle": 0.5, "grain": 4},
+
+  "checks": {"mean_luma": [0.15, 0.65], "clipped_highlights_max": 0.03, "crushed_shadows_max": 0.06,
+             "subject_area": [0.01, 0.6]},
+
+  "review": {"pass_score": 7.0, "max_rounds": 2,
+             "fixes": {"light_shafts": ["weather: light_fog", "another seed (sun side)"],
+                       "waterfall": ["another seed (wider falls)"], "lush": ["another seed"],
+                       "wet": ["another seed"], "depth": ["lens_mm: 24"], "exposure": ["another seed"]}},
+
+  "rubric": [
+    {"id": "light_shafts", "weight": 3, "desc": "光束穿过树冠和水雾，斜射进峡谷"},
+    {"id": "waterfall", "weight": 3, "desc": "瀑布是白色流动的水帘，底部有翻滚的水雾"},
+    {"id": "lush", "weight": 2, "desc": "植被茂密：蕨类、阔叶植物、苔藓覆盖"},
+    {"id": "wet", "weight": 1, "desc": "石头湿润反光、长满苔藓"},
+    {"id": "depth", "weight": 1, "desc": "前景植物、中景水潭、背景瀑布的层次"},
+    {"id": "exposure", "weight": 1, "desc": "瀑布和光束不过曝成一片白"}
+  ]
+}

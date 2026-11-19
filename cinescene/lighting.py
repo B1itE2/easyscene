@@ -85,7 +85,7 @@ def _world_hdri(nb, hdri_path, p, sun_dir=None):
     clamped = nb.vmath("MINIMUM", env.outputs["Color"], (p.get("env_clamp", 6.0),) * 3)
     hsv = nb.new("ShaderNodeHueSaturation", inputs={"Saturation": p.get("env_saturation", 0.6)})
     nb.set(hsv, "Color", clamped)
-    return nb.mix(1.0, hsv.outputs[0], p["env_tint"], "MULTIPLY")
+    return nb.mix(1.0, hsv.outputs[0], tuple(p["env_tint"]), "MULTIPLY")
 
 
 def _world_sky(nb, p):

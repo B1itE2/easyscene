@@ -64,7 +64,8 @@ def scene_checks(layout: dict, terrain=None):
                 supported.add(obj.name)
                 grew = True
     floating = sorted(o.name for o in parts if o.name not in supported)
-    out.append(_c("subject_grounded", bool(supported) and not floating, floating, "every part connected to the ground",
+    out.append(_c("subject_grounded", (not parts) or (bool(supported) and not floating), floating,
+                  "every part connected to the ground",
                   "terrain under the subject is too low: try another seed"))
 
     # 3. nothing scattered inside the subject footprint --------------------------

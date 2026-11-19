@@ -551,8 +551,42 @@ def boat_paint():
     return mat
 
 
+def jungle_ground(maps_rock, maps_moss):
+    """Wet dark rock on steep faces, thick moss on anything not vertical, slick near water."""
+    mat, nb = new_material("JungleGround")
+    world = nb.coord("Object")
+    _, _, z = nb.sep(world)
+    geo = nb.new("ShaderNodeNewGeometry")
+    _, _, nz = nb.sep(nb.o(geo, "Normal"))
+    vr = nb.mapping(world, scale=(0.3, 0.3, 0.3))
+    if maps_rock:
+        cr, rr, nr = _pbr_maps(nb, maps_rock, vr, box=True, tint=(0.35, 0.36, 0.34), bump=1.0)
+    else:
+        cr, rr, nr = _proc_stone(nb, vr)
+    if maps_moss:
+        cm, rm, _ = _pbr_maps(nb, maps_moss, nb.mapping(world, scale=(0.6, 0.6, 0.6)), box=True,
+                              tint=(0.16, 0.26, 0.08))
+    else:
+        cm, rm = (0.03, 0.06, 0.01), 0.9
+    wob = nb.math("MULTIPLY", nb.noise(world, scale=0.8, detail=5.0), 0.5)
+    m = nb.maprange(nb.math("ADD", nz, wob), 0.35, 0.65)
+    col = nb.mix(m, cr, cm)
+    rough = nb.mixf(m, nb.math("MULTIPLY", rr, 0.5), rm)          # wet rock is glossy
+    col, rough = _moss(nb, col, rough, amount=0.5, scale=1.5, up_only=False)
+    _finish(nb, col, rough, nr)
+    return mat
+
+
 def library(tex: dict):
     """Build every material once. ``tex`` maps role -> maps-dict or None."""
+    if tex.get("_style") == "rainforest_waterfall":
+        return {
+            "bark": bark(tex.get("bark")), "bark_birch": bark(tex.get("bark")),
+            "autumn_leaf": autumn_leaf(tex.get("_leaf_palette") or
+                                       [(0.02, 0.07, 0.01), (0.04, 0.11, 0.015), (0.07, 0.15, 0.02)]),
+            "fern": fern_proc(), "grass": grass(), "leafcover": leaf_cover(),
+            "rock": stone(tex.get("rock"), name="WetRock", moss=0.6), "moss": moss_cushion(),
+        }
     if tex.get("_style") == "greenhouse":
         return {
             "frame": painted(None, "WhiteSteel", (0.75, 0.76, 0.74), rough=0.4, streaks=0.15),

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "name": "rainforest_waterfall",
+  "prompt": "热带雨林深处的瀑布，阳光从树冠缝隙照下来，穿过水雾，石头上长满苔藓",
+  "style": "rainforest_waterfall",
+  "time_of_day": "morning",
+  "weather": "haze",
+  "camera": {"aspect": "16:9", "lens_mm": 28, "framing": "medium", "view": "front"},
+  "seed": 1,
+  "quality": "preview"
+}

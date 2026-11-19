@@ -197,14 +197,14 @@ def load_model(asset_id, role, max_objects=8, max_size=None, join=False):
 
 # ------------------------------------------------------------- placement ---
 def place_clustered(rng, n, r_range, terrain, keep_out, n_var, per_cluster=(6, 18), spread=0.7,
-                    scale=(0.7, 1.3), weight=None):
+                    scale=(0.7, 1.3), weight=None, center=(0.0, 0.0)):
     """Patchy placement: plants grow in clumps, not in an even carpet."""
     out, tries = [], 0
     while len(out) < n and tries < n * 4:
         tries += 1
         a = rng.uniform(0, math.tau)
         d = math.sqrt(rng.uniform(r_range[0] ** 2, r_range[1] ** 2))
-        cx, cy = math.cos(a) * d, math.sin(a) * d
+        cx, cy = center[0] + math.cos(a) * d, center[1] + math.sin(a) * d
         if weight and rng.random() > weight(cx, cy, d):
             continue
         big = rng.random() < 0.25          # a few large meadows between small tufts
@@ -220,14 +220,14 @@ def place_clustered(rng, n, r_range, terrain, keep_out, n_var, per_cluster=(6, 1
 
 
 def place(rng, n, r_range, terrain, keep_out, n_var, scale=(0.8, 1.25), sink=0.0,
-          weight=None):
+          weight=None, center=(0.0, 0.0)):
     """Rejection-sample ``n`` points in an annulus around the subject."""
     out, tries = [], 0
     while len(out) < n and tries < n * 30:
         tries += 1
         a = rng.uniform(0, math.tau)
         d = math.sqrt(rng.uniform(r_range[0] ** 2, r_range[1] ** 2))
-        x, y = math.cos(a) * d, math.sin(a) * d
+        x, y = center[0] + math.cos(a) * d, center[1] + math.sin(a) * d
         if keep_out(x, y):
             continue
         if weight and rng.random() > weight(x, y, d):
