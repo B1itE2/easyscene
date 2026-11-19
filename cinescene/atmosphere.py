@@ -96,25 +96,38 @@ def chimney_smoke(top_pos, smoke: dict, seed: int):
     p = nb.coord("Object")
     x, y, z = nb.sep(p)
     t = _time_node(nb)
+    rise = nb.math("MULTIPLY", t, -smoke["rise_speed"])
+    off = (seed % 97, seed % 89, seed % 83)
+    # domain warp: a slow 3D noise pushes the plume sideways, more the higher it gets,
+    # so it curls and meanders instead of standing like a straight light beam
+    wq = nb.mapping(nb.comb(x, y, nb.math("ADD", z, rise)), scale=(0.35, 0.35, 0.35), loc=off)
+    warp = nb.noise(wq, scale=1.0, detail=2.0, dims="4D", w=nb.math("MULTIPLY", t, 0.05),
+                    out="Color")
+    wx_, wy_, _ = nb.sep(warp)
+    amp = nb.math("MULTIPLY", nb.math("MAXIMUM", z, 0.0), 0.55)
     bend = nb.math("POWER", nb.math("MAXIMUM", z, 0.0), 1.3)
-    qx = nb.math("SUBTRACT", x, nb.math("MULTIPLY", bend, wx * 0.25))
-    qy = nb.math("SUBTRACT", y, nb.math("MULTIPLY", bend, wy * 0.25))
+    qx = nb.math("SUBTRACT", nb.math("SUBTRACT", x, nb.math("MULTIPLY", bend, wx * 0.25)),
+                 nb.math("MULTIPLY", nb.math("SUBTRACT", wx_, 0.5), amp))
+    qy = nb.math("SUBTRACT", nb.math("SUBTRACT", y, nb.math("MULTIPLY", bend, wy * 0.25)),
+                 nb.math("MULTIPLY", nb.math("SUBTRACT", wy_, 0.5), amp))
     r = nb.math("SQRT", nb.math("ADD", nb.math("MULTIPLY", qx, qx), nb.math("MULTIPLY", qy, qy)))
-    w = nb.math("ADD", 0.35, nb.math("MULTIPLY", z, 0.22))
+    w = nb.math("ADD", 0.28, nb.math("MULTIPLY", z, 0.3))          # spreads as it rises
     rr = nb.math("DIVIDE", r, w)
     radial = nb.math("EXPONENT", nb.math("MULTIPLY", nb.math("MULTIPLY", rr, rr), -1.0))
-    # noise scrolls downward in object space = smoke rises
-    rise = nb.math("MULTIPLY", t, -smoke["rise_speed"])
+    # puffs: contrasty noise scrolling upward (noise moves down in object space)
     q = nb.comb(qx, qy, nb.math("ADD", z, rise))
-    n = nb.noise(nb.mapping(q, loc=(seed % 97, seed % 89, 0)), scale=1.3, detail=5.0,
-                 rough=0.6, dims="4D", w=nb.math("MULTIPLY", t, 0.15))
-    shape = nb.maprange(n, 0.3, 0.62)
-    vert = nb.math("MULTIPLY", nb.maprange(z, 0.0, 0.15),
-                   nb.math("EXPONENT", nb.math("DIVIDE", z, -H * 0.3)))
-    dens = nb.math("MULTIPLY", nb.math("MULTIPLY", radial, shape),
+    n = nb.noise(nb.mapping(q, loc=off), scale=1.1, detail=6.0, rough=0.62,
+                 dims="4D", w=nb.math("MULTIPLY", t, 0.12))
+    shape = nb.math("POWER", nb.maprange(n, 0.38, 0.68), 1.6)
+    # dense right at the chimney mouth, thinning out with height
+    vert = nb.math("MULTIPLY", nb.maprange(z, 0.0, 0.1),
+                   nb.math("EXPONENT", nb.math("DIVIDE", z, -H * 0.22)))
+    core_ = nb.math("ADD", shape, nb.math("MULTIPLY", 0.8, nb.maprange(z, 1.5, 0.0)))  # solid start
+    dens = nb.math("MULTIPLY", nb.math("MULTIPLY", radial, core_),
                    nb.math("MULTIPLY", vert, smoke["density"]))
-    vol = nb.new("ShaderNodeVolumePrincipled", inputs={"Color": (0.92, 0.93, 0.95),
-                                                        "Anisotropy": 0.25})
+    # low anisotropy: a forward-scattering plume glows like a searchlight in backlight
+    vol = nb.new("ShaderNodeVolumePrincipled", inputs={"Color": (0.78, 0.79, 0.81),
+                                                        "Anisotropy": 0.05})
     nb.set(vol, "Density", dens)
     out = nb.new("ShaderNodeOutputMaterial")
     nb.links.new(vol.outputs[0], nb.i(out, "Volume"))

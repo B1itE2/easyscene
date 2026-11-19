@@ -81,6 +81,23 @@ def build_scene(spec: dict):
     solved = camera.solve_static(cab, T, cs, R["camera"])
     camera.apply_static(cam_obj, solved, R["camera"]["fstop"])
     hfov, _ = camera.fovs(cs["lens_mm"], cs["aspect"])
+    # footpath: from the door step to just beside the camera (a leading line into frame)
+    uc = R["undergrowth"]
+    p_rng = rngmod.stream(seed, "path")
+    door = cab["door"]
+    cl = solved["location"]
+    fwd = (solved["target"][0] - cl[0], solved["target"][1] - cl[1])
+    fl = math.hypot(*fwd)
+    fwd = (fwd[0] / fl, fwd[1] / fl)
+    right = (fwd[1], -fwd[0])
+    side = -1 if solved["shift_x"] <= 0 else 1      # enter frame bottom, on the open side
+    toward = (cl[0] + fwd[0] * 2.0 + right[0] * side * 0.8 + p_rng.uniform(-0.4, 0.4),
+              cl[1] + fwd[1] * 2.0 + right[1] * side * 0.8 + p_rng.uniform(-0.4, 0.4))
+    T.path = terrain.Path.from_door(p_rng, (door[0], door[1] - 2.1), toward,
+                                    length=math.dist((door[0], door[1] - 2.1), toward) + 2,
+                                    width=uc["path_width_m"])
+    mats["ground"] = materials.ground(tex.get("ground"), tex.get("ground_b"), path=T.path,
+                                      maps_path=tex.get("path"), clearing=tc["clearing_radius_m"])
     T.build(mats["ground"])              # after the camera flattened its sight line
     linfo = lighting.apply(preset, solved["yaw"], hdri)
 
@@ -91,6 +108,9 @@ def build_scene(spec: dict):
     crown = [max((v.co.x ** 2 + v.co.y ** 2) ** 0.5 for v in o.data.vertices) for o in tvars]
     tcol = scatter.variant_collection("TreeVariants", tvars)
     tpts = forest.place(seed, fc, T, keep, q["tree_density"])
+    n0 = len(tpts)
+    tpts = forest.thin_toward_sun(tpts, linfo["sun_dir"], seed, fc)
+    log(f"opened a light window toward the sun: {n0 - len(tpts)} trees removed")
     if sub["chimney_smoke"]:   # keep crowns out of the plume so it reads against the sky
         bx0, bx1, by0, by1 = atmosphere.smoke_bounds(cab["chimney_top"], R["smoke"])
         n0 = len(tpts)
@@ -106,14 +126,16 @@ def build_scene(spec: dict):
     scatter.scatter("Forest", tpts, tcol)
 
     # ---- undergrowth --------------------------------------------------------
-    uc = R["undergrowth"]
     u_rng = rngmod.stream(seed, "undergrowth")
     fx0, fx1, fy0, fy1 = cab["footprint"]
     cx, cy, _ = solved["location"]
 
-    def under_keep(x, y):
+    def solid_keep(x, y):   # cabin footprint and the spot the camera stands on
         return (fx0 - 0.3 < x < fx1 + 0.3 and fy0 - 0.3 < y < fy1 + 0.3) or \
             math.hypot(x - cx, y - cy) < 1.6
+
+    def under_keep(x, y):   # plants also stay off the footpath
+        return solid_keep(x, y) or T.path.dist(x, y) < T.path.width * 0.6
 
     k = q["undergrowth"]
     grass_v = [vegetation.grass_clump(u_rng, mats, f"Grass{i}") for i in range(6)]
@@ -154,6 +176,36 @@ def build_scene(spec: dict):
                  vegetation.place(u_rng, 3, (8.0, 13.0), T, lambda x, y: under_keep(x, y) or keep(x, y),
                                   1, scale=(0.9, 1.2))]
     scatter.scatter("DeadWood", mpts, scatter.variant_collection("DeadWoodVariants", misc_v))
+
+    # low ground cover: dense near the clearing edge, thinning out with distance
+    leaf_v = [vegetation.leaf_rosette(u_rng, mats, f"Leaf{i}") for i in range(5)]
+    lpts = vegetation.place_clustered(u_rng, int(uc["leaf_cover"] * k), (4.5, 35.0), T, under_keep,
+                                      5, per_cluster=(8, 30), spread=0.9, scale=(0.7, 1.6),
+                                      weight=lambda x, y, d: 1.0 if d < 18 else 0.5)
+    scatter.scatter("LeafCover", lpts, scatter.variant_collection("LeafVariants", leaf_v))
+
+    twig_v = [vegetation.twig(u_rng, mats, f"Twig{i}") for i in range(6)]
+    wpts = vegetation.place(u_rng, int(uc["twigs"] * k), (4.0, 35.0), T,
+                            solid_keep, 6, scale=(0.8, 1.3))
+    scatter.scatter("Twigs", wpts, scatter.variant_collection("TwigVariants", twig_v))
+
+    # moss cushions where moss really grows: tree bases, around rocks, along the foundation
+    moss_v = [vegetation.moss_cushion(u_rng, mats, f"MossPad{i}") for i in range(5)]
+    if moss_v:
+        anchors = [(p[0], p[1], 0.6) for p in tpts if math.hypot(p[0], p[1]) < 40]
+        anchors += [(p[0], p[1], 0.9 * p[6]) for p in rpts]
+        anchors += [(x, y, 0.2) for x in (fx0 + 0.9, fx1 - 0.9) for y in (fy0 + 1.8, 0.0, fy1 - 0.5)]
+        mpts2 = []
+        for _ in range(int(uc["moss_patches"] * k)):
+            ax, ay, ar = anchors[u_rng.randrange(len(anchors))]
+            a = u_rng.uniform(0, math.tau)
+            d = ar + abs(u_rng.gauss(0, 0.5))
+            x, y = ax + math.cos(a) * d, ay + math.sin(a) * d
+            if T.path.dist(x, y) < T.path.width * 0.6:
+                continue
+            mpts2.append((x, y, T.height(x, y) - 0.03, 0, 0, u_rng.uniform(0, math.tau),
+                          u_rng.uniform(0.6, 1.5), u_rng.randrange(len(moss_v))))
+        scatter.scatter("Moss", mpts2, scatter.variant_collection("MossVariants", moss_v))
 
     # ---- atmosphere ---------------------------------------------------------
     fog_d = R["fog"]["density_by_weather"][spec["weather"]]

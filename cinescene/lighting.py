@@ -17,9 +17,10 @@ from .nodes import NB
 PRESETS = {
     # 清晨冷雾: soft cold ambient, low sun hidden behind the trees -> light shafts
     "cold_fog_morning": {
-        "env_strength": 1.6, "env_tint": (0.80, 0.93, 1.0), "env_rotation_deg": 110,
-        "sun": {"rel_azimuth": 35, "elevation": 12, "strength": 4.5, "kelvin": 5800, "angle": 2.5},
-        "exposure": 0.35,
+        # ambient low vs sun high: sunlit fog must out-shine skylit fog or no light shafts
+        "env_strength": 0.55, "env_tint": (0.80, 0.93, 1.0), "env_rotation_deg": 110,
+        "sun": {"rel_azimuth": -30, "elevation": 24, "strength": 14.0, "kelvin": 7200, "angle": 1.0},
+        "exposure": 0.2,
         "practical_scale": 1.0,
         "sky": {"zenith": (0.30, 0.42, 0.52), "horizon": (0.62, 0.70, 0.72)},
     },

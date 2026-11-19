@@ -18,7 +18,7 @@
   "fog": {
     "_doc": "density is extinction per metre at ground level. Visibility ~ 3/density metres.",
     "color": [0.80, 0.90, 0.93],
-    "anisotropy": 0.35,
+    "anisotropy": 0.8,
     "height_falloff_m": 14.0,
     "breakup_scale_m": 28.0,
     "breakup_amount": 0.55,
@@ -36,11 +36,13 @@
     "clear_radius_m": 13.0, "camera_corridor_m": 5.0,
     "height_range_m": [13.0, 27.0], "variants": 6,
     "crown_base_ratio": [0.12, 0.3],
-    "snag_ratio": 0.04
+    "snag_ratio": 0.04,
+    "sun_window_deg": 24, "sun_window_depth_m": 95
   },
 
   "undergrowth": {
-    "grass_clumps": 6000, "ferns": 420, "rocks": 70, "fallen_logs": 5,
+    "grass_clumps": 14000, "ferns": 420, "rocks": 70, "fallen_logs": 5,
+    "leaf_cover": 14000, "twigs": 900, "moss_patches": 500, "path_width_m": 0.9,
     "radius_m": [5.5, 45.0]
   },
 
@@ -68,8 +70,9 @@
       "log": "weathered_brown_planks",
       "roof": "roof_planks",
       "stone": "stacked_stone_wall",
-      "ground": "forrest_ground_01",
-      "ground_b": "brown_mud_leaves_01",
+      "ground": "forest_leaves_02",
+      "ground_b": "forest_leaves_04",
+      "path": "mud_forest",
       "bark": "pine_bark",
       "rock": "mossy_rock"
     },

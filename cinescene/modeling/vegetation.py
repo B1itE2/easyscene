@@ -37,6 +37,40 @@ def grass_clump(rng, mats, name):
     return mb.build(name, [mats["grass"]], link=False)
 
 
+def leaf_rosette(rng, mats, name):
+    """A low patch (~40 cm) of small oval leaves on short stems."""
+    mb = MeshBuilder()
+    for _ in range(rng.randint(14, 26)):
+        a = rng.uniform(0, math.tau)
+        r0 = math.sqrt(rng.random()) * 0.2
+        c = Vector((math.cos(a) * r0, math.sin(a) * r0, rng.uniform(0.03, 0.12)))
+        s = rng.uniform(0.025, 0.05)
+        yaw = rng.uniform(0, math.tau)
+        tilt = rng.uniform(-0.5, 0.5)
+        dx = Vector((math.cos(yaw), math.sin(yaw), tilt)) * s
+        dy = Vector((-math.sin(yaw), math.cos(yaw), 0)) * s * 0.75
+        base = len(mb.verts)
+        mb.verts += [tuple(c - dx - dy), tuple(c + dx - dy), tuple(c + dx + dy), tuple(c - dx + dy)]
+        mb.add_face((base, base + 1, base + 2, base + 3), ((0, 0), (1, 0), (1, 1), (0, 1)))
+    return mb.build(name, [mats["leafcover"]], link=False)
+
+
+def twig(rng, mats, name):
+    """Small fallen dead branch with one or two forks."""
+    mb = MeshBuilder()
+    L = rng.uniform(0.35, 0.9)
+    a = rng.uniform(0, math.tau)
+    d = Vector((math.cos(a), math.sin(a), 0.0))
+    mb.cylinder(L, 0.014, 0.006, segs=4, m=frame((-d.x * L / 2, -d.y * L / 2, 0.012), d), caps=False)
+    for _ in range(rng.randint(1, 2)):
+        t = rng.uniform(0.3, 0.7)
+        b = a + rng.choice((-1, 1)) * rng.uniform(0.4, 0.9)
+        p = Vector((-d.x * L / 2, -d.y * L / 2, 0.012)) + d * (L * t)
+        mb.cylinder(L * 0.35, 0.008, 0.004, segs=4, m=frame(p, (math.cos(b), math.sin(b), 0.05)),
+                    caps=False)
+    return mb.build(name, [mats["bark"]], link=False)
+
+
 def fern(rng, mats, name):
     mb = MeshBuilder()
     n = rng.randint(7, 12)
@@ -71,6 +105,27 @@ def rock(rng, mats, name):
     bm.to_mesh(me)
     bm.free()
     me.materials.append(mats["rock"])
+    for p in me.polygons:
+        p.use_smooth = True
+    return bpy.data.objects.new(name, me)
+
+
+def moss_cushion(rng, mats, name):
+    """Low lumpy moss pad, 20-50 cm across."""
+    me = bpy.data.meshes.new(name)
+    bm = bmesh.new()
+    bmesh.ops.create_icosphere(bm, subdivisions=3, radius=1.0)
+    off = Vector((rng.uniform(0, 100), rng.uniform(0, 100), rng.uniform(0, 100)))
+    r = rng.uniform(0.1, 0.25)
+    for v in bm.verts:
+        n = noise.fractal(v.co * 2.0 + off, 0.5, 2.0, 3)
+        v.co *= 1.0 + 0.3 * n
+        v.co.x *= r * rng.uniform(0.9, 1.4)
+        v.co.y *= r
+        v.co.z = v.co.z * r * 0.35 - r * 0.12
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mats["moss"])
     for p in me.polygons:
         p.use_smooth = True
     return bpy.data.objects.new(name, me)
