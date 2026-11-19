@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "name": "foggy_cabin_morning",
+  "prompt": "清晨森林里有一座小木屋，起了雾，窗户亮着暖光，烟囱在冒烟",
+  "style": "foggy_forest_cabin",
+  "subject": {"type": "log_cabin", "size": "small", "lights_on": true, "chimney_smoke": true},
+  "time_of_day": "morning",
+  "weather": "fog",
+  "camera": {"aspect": "16:9", "lens_mm": 35, "framing": "medium",
+             "composition": "thirds_right", "view": "three_quarter_left"},
+  "motion": {"preset": "none"},
+  "seed": 7,
+  "quality": "preview"
+}

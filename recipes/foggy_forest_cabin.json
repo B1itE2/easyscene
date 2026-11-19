@@ -1,0 +1,107 @@
+{
+  "id": "foggy_forest_cabin",
+  "title": "雾气森林小木屋 / Foggy Forest Cabin",
+  "card": "recipes/foggy_forest_cabin.md",
+  "supports": {
+    "time_of_day": ["dawn", "morning", "dusk", "night"],
+    "weather": ["dense_fog", "fog", "light_fog"],
+    "motion": ["none", "cloud_descent"]
+  },
+
+  "lighting_by_time": {
+    "dawn": "cold_fog_morning",
+    "morning": "cold_fog_morning",
+    "dusk": "golden_dusk",
+    "night": "rainy_night"
+  },
+
+  "fog": {
+    "_doc": "density is extinction per metre at ground level. Visibility ~ 3/density metres.",
+    "color": [0.80, 0.90, 0.93],
+    "anisotropy": 0.35,
+    "height_falloff_m": 14.0,
+    "breakup_scale_m": 28.0,
+    "breakup_amount": 0.55,
+    "density_by_weather": {"dense_fog": 0.034, "fog": 0.022, "light_fog": 0.012},
+    "cloud_layer": {"center_m": 42.0, "thickness_m": 14.0, "density": 0.0}
+  },
+
+  "terrain": {
+    "size_m": 260, "resolution": 200,
+    "clearing_radius_m": 11.0, "hill_amplitude_m": 5.0, "back_slope": 0.06
+  },
+
+  "forest": {
+    "min_spacing_m": 3.0, "extent_m": 230,
+    "clear_radius_m": 13.0, "camera_corridor_m": 5.0,
+    "height_range_m": [13.0, 27.0], "variants": 6,
+    "crown_base_ratio": [0.12, 0.3],
+    "snag_ratio": 0.04
+  },
+
+  "undergrowth": {
+    "grass_clumps": 6000, "ferns": 420, "rocks": 70, "fallen_logs": 5,
+    "radius_m": [5.5, 45.0]
+  },
+
+  "cabin": {
+    "small": {"width": 6.2, "depth": 5.0, "rows": 9},
+    "medium": {"width": 7.6, "depth": 6.0, "rows": 10},
+    "log_radius": 0.16, "row_step": 0.29, "roof_pitch_deg": 38,
+    "window_temp_k": 2400, "interior_watts": 140, "lantern_watts": 6
+  },
+
+  "smoke": {"rise_speed": 0.55, "density": 24.0, "wind": [0.5, 0.25], "height_m": 14.0},
+
+  "camera": {
+    "view_azimuth_deg": {"front": 0, "three_quarter_left": -28, "three_quarter_right": 28},
+    "eye_height_m": 1.65,
+    "subject_fill": {"wide": 0.24, "medium": 0.36, "close": 0.55},
+    "fstop": 2.8,
+    "foreground_dressing": true
+  },
+
+  "assets": {
+    "_doc": "Poly Haven ids (all CC0). Missing/offline -> procedural fallback of the same role.",
+    "hdri": "kloofendal_misty_morning_puresky",
+    "textures": {
+      "log": "weathered_brown_planks",
+      "roof": "roof_planks",
+      "stone": "stacked_stone_wall",
+      "ground": "forrest_ground_01",
+      "ground_b": "brown_mud_leaves_01",
+      "bark": "pine_bark",
+      "rock": "mossy_rock"
+    },
+    "models": {
+      "fern": "fern_02",
+      "rocks": "rock_moss_set_01",
+      "stump": "tree_stump_01"
+    }
+  },
+
+  "post": {
+    "_doc": "applied with ffmpeg after rendering; keep subtle",
+    "contrast": 1.04, "saturation": 0.92, "gamma": 1.0,
+    "shadows_rgb": [-0.02, 0.01, 0.03],
+    "highlights_rgb": [0.03, 0.01, -0.02],
+    "vignette_angle": 0.50,
+    "grain": 5
+  },
+
+  "checks": {
+    "mean_luma": [0.18, 0.62],
+    "clipped_highlights_max": 0.01,
+    "crushed_shadows_max": 0.04,
+    "subject_area": [0.04, 0.45]
+  },
+
+  "rubric": [
+    {"id": "fog_depth", "weight": 3, "desc": "前中后景层次：近处清楚、中景微雾、远处树木逐渐隐入雾中"},
+    {"id": "warm_cool", "weight": 3, "desc": "冷蓝绿雾 vs 窗户暖黄光，对比明显但不刺眼"},
+    {"id": "subject_read", "weight": 2, "desc": "木屋一眼可辨，轮廓清楚，不被树挡住"},
+    {"id": "realism", "weight": 2, "desc": "材质与比例可信：圆木、石头烟囱、苔藓，不像玩具"},
+    {"id": "smoke", "weight": 1, "desc": "烟囱有柔和的烟，向上飘散"},
+    {"id": "exposure", "weight": 1, "desc": "无死黑、无大片过曝，雾不发灰发脏"}
+  ]
+}

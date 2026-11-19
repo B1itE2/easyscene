@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cinescene/cinescene/schema/scene_spec.schema.json",
+  "title": "cinescene scene spec v1",
+  "description": "What the AI writes after reading the user's sentence. Every field is a multiple-choice answer; code does the rest.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "style"],
+  "properties": {
+    "version": {"type": "integer", "enum": [1]},
+    "name": {"type": "string", "default": "scene", "pattern": "^[a-z0-9_\\-]{1,48}$",
+             "description": "Output folder name, lowercase ascii."},
+    "prompt": {"type": "string", "default": "", "description": "The user's original sentence, kept for the record."},
+    "style": {"type": "string", "enum": ["foggy_forest_cabin"]},
+    "subject": {
+      "type": "object", "additionalProperties": false, "default": {},
+      "properties": {
+        "type": {"type": "string", "enum": ["log_cabin"], "default": "log_cabin"},
+        "size": {"type": "string", "enum": ["small", "medium"], "default": "small"},
+        "lights_on": {"type": "boolean", "default": true},
+        "chimney_smoke": {"type": "boolean", "default": true}
+      }
+    },
+    "time_of_day": {"type": "string", "enum": ["dawn", "morning", "dusk", "night"], "default": "morning"},
+    "weather": {"type": "string", "enum": ["dense_fog", "fog", "light_fog"], "default": "fog"},
+    "camera": {
+      "type": "object", "additionalProperties": false, "default": {},
+      "properties": {
+        "aspect": {"type": "string", "enum": ["16:9", "9:16", "1:1", "2.39:1"], "default": "16:9"},
+        "lens_mm": {"type": "number", "minimum": 18, "maximum": 135, "default": 35},
+        "framing": {"type": "string", "enum": ["wide", "medium", "close"], "default": "medium"},
+        "composition": {"type": "string", "enum": ["center", "thirds_left", "thirds_right"], "default": "thirds_right"},
+        "view": {"type": "string", "enum": ["front", "three_quarter_left", "three_quarter_right"], "default": "three_quarter_left"}
+      }
+    },
+    "motion": {
+      "type": "object", "additionalProperties": false, "default": {},
+      "properties": {
+        "preset": {"type": "string", "enum": ["none", "cloud_descent", "orbit", "push_in", "low_flyover"], "default": "none"},
+        "duration_s": {"type": "number", "minimum": 2, "maximum": 30, "default": 10},
+        "fps": {"type": "integer", "enum": [24, 25, 30], "default": 24}
+      }
+    },
+    "seed": {"type": "integer", "minimum": 0, "maximum": 2147483647, "default": 1},
+    "quality": {"type": "string", "enum": ["draft", "preview", "final"], "default": "preview"}
+  }
+}

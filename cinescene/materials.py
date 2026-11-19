@@ -1,0 +1,353 @@
+"""Material library with tuned parameters.
+
+Each material accepts Poly Haven texture maps (``{"diff","rough","nor"}``
+paths) and falls back to a procedural version of the same look when the
+maps are missing, so a build never fails because of the network.
+All parameters here were tuned for AgX + foggy, low-contrast light.
+"""
+
+import bpy
+
+from .nodes import NB, new_material
+
+WOOD_GREY = (0.30, 0.25, 0.20)
+
+
+# ---------------------------------------------------------------- helpers ---
+def _image(nb, path, vec, noncolor=False, box=False):
+    n = nb.new("ShaderNodeTexImage")
+    n.image = bpy.data.images.load(path, check_existing=True)
+    if noncolor:
+        n.image.colorspace_settings.name = "Non-Color"
+    if box:
+        n.projection = "BOX"
+        n.projection_blend = 0.3
+    nb.set(n, "Vector", vec)
+    return n
+
+
+def _pbr_maps(nb, maps, vec, box=False, tint=(1, 1, 1), rough_default=0.75,
+              rough_mul=1.0, bump=0.6):
+    """Colour / roughness / normal sockets from image maps."""
+    col = _image(nb, maps["diff"], vec, box=box).outputs["Color"]
+    col = nb.mix(1.0, col, tint, "MULTIPLY")
+    if "rough" in maps:
+        r = _image(nb, maps["rough"], vec, noncolor=True, box=box).outputs["Color"]
+        rough = nb.math("MULTIPLY", r, rough_mul, clamp=True)
+    else:
+        rough = rough_default
+    if "nor" in maps and not box:
+        nm = nb.new("ShaderNodeNormalMap", inputs={"Strength": 1.0})
+        nb.set(nm, "Color", _image(nb, maps["nor"], vec, noncolor=True).outputs["Color"])
+        normal = nm.outputs[0]
+    else:
+        # tangent-space normal maps are wrong under box projection: bump instead
+        b = nb.new("ShaderNodeBump", inputs={"Strength": bump, "Distance": 0.02})
+        nb.set(b, "Height", nb.math("MULTIPLY", col, 1.0))
+        normal = b.outputs[0]
+    return col, rough, normal
+
+
+def _variation(nb, col, vec, scale=0.35, amount=0.18):
+    """Large-scale value/hue drift to hide texture tiling."""
+    n = nb.noise(vec, scale=scale, detail=2.0)
+    f = nb.maprange(n, 0.3, 0.7, 1 - amount, 1 + amount)
+    return nb.mix(1.0, col, nb.comb(f, f, nb.math("MULTIPLY", f, 0.97)), "MULTIPLY")
+
+
+def _moss(nb, col, rough, amount=0.4, scale=1.4, up_only=True):
+    """Blend moss onto upward-facing, noisy areas. amount 0..1."""
+    world = nb.coord("Object")
+    n = nb.noise(world, scale=scale, detail=6.0, rough=0.62)
+    mask = nb.maprange(n, 1.0 - amount * 0.75, 1.0 - amount * 0.55 + 0.15, 0.0, 1.0)
+    if up_only:
+        geo = nb.new("ShaderNodeNewGeometry")
+        _, _, nz = nb.sep(nb.o(geo, "Normal"))
+        mask = nb.math("MULTIPLY", mask, nb.maprange(nz, 0.15, 0.75))
+    tone = nb.noise(world, scale=9.0, detail=3.0)
+    moss_col = nb.ramp(tone, [(0.25, (0.035, 0.05, 0.012)), (0.75, (0.10, 0.12, 0.03))])
+    return nb.mix(mask, col, moss_col), nb.mixf(mask, rough, 0.9)
+
+
+def _finish(nb, col, rough, normal=None, extra=None):
+    bsdf = nb.new("ShaderNodeBsdfPrincipled")
+    nb.set(bsdf, "Base Color", col)
+    nb.set(bsdf, "Roughness", rough)
+    if normal is not None:
+        nb.set(bsdf, "Normal", normal)
+    for k, v in (extra or {}).items():
+        nb.set(bsdf, k, v)
+    out = nb.new("ShaderNodeOutputMaterial")
+    nb.links.new(bsdf.outputs[0], nb.i(out, "Surface"))
+    return bsdf
+
+
+def _uv(nb, scale=(1, 1, 1)):
+    return nb.mapping(nb.coord("UV"), scale=scale)
+
+
+# ------------------------------------------------------------ procedural ---
+def _proc_wood(nb, vec, base=WOOD_GREY):
+    """Weathered silver-brown timber with grain along U (x)."""
+    warp = nb.noise(vec, scale=3.0, detail=4.0)
+    wv = nb.new("ShaderNodeTexWave", wave_type="BANDS", bands_direction="Y",
+                inputs={"Scale": 18.0, "Distortion": 6.0, "Detail": 3.0})
+    nb.set(wv, "Vector", nb.vmath("ADD", vec, nb.comb(warp, warp, 0)))
+    grain = nb.math("MULTIPLY", nb.o(wv, "Fac"), nb.noise(vec, scale=25, detail=2))
+    col = nb.ramp(grain, [(0.0, tuple(c * 0.55 for c in base)), (0.6, base),
+                          (1.0, tuple(min(1, c * 1.35) for c in base))])
+    b = nb.new("ShaderNodeBump", inputs={"Strength": 0.35, "Distance": 0.01})
+    nb.set(b, "Height", grain)
+    return col, nb.maprange(grain, 0, 1, 0.85, 0.6), b.outputs[0]
+
+
+def _proc_stone(nb, vec):
+    vor = nb.new("ShaderNodeTexVoronoi", feature="DISTANCE_TO_EDGE", inputs={"Scale": 3.2})
+    nb.set(vor, "Vector", vec)
+    edge = nb.maprange(nb.o(vor, "Distance"), 0.0, 0.06)  # mortar gaps
+    tone = nb.noise(vec, scale=8.0, detail=5.0)
+    col = nb.ramp(tone, [(0.3, (0.13, 0.13, 0.12)), (0.7, (0.26, 0.25, 0.22))])
+    col = nb.mix(1.0, col, nb.comb(edge, edge, edge), "MULTIPLY")
+    b = nb.new("ShaderNodeBump", inputs={"Strength": 0.8, "Distance": 0.05})
+    nb.set(b, "Height", nb.math("ADD", edge, nb.math("MULTIPLY", tone, 0.3)))
+    return col, 0.82, b.outputs[0]
+
+
+def _proc_ground(nb, vec):
+    n1 = nb.noise(vec, scale=0.6, detail=6.0)
+    n2 = nb.noise(vec, scale=7.0, detail=8.0, rough=0.7)
+    col = nb.ramp(n1, [(0.35, (0.05, 0.035, 0.02)), (0.55, (0.09, 0.06, 0.035)),
+                       (0.7, (0.06, 0.07, 0.025))])
+    col = nb.mix(0.5, col, nb.ramp(n2, [(0.2, (0.03, 0.02, 0.012)),
+                                        (0.8, (0.14, 0.09, 0.05))]), "OVERLAY")
+    b = nb.new("ShaderNodeBump", inputs={"Strength": 0.5, "Distance": 0.03})
+    nb.set(b, "Height", n2)
+    return col, 0.8, b.outputs[0]
+
+
+def _proc_bark(nb, vec):
+    stretched = nb.mapping(vec, scale=(1.0, 0.18, 1.0))
+    vor = nb.new("ShaderNodeTexVoronoi", feature="DISTANCE_TO_EDGE", inputs={"Scale": 6.0})
+    nb.set(vor, "Vector", stretched)
+    cracks = nb.maprange(nb.o(vor, "Distance"), 0.0, 0.08)
+    tone = nb.noise(vec, scale=4.0, detail=6.0)
+    col = nb.ramp(tone, [(0.3, (0.05, 0.035, 0.025)), (0.7, (0.13, 0.09, 0.065))])
+    col = nb.mix(1.0, col, nb.comb(cracks, cracks, cracks), "MULTIPLY")
+    b = nb.new("ShaderNodeBump", inputs={"Strength": 1.0, "Distance": 0.03})
+    nb.set(b, "Height", cracks)
+    return col, 0.9, b.outputs[0]
+
+
+# ------------------------------------------------------------ materials ---
+def log_wood(maps, name="Log", tint=(0.85, 0.78, 0.70), moss=0.25):
+    mat, nb = new_material(name)
+    vec = _uv(nb, scale=(0.6, 0.6, 1))
+    if maps:
+        col, rough, nor = _pbr_maps(nb, maps, vec, tint=tint, rough_mul=1.1)
+    else:
+        col, rough, nor = _proc_wood(nb, vec)
+    col = _variation(nb, col, nb.coord("Object"), scale=0.8, amount=0.12)
+    if moss:
+        col, rough = _moss(nb, col, rough, amount=moss, scale=1.6)
+    _finish(nb, col, rough, nor)
+    return mat
+
+
+def roof(maps):
+    mat, nb = new_material("Roof")
+    vec = _uv(nb, scale=(0.45, 0.45, 1))
+    if maps:
+        col, rough, nor = _pbr_maps(nb, maps, vec, tint=(0.36, 0.33, 0.31))
+        hsv = nb.new("ShaderNodeHueSaturation", inputs={"Saturation": 0.55})
+        nb.set(hsv, "Color", col)
+        col = hsv.outputs[0]
+    else:
+        col, rough, nor = _proc_wood(nb, vec, base=(0.16, 0.13, 0.11))
+    col, rough = _moss(nb, col, rough, amount=0.7, scale=0.9)
+    # damp: slightly glossier where darker
+    _finish(nb, col, nb.math("MULTIPLY", rough, 0.85), nor)
+    return mat
+
+
+def stone(maps, name="Stone", moss=0.35):
+    mat, nb = new_material(name)
+    vec = nb.mapping(nb.coord("Object"), scale=(0.6, 0.6, 0.6))
+    if maps:
+        col, rough, nor = _pbr_maps(nb, maps, vec, box=True, tint=(0.8, 0.8, 0.78), bump=0.8)
+    else:
+        col, rough, nor = _proc_stone(nb, vec)
+    col, rough = _moss(nb, col, rough, amount=moss, scale=2.0)
+    _finish(nb, col, rough, nor)
+    return mat
+
+
+def ground(maps_a, maps_b):
+    """Forest floor: two textures blended by large noise, moss and wet patches."""
+    mat, nb = new_material("Ground")
+    world = nb.coord("Object")
+    vec = nb.mapping(world, scale=(0.4, 0.4, 0.4))
+    if maps_a:
+        col, rough, nor = _pbr_maps(nb, maps_a, vec, box=True, tint=(0.8, 0.8, 0.8), bump=0.5)
+        if maps_b:
+            vb = nb.mapping(world, scale=(0.33, 0.33, 0.33), rot=(0, 0, 0.7))
+            cb, rb, _ = _pbr_maps(nb, maps_b, vb, box=True, tint=(0.75, 0.75, 0.75))
+            m = nb.maprange(nb.noise(world, scale=0.08, detail=3.0), 0.42, 0.58)
+            col = nb.mix(m, col, cb)
+            rough = nb.mixf(m, rough, rb)
+    else:
+        col, rough, nor = _proc_ground(nb, vec)
+    col = _variation(nb, col, world, scale=0.05, amount=0.25)
+    col, rough = _moss(nb, col, rough, amount=0.35, scale=0.25)
+    # wet patches: darker and smoother (dew / last night's rain)
+    wet = nb.maprange(nb.noise(world, scale=0.15, detail=4.0), 0.55, 0.68)
+    col = nb.mix(nb.math("MULTIPLY", wet, 0.45), col, (0.0, 0.0, 0.0))
+    rough = nb.math("MAXIMUM", nb.mixf(wet, rough, 0.45), 0.55)
+    _finish(nb, col, rough, nor, extra={"Specular IOR Level": 0.3})
+    return mat
+
+
+def bark(maps):
+    mat, nb = new_material("Bark")
+    vec = _uv(nb, scale=(1.0, 1.0, 1))
+    if maps:
+        col, rough, nor = _pbr_maps(nb, maps, vec, tint=(0.7, 0.68, 0.66))
+    else:
+        col, rough, nor = _proc_bark(nb, vec)
+    rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
+    col = nb.mix(1.0, col, nb.comb(*(nb.maprange(rnd, 0, 1, 0.8, 1.15),) * 3), "MULTIPLY")
+    col, rough = _moss(nb, col, rough, amount=0.3, scale=3.0, up_only=False)
+    _finish(nb, col, rough, nor)
+    return mat
+
+
+def needles():
+    """Spruce frond: alpha-cut needle pattern on a UV strip (u across, v along)."""
+    mat, nb = new_material("Needles")
+    uv = nb.coord("UV")
+    u, v, _ = nb.sep(uv)
+    x = nb.math("ABSOLUTE", nb.math("MULTIPLY", nb.math("SUBTRACT", u, 0.5), 2.0))
+    # ragged outline: width profile (fat middle, thin tip) jittered by noise
+    prof = nb.math("POWER", nb.math("SINE", nb.math("MULTIPLY",
+                   nb.maprange(v, 0.0, 1.0, 0.25, 1.0), 3.1416)), 0.5)
+    rag = nb.maprange(nb.noise(nb.mapping(uv, scale=(4.0, 14.0, 1.0)), detail=3.0), 0.3, 0.7, 0.55, 1.05)
+    inside = nb.math("LESS_THAN", x, nb.math("MULTIPLY", prof, rag))
+    # needle fishbone near the edges: diagonal stripes
+    t = nb.math("SUBTRACT", nb.math("MULTIPLY", v, 140.0), nb.math("MULTIPLY", x, 30.0))
+    stripes = nb.math("GREATER_THAN", nb.math("SINE", t), 0.1)
+    rib = nb.math("LESS_THAN", x, 0.08)
+    holes = nb.math("GREATER_THAN", nb.noise(nb.mapping(uv, scale=(10.0, 40.0, 1.0)), detail=2.0), 0.36)
+    needle = nb.math("MAXIMUM", nb.math("MULTIPLY", stripes, holes), rib)
+    alpha = nb.math("MULTIPLY", inside, needle)
+
+    rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
+    base = nb.ramp(rnd, [(0.0, (0.018, 0.032, 0.022)), (1.0, (0.035, 0.05, 0.03))])
+    tip = (0.032, 0.048, 0.036)
+    col = nb.mix(nb.math("POWER", v, 2.0), base, tip)
+    bsdf = nb.new("ShaderNodeBsdfPrincipled")
+    nb.set(bsdf, "Base Color", col)
+    nb.set(bsdf, "Roughness", 0.55)
+    nb.set(bsdf, "Alpha", alpha)
+    tr = nb.new("ShaderNodeBsdfTranslucent")
+    nb.set(tr, "Color", nb.mix(1.0, col, (1.6, 2.2, 1.2), "MULTIPLY"))
+    ms = nb.new("ShaderNodeMixShader", inputs={0: 0.25})
+    nb.links.new(bsdf.outputs[0], ms.inputs[1])
+    nb.links.new(tr.outputs[0], ms.inputs[2])
+    # translucent part must also respect the alpha cut-out
+    tp = nb.new("ShaderNodeBsdfTransparent")
+    ma = nb.new("ShaderNodeMixShader")
+    nb.set(ma, 0, alpha)
+    nb.links.new(tp.outputs[0], ma.inputs[1])
+    nb.links.new(ms.outputs[0], ma.inputs[2])
+    out = nb.new("ShaderNodeOutputMaterial")
+    nb.links.new(ma.outputs[0], nb.i(out, "Surface"))
+    return mat
+
+
+def grass():
+    mat, nb = new_material("Grass")
+    _, v, _ = nb.sep(nb.coord("UV"))
+    rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
+    base = nb.ramp(rnd, [(0.0, (0.04, 0.05, 0.015)), (0.6, (0.07, 0.075, 0.02)),
+                         (1.0, (0.13, 0.11, 0.045))])
+    col = nb.mix(nb.math("POWER", v, 1.5), nb.mix(1.0, base, (0.4, 0.4, 0.4), "MULTIPLY"), base)
+    bsdf = nb.new("ShaderNodeBsdfPrincipled")
+    nb.set(bsdf, "Base Color", col)
+    nb.set(bsdf, "Roughness", 0.5)
+    tr = nb.new("ShaderNodeBsdfTranslucent")
+    nb.set(tr, "Color", nb.mix(1.0, col, (1.5, 1.8, 0.9), "MULTIPLY"))
+    ms = nb.new("ShaderNodeMixShader", inputs={0: 0.3})
+    nb.links.new(bsdf.outputs[0], ms.inputs[1])
+    nb.links.new(tr.outputs[0], ms.inputs[2])
+    out = nb.new("ShaderNodeOutputMaterial")
+    nb.links.new(ms.outputs[0], nb.i(out, "Surface"))
+    return mat
+
+
+def fern_proc():
+    """Procedural fern frond: leaflet comb cut out with alpha."""
+    mat, nb = new_material("FernProc")
+    u, v, _ = nb.sep(nb.coord("UV"))
+    x = nb.math("ABSOLUTE", nb.math("MULTIPLY", nb.math("SUBTRACT", u, 0.5), 2.0))
+    prof = nb.math("SINE", nb.math("MULTIPLY", nb.maprange(v, 0, 1, 0.08, 1.0), 3.1416))
+    comb = nb.math("ADD", 0.25, nb.math("MULTIPLY", 0.75, nb.math("ABSOLUTE",
+                   nb.math("SINE", nb.math("MULTIPLY", v, 75.0)))))
+    alpha = nb.math("LESS_THAN", x, nb.math("MULTIPLY", prof, comb))
+    alpha = nb.math("MAXIMUM", alpha, nb.math("LESS_THAN", x, 0.06))
+    rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
+    col = nb.ramp(rnd, [(0.0, (0.03, 0.06, 0.015)), (1.0, (0.08, 0.10, 0.02))])
+    bsdf = nb.new("ShaderNodeBsdfPrincipled")
+    nb.set(bsdf, "Base Color", col)
+    nb.set(bsdf, "Roughness", 0.5)
+    nb.set(bsdf, "Alpha", alpha)
+    out = nb.new("ShaderNodeOutputMaterial")
+    nb.links.new(bsdf.outputs[0], nb.i(out, "Surface"))
+    return mat
+
+
+def glass():
+    mat, nb = new_material("WindowGlass")
+    dirt = nb.noise(nb.coord("Object"), scale=30.0, detail=4.0)
+    _finish(nb, (0.9, 0.92, 0.9), nb.maprange(dirt, 0.4, 0.8, 0.02, 0.25),
+            extra={"Transmission Weight": 1.0, "IOR": 1.45})
+    return mat
+
+
+def emission(name, rgb, strength):
+    mat, nb = new_material(name)
+    em = nb.new("ShaderNodeEmission", inputs={"Color": rgb, "Strength": strength})
+    out = nb.new("ShaderNodeOutputMaterial")
+    nb.links.new(em.outputs[0], nb.i(out, "Surface"))
+    return mat
+
+
+def fabric(rgb=(0.35, 0.12, 0.06)):
+    """Curtain: warm translucent cloth, glows when lit from inside."""
+    mat, nb = new_material("Curtain")
+    bsdf = _finish(nb, rgb, 0.8)
+    tr = nb.new("ShaderNodeBsdfTranslucent", inputs={"Color": (0.9, 0.55, 0.3)})
+    ms = nb.new("ShaderNodeMixShader", inputs={0: 0.6})
+    out = nb.nodes["Material Output"]
+    nb.links.new(bsdf.outputs[0], ms.inputs[1])
+    nb.links.new(tr.outputs[0], ms.inputs[2])
+    nb.links.new(ms.outputs[0], nb.i(out, "Surface"))
+    return mat
+
+
+def library(tex: dict):
+    """Build every material once. ``tex`` maps role -> maps-dict or None."""
+    return {
+        "log": log_wood(tex.get("log")),
+        "plank": log_wood(tex.get("log"), name="Plank", tint=(0.55, 0.47, 0.40), moss=0.0),
+        "deck": log_wood(tex.get("log"), name="Deck", tint=(0.6, 0.55, 0.5), moss=0.35),
+        "firewood": log_wood(None, name="Firewood", moss=0.0),
+        "roof": roof(tex.get("roof")),
+        "stone": stone(tex.get("stone")),
+        "rock": stone(tex.get("rock"), name="Rock", moss=0.55),
+        "ground": ground(tex.get("ground"), tex.get("ground_b")),
+        "bark": bark(tex.get("bark")),
+        "needles": needles(),
+        "grass": grass(),
+        "fern": fern_proc(),
+        "glass": glass(),
+        "curtain": fabric(),
+    }
