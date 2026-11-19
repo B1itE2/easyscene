@@ -28,7 +28,8 @@ def scene_checks(layout: dict, terrain=None):
 
     # 1. missing textures ------------------------------------------------------
     missing = [img.name for img in bpy.data.images
-               if img.source == "FILE" and not os.path.exists(bpy.path.abspath(img.filepath))]
+               if img.source == "FILE" and not img.packed_file
+               and not os.path.exists(bpy.path.abspath(img.filepath))]
     out.append(_c("textures_present", not missing, missing, [],
                   "re-run `python3 -m cinescene.assets STYLE` or set CINESCENE_OFFLINE=1"))
 

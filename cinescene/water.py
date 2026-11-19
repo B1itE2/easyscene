@@ -17,25 +17,40 @@ import bpy
 from .nodes import NB, new_material
 
 
-def shore_mask(height_fn, extent, res=512, band=1.6, name="ShoreMask"):
-    """Float image over [-extent/2, extent/2]^2: 1 where terrain is near sea level."""
+def shore_mask(height_fn, extent, res=512, reach=30.0, name="ShoreMask"):
+    """Distance-to-coast field over [-extent/2, extent/2]^2, normalised 0..1 by ``reach``.
+
+    Stored as closeness: 1 at the waterline (and on land), 0 at ``reach`` metres or more.
+    The water shader turns it into surf bands that run parallel to the coast.
+    """
     import numpy as np
     xs = np.linspace(-extent / 2, extent / 2, res)
     h = np.array([[height_fn(x, y) for x in xs] for y in xs], dtype=np.float32)
-    near = np.exp(-np.abs(h) / band).astype(np.float32)
-    land = (h > 0.3).astype(np.float32)
-    # spread outward from the coastline a few metres (repeated 3x3 max filter)
-    m = near * (1 - land)
-    for _ in range(int(3 * res / extent) + 1):
-        p = np.pad(m, 1, mode="edge")
-        m = np.maximum.reduce([p[i:i + res, j:j + res] for i in range(3) for j in range(3)]) * 0.93
-    m = np.clip(m * (1 - land), 0, 1)
+    land = h > 0.0
+    px = extent / (res - 1)
+    steps = int(reach / px) + 1
+    dist = np.full((res, res), float(steps), dtype=np.float32)
+    front = land.copy()
+    dist[land] = 0.0
+    for i in range(1, steps + 1):          # chessboard dilation = cheap distance transform
+        p = np.pad(front, 1, mode="edge")
+        grown = np.logical_or.reduce([p[a:a + res, b:b + res] for a in range(3) for b in range(3)])
+        new = grown & ~front
+        dist[new] = i
+        front = grown
+    # stored as closeness (1 at the waterline, 0 far out): outside the image the
+    # CLIP extension returns 0 = "far out", never "at the rocks"
+    m = (1.0 - np.clip(dist / steps, 0.0, 1.0)).astype(np.float32)
+    m[land] = 1.0
     img = bpy.data.images.new(name, res, res, alpha=False, float_buffer=True)
-    rgba = np.dstack([m, m, m, np.ones_like(m)]).astype(np.float32)
-    img.pixels.foreach_set(rgba.ravel())
+    # colour space and file format first: changing them afterwards regenerates the
+    # (generated) image buffer and silently wipes the pixels
     img.colorspace_settings.name = "Non-Color"
-    img.pack()
-    return img, extent
+    img.file_format = "OPEN_EXR"
+    img.pixels.foreach_set(np.dstack([m, m, m, np.ones_like(m)]).ravel())
+    img.update()
+    img.pack()                               # keep it inside the .blend
+    return img, extent, reach
 
 
 def water_material(name="Water", deep=(0.004, 0.018, 0.024), rough=0.035, foam_attr=None,
@@ -54,23 +69,44 @@ def water_material(name="Water", deep=(0.004, 0.018, 0.024), rough=0.035, foam_a
         a = nb.new("ShaderNodeAttribute", attribute_name=foam_attr)
         foam = nb.maprange(nb.o(a, "Fac"), 0.55, 1.0)       # only real crests
     if shore is not None:
-        img, ext = shore
+        img, ext, reach = shore
         tex = nb.new("ShaderNodeTexImage", interpolation="Linear", extension="CLIP")
         tex.image = img
         x, y, _ = nb.sep(world)
         uv = nb.comb(nb.math("ADD", nb.math("DIVIDE", x, ext), 0.5),
                      nb.math("ADD", nb.math("DIVIDE", y, ext), 0.5), 0.0)
         nb.set(tex, "Vector", uv)
-        churn = nb.maprange(nb.noise(world, scale=0.6, detail=5.0, dims="4D",
-                                     w=nb.math("MULTIPLY", t.outputs[0], 0.25)), 0.35, 0.65)
-        sf = nb.math("MULTIPLY", nb.o(tex, "Color"), churn)
+        d = nb.math("MULTIPLY", nb.math("SUBTRACT", 1.0, nb.o(tex, "Color")), reach)   # metres out
+        tt = t.outputs[0]
+        # surf bands: crests every ~7 m rolling toward the shore, wobbly along the coast
+        wob = nb.math("MULTIPLY", nb.noise(world, scale=0.06, detail=2.0), 9.0)
+        phase = nb.math("ADD", nb.math("ADD", nb.math("MULTIPLY", d, 0.9), wob),
+                        nb.math("MULTIPLY", tt, 1.4))
+        band = nb.math("POWER", nb.maprange(nb.math("SINE", phase), 0.35, 1.0), 1.5)
+        # crests break up along their length: long gaps and thicker patches
+        brk = nb.maprange(nb.noise(world, scale=0.09, detail=3.0, dims="4D",
+                                   w=nb.math("MULTIPLY", tt, 0.05)), 0.38, 0.62)
+        band = nb.math("MULTIPLY", band, brk)
+        # white water right at the rocks (always), bands fading out to ~reach
+        edge = nb.maprange(nb.math("ADD", d, nb.math("MULTIPLY", nb.noise(world, scale=0.3), 3.0)),
+                           1.0, 7.0, 1.0, 0.0, interp="SMOOTHSTEP")
+        fade = nb.maprange(d, 2.0, reach * 0.9, 1.0, 0.0, interp="SMOOTHSTEP")
+        churn = nb.maprange(nb.noise(world, scale=0.5, detail=5.0, dims="4D",
+                                     w=nb.math("MULTIPLY", tt, 0.3)), 0.3, 0.7, 0.4, 1.0)
+        sf = nb.math("MAXIMUM", edge, nb.math("MULTIPLY", band, fade))
+        sf = nb.math("MULTIPLY", sf, churn)
         foam = sf if foam is None else nb.math("MAXIMUM", foam, sf)
     # foam is lacy, never a flat white sheet
     if foam is not None:
-        lace = nb.maprange(nb.noise(world, scale=3.0, detail=8.0, rough=0.7), 0.4, 0.62)
-        foam = nb.math("MULTIPLY", foam, lace, clamp=True)
+        lace = nb.maprange(nb.noise(world, scale=2.2, detail=10.0, rough=0.7), 0.32, 0.58)
+        vor = nb.new("ShaderNodeTexVoronoi", inputs={"Scale": 1.6})
+        nb.set(vor, "Vector", world)
+        holes = nb.maprange(vor.outputs[0], 0.05, 0.35)
+        foam = nb.math("MULTIPLY", foam, nb.math("MULTIPLY", lace, nb.math("ADD", 0.35, holes)), clamp=True)
+    if foam is not None:                      # foam stands up from the water: bump it
+        nb.set(bump, "Height", nb.math("ADD", rip, nb.math("MULTIPLY", foam, 0.6)))
     bsdf = nb.new("ShaderNodeBsdfPrincipled")
-    nb.set(bsdf, "Base Color", deep if foam is None else nb.mix(foam, deep, (0.8, 0.82, 0.82)))
+    nb.set(bsdf, "Base Color", deep if foam is None else nb.mix(foam, deep, (0.85, 0.87, 0.88)))
     r = rough if foam is None else nb.mixf(foam, rough, 0.6)
     if far_rough:
         # waves too small to resolve far away act as roughness: match the far plane

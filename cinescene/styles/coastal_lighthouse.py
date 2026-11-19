@@ -62,7 +62,7 @@ def build(spec, R, q, mats, tex, hdri):
 
     # ---- ocean with foam where the sea meets the cliffs ---------------------------------
     oc = R["ocean"]
-    shore = water.shore_mask(T.height, hc["size_m"], res=384)
+    shore = water.shore_mask(T.height, hc["size_m"], res=512, reach=R["ocean"].get("surf_reach_m", 30.0))
     sea, far = water.ocean(seed, oc, shore=shore)
     water.set_time(sea, 3.0, oc["time_speed"])
 
