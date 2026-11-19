@@ -3,106 +3,467 @@
   "title": "湖边秋日码头 / Autumn Lakeside Dock",
   "card": "recipes/lakeside_dock.md",
   "supports": {
-    "time_of_day": ["dawn", "morning", "dusk"],
-    "weather": ["clear", "light_fog", "fog"],
-    "motion": ["none", "water_skim"],
-    "subject": ["dock"]
+    "time_of_day": [
+      "dawn",
+      "morning",
+      "dusk"
+    ],
+    "weather": [
+      "clear",
+      "light_fog",
+      "fog"
+    ],
+    "motion": [
+      "none",
+      "water_skim"
+    ],
+    "subject": [
+      "dock"
+    ],
+    "places": [
+      "dock_end",
+      "dock",
+      "shore"
+    ]
   },
-  "defaults": {"time_of_day": "morning", "weather": "light_fog", "subject": {"type": "dock"},
-               "motion": {"preset": "water_skim"}},
-
-  "lighting_by_time": {"dawn": "cold_fog_morning", "morning": "cold_fog_morning", "dusk": "golden_dusk"},
-  "lighting_overrides": {
-    "_doc": "sun behind/beside the camera: autumn crowns are front-lit and glow, the far bank mirrors in the lake",
-    "morning": {"sun": {"rel_azimuth": {"choice": [{"between": [-160, -125]}, {"between": [125, 160]}]},
-                        "elevation": {"between": [10, 18]}, "strength": {"between": [4.5, 6.0]},
-                        "kelvin": {"between": [4300, 5200]}, "angle": 2.0},
-                "env_strength": 1.0, "exposure": 0.3},
-    "dawn": {"sun": {"rel_azimuth": 30, "elevation": 4, "strength": 4.0, "kelvin": 3600, "angle": 2.0},
-             "env_strength": 0.6},
-    "dusk": {"sun": {"rel_azimuth": {"between": [20, 35]}, "elevation": 3.5, "strength": 3.0,
-                     "kelvin": 2900, "angle": 3.0}}
-  },
-
-  "lake": {"size_m": 320, "resolution": 260, "bay": {"between": [0.002, 0.006]},
-           "hills": {"between": [4.0, 9.0]}, "depth": 3.5},
-
-  "dock": {"length": {"between": [13.0, 20.0]}, "width": {"between": [1.8, 2.4]}, "deck_z": 0.55,
-           "boat": {"choice": [true, true, false]}, "lantern_watts": 10},
-
-  "forest": {
-    "autumn_variants": 6, "conifer_variants": 3,
-    "height_range_m": [9.0, 17.0], "conifer_height_m": [12.0, 22.0],
-    "conifer_ratio": {"between": [0.1, 0.35]},
-    "min_spacing_m": 2.6, "extent_m": 240, "band_m": [6.0, 70.0],
-    "leaf_palette": {"choice": [
-      [[0.38, 0.03, 0.01], [0.6, 0.1, 0.01], [0.75, 0.32, 0.02], [0.65, 0.5, 0.05], [0.16, 0.22, 0.03]],
-      [[0.7, 0.45, 0.03], [0.8, 0.6, 0.08], [0.6, 0.3, 0.02], [0.45, 0.06, 0.02], [0.3, 0.32, 0.05]],
-      [[0.5, 0.05, 0.02], [0.42, 0.03, 0.03], [0.7, 0.2, 0.02], [0.3, 0.06, 0.02], [0.2, 0.25, 0.04]]
-    ]},
-    "crown_base_ratio": [0.3, 0.5], "variants": 3, "snag_ratio": 0.0
-  },
-
-  "fog": {
-    "_doc": "morning mist hugging the water: very low height falloff",
-    "color": [0.88, 0.9, 0.92],
-    "anisotropy": 0.6,
-    "height_falloff_m": {"between": [2.5, 5.0]},
-    "breakup_scale_m": 18.0,
-    "breakup_amount": 0.7,
-    "density_by_weather": {"clear": 0.002, "light_fog": {"between": [0.014, 0.022]}, "fog": {"between": [0.02, 0.03]}},
-    "cloud_layer": {"center_m": 0.0, "thickness_m": 1.0, "density": 0.0}
-  },
-
-  "motion": {
-    "water_skim": {"skim_height_m": {"between": [0.7, 1.2]}, "start_distance_m": {"between": [35, 50]},
-                   "arc_m": {"between": [3, 9]}, "direction": {"choice": [-1, 1]},
-                   "start_look_up_m": 1.5, "min_height_above_water_m": 0.6,
-                   "ease": {"accel": 0.12, "decel": 0.4}}
-  },
-
-  "camera": {
-    "view_azimuth_deg": {"front": {"between": [-8, 8]}, "three_quarter_left": {"between": [-35, -20]},
-                         "three_quarter_right": {"between": [20, 35]}},
-    "eye_height_m": 1.4, "min_z": 1.3, "aim_height": 0.6,
-    "subject_fill": {"wide": 0.16, "medium": 0.25, "close": 0.36},
-    "fstop": 4.0, "foreground_dressing": false
-  },
-
-  "assets": {
-    "hdri": "kloofendal_misty_morning_puresky",
-    "textures": {"deck": "weathered_brown_planks", "bark": "bark_brown_02",
-                 "land": "forest_leaves_04", "shore": "river_small_rocks", "rock": "mossy_rock"},
-    "models": {}
-  },
-
-  "post": {
-    "contrast": 1.05, "saturation": 1.05, "gamma": 1.0,
-    "shadows_rgb": [-0.02, 0.0, 0.02], "highlights_rgb": [0.04, 0.02, -0.02],
-    "vignette_angle": 0.45, "grain": 4
-  },
-
-  "checks": {"mean_luma": [0.18, 0.65], "clipped_highlights_max": 0.02, "crushed_shadows_max": 0.05,
-             "subject_area": [0.01, 0.35]},
-
-  "review": {
-    "pass_score": 7.0, "max_rounds": 2,
-    "fixes": {
-      "autumn_color": ["another seed (different palette)", "time_of_day: morning"],
-      "reflection": ["weather: clear or light_fog (fog hides reflections)", "view: front"],
-      "mist": ["weather: light_fog -> fog", "time_of_day: dawn"],
-      "subject_read": ["framing: medium -> close"],
-      "realism": ["another seed"],
-      "exposure": ["another seed"]
+  "defaults": {
+    "time_of_day": "morning",
+    "weather": "light_fog",
+    "subject": {
+      "type": "dock"
+    },
+    "motion": {
+      "preset": "water_skim"
     }
   },
-
+  "lighting_by_time": {
+    "dawn": "cold_fog_morning",
+    "morning": "cold_fog_morning",
+    "dusk": "golden_dusk"
+  },
+  "lighting_overrides": {
+    "_doc": "sun behind/beside the camera: autumn crowns are front-lit and glow, the far bank mirrors in the lake",
+    "morning": {
+      "sun": {
+        "rel_azimuth": {
+          "choice": [
+            {
+              "between": [
+                -160,
+                -125
+              ]
+            },
+            {
+              "between": [
+                125,
+                160
+              ]
+            }
+          ]
+        },
+        "elevation": {
+          "between": [
+            10,
+            18
+          ]
+        },
+        "strength": {
+          "between": [
+            4.5,
+            6.0
+          ]
+        },
+        "kelvin": {
+          "between": [
+            4300,
+            5200
+          ]
+        },
+        "angle": 2.0
+      },
+      "env_strength": 1.0,
+      "exposure": 0.3
+    },
+    "dawn": {
+      "sun": {
+        "rel_azimuth": 30,
+        "elevation": 4,
+        "strength": 4.0,
+        "kelvin": 3600,
+        "angle": 2.0
+      },
+      "env_strength": 0.6
+    },
+    "dusk": {
+      "sun": {
+        "rel_azimuth": {
+          "between": [
+            20,
+            35
+          ]
+        },
+        "elevation": 3.5,
+        "strength": 3.0,
+        "kelvin": 2900,
+        "angle": 3.0
+      }
+    }
+  },
+  "lake": {
+    "size_m": 320,
+    "resolution": 260,
+    "bay": {
+      "between": [
+        0.002,
+        0.006
+      ]
+    },
+    "hills": {
+      "between": [
+        4.0,
+        9.0
+      ]
+    },
+    "depth": 3.5
+  },
+  "dock": {
+    "length": {
+      "between": [
+        13.0,
+        20.0
+      ]
+    },
+    "width": {
+      "between": [
+        1.8,
+        2.4
+      ]
+    },
+    "deck_z": 0.55,
+    "boat": {
+      "choice": [
+        true,
+        true,
+        false
+      ]
+    },
+    "lantern_watts": 10
+  },
+  "forest": {
+    "autumn_variants": 6,
+    "conifer_variants": 3,
+    "height_range_m": [
+      9.0,
+      17.0
+    ],
+    "conifer_height_m": [
+      12.0,
+      22.0
+    ],
+    "conifer_ratio": {
+      "between": [
+        0.1,
+        0.35
+      ]
+    },
+    "min_spacing_m": 2.6,
+    "extent_m": 240,
+    "band_m": [
+      6.0,
+      70.0
+    ],
+    "leaf_palette": {
+      "choice": [
+        [
+          [
+            0.38,
+            0.03,
+            0.01
+          ],
+          [
+            0.6,
+            0.1,
+            0.01
+          ],
+          [
+            0.75,
+            0.32,
+            0.02
+          ],
+          [
+            0.65,
+            0.5,
+            0.05
+          ],
+          [
+            0.16,
+            0.22,
+            0.03
+          ]
+        ],
+        [
+          [
+            0.7,
+            0.45,
+            0.03
+          ],
+          [
+            0.8,
+            0.6,
+            0.08
+          ],
+          [
+            0.6,
+            0.3,
+            0.02
+          ],
+          [
+            0.45,
+            0.06,
+            0.02
+          ],
+          [
+            0.3,
+            0.32,
+            0.05
+          ]
+        ],
+        [
+          [
+            0.5,
+            0.05,
+            0.02
+          ],
+          [
+            0.42,
+            0.03,
+            0.03
+          ],
+          [
+            0.7,
+            0.2,
+            0.02
+          ],
+          [
+            0.3,
+            0.06,
+            0.02
+          ],
+          [
+            0.2,
+            0.25,
+            0.04
+          ]
+        ]
+      ]
+    },
+    "crown_base_ratio": [
+      0.3,
+      0.5
+    ],
+    "variants": 3,
+    "snag_ratio": 0.0
+  },
+  "fog": {
+    "_doc": "morning mist hugging the water: very low height falloff",
+    "color": [
+      0.88,
+      0.9,
+      0.92
+    ],
+    "anisotropy": 0.6,
+    "height_falloff_m": {
+      "between": [
+        2.5,
+        5.0
+      ]
+    },
+    "breakup_scale_m": 18.0,
+    "breakup_amount": 0.7,
+    "density_by_weather": {
+      "clear": 0.002,
+      "light_fog": {
+        "between": [
+          0.014,
+          0.022
+        ]
+      },
+      "fog": {
+        "between": [
+          0.02,
+          0.03
+        ]
+      }
+    },
+    "cloud_layer": {
+      "center_m": 0.0,
+      "thickness_m": 1.0,
+      "density": 0.0
+    }
+  },
+  "motion": {
+    "water_skim": {
+      "skim_height_m": {
+        "between": [
+          0.7,
+          1.2
+        ]
+      },
+      "start_distance_m": {
+        "between": [
+          35,
+          50
+        ]
+      },
+      "arc_m": {
+        "between": [
+          3,
+          9
+        ]
+      },
+      "direction": {
+        "choice": [
+          -1,
+          1
+        ]
+      },
+      "start_look_up_m": 1.5,
+      "min_height_above_water_m": 0.6,
+      "ease": {
+        "accel": 0.12,
+        "decel": 0.4
+      }
+    }
+  },
+  "camera": {
+    "view_azimuth_deg": {
+      "front": {
+        "between": [
+          -8,
+          8
+        ]
+      },
+      "three_quarter_left": {
+        "between": [
+          -35,
+          -20
+        ]
+      },
+      "three_quarter_right": {
+        "between": [
+          20,
+          35
+        ]
+      }
+    },
+    "eye_height_m": 1.4,
+    "min_z": 1.3,
+    "aim_height": 0.6,
+    "subject_fill": {
+      "wide": 0.16,
+      "medium": 0.25,
+      "close": 0.36
+    },
+    "fstop": 4.0,
+    "foreground_dressing": false
+  },
+  "assets": {
+    "hdri": "kloofendal_misty_morning_puresky",
+    "textures": {
+      "deck": "weathered_brown_planks",
+      "bark": "bark_brown_02",
+      "land": "forest_leaves_04",
+      "shore": "river_small_rocks",
+      "rock": "mossy_rock"
+    },
+    "models": {}
+  },
+  "post": {
+    "contrast": 1.05,
+    "saturation": 1.05,
+    "gamma": 1.0,
+    "shadows_rgb": [
+      -0.02,
+      0.0,
+      0.02
+    ],
+    "highlights_rgb": [
+      0.04,
+      0.02,
+      -0.02
+    ],
+    "vignette_angle": 0.45,
+    "grain": 4
+  },
+  "checks": {
+    "mean_luma": [
+      0.18,
+      0.65
+    ],
+    "clipped_highlights_max": 0.02,
+    "crushed_shadows_max": 0.05,
+    "subject_area": [
+      0.01,
+      0.35
+    ]
+  },
+  "review": {
+    "pass_score": 7.0,
+    "max_rounds": 2,
+    "fixes": {
+      "autumn_color": [
+        "another seed (different palette)",
+        "time_of_day: morning"
+      ],
+      "reflection": [
+        "weather: clear or light_fog (fog hides reflections)",
+        "view: front"
+      ],
+      "mist": [
+        "weather: light_fog -> fog",
+        "time_of_day: dawn"
+      ],
+      "subject_read": [
+        "framing: medium -> close"
+      ],
+      "realism": [
+        "another seed"
+      ],
+      "exposure": [
+        "another seed"
+      ]
+    }
+  },
   "rubric": [
-    {"id": "autumn_color", "weight": 3, "desc": "红叶层次：红、橙、黄、少量常绿，色块成片而不是均匀撒点"},
-    {"id": "reflection", "weight": 3, "desc": "水面平静，清晰倒映树林和码头，有轻微波纹"},
-    {"id": "mist", "weight": 2, "desc": "晨雾贴着水面，远岸逐渐变淡"},
-    {"id": "subject_read", "weight": 2, "desc": "码头一眼可辨，伸入湖中，引导视线"},
-    {"id": "realism", "weight": 1, "desc": "木头、小船、岸边石头可信"},
-    {"id": "exposure", "weight": 1, "desc": "无死黑、无大片过曝"}
+    {
+      "id": "autumn_color",
+      "weight": 3,
+      "desc": "红叶层次：红、橙、黄、少量常绿，色块成片而不是均匀撒点"
+    },
+    {
+      "id": "reflection",
+      "weight": 3,
+      "desc": "水面平静，清晰倒映树林和码头，有轻微波纹"
+    },
+    {
+      "id": "mist",
+      "weight": 2,
+      "desc": "晨雾贴着水面，远岸逐渐变淡"
+    },
+    {
+      "id": "subject_read",
+      "weight": 2,
+      "desc": "码头一眼可辨，伸入湖中，引导视线"
+    },
+    {
+      "id": "realism",
+      "weight": 1,
+      "desc": "木头、小船、岸边石头可信"
+    },
+    {
+      "id": "exposure",
+      "weight": 1,
+      "desc": "无死黑、无大片过曝"
+    }
   ]
 }

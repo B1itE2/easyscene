@@ -198,6 +198,29 @@
         "final"
       ],
       "default": "preview"
+    },
+    "details": {
+      "type": "array",
+      "default": [],
+      "maxItems": 8,
+      "description": "Small props the user asked for. Unknown items/places are reported, not fatal.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "item"
+        ],
+        "properties": {
+          "item": {
+            "type": "string",
+            "description": "one of cinescene.props.LIBRARY"
+          },
+          "place": {
+            "type": "string",
+            "default": "auto"
+          }
+        }
+      }
     }
   }
 }

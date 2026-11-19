@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "name": "foggy_cabin_details",
+  "prompt": "雾气森林里的小木屋，门廊上有一把摇椅和一盏提灯，屋旁放着木桶和斧头",
+  "style": "foggy_forest_cabin",
+  "time_of_day": "morning",
+  "weather": "fog",
+  "camera": {"aspect": "16:9", "lens_mm": 35, "framing": "close", "view": "three_quarter_left"},
+  "motion": {"preset": "none"},
+  "details": [
+    {"item": "rocking_chair", "place": "porch"},
+    {"item": "lantern", "place": "porch"},
+    {"item": "barrel", "place": "yard"},
+    {"item": "axe", "place": "yard"},
+    {"item": "unicorn", "place": "yard"}
+  ],
+  "seed": 7,
+  "quality": "preview"
+}

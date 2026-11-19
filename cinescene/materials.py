@@ -477,8 +477,10 @@ def autumn_leaf(palette):
     dv = nb.math("MULTIPLY", nb.math("SUBTRACT", v, 0.45), 2.0)
     # lobed leaf: radius modulated by angle (5 lobes), small stem notch
     ang = nb.math("ARCTAN2", dv, du)
-    lobes = nb.math("ADD", 0.72, nb.math("MULTIPLY", 0.22, nb.math("ABSOLUTE", nb.math("SINE",
-                    nb.math("MULTIPLY", ang, 2.5)))))
+    lobes = nb.math("ADD", 0.55, nb.math("MULTIPLY", 0.4, nb.math("POWER", nb.math("ABSOLUTE",
+                    nb.math("SINE", nb.math("MULTIPLY", ang, 2.5))), 3.0)))
+    serr = nb.math("MULTIPLY", 0.05, nb.math("SINE", nb.math("MULTIPLY", ang, 24.0)))
+    lobes = nb.math("ADD", lobes, serr)
     r = nb.math("SQRT", nb.math("ADD", nb.math("MULTIPLY", du, du), nb.math("MULTIPLY", dv, dv)))
     alpha = nb.math("LESS_THAN", r, lobes)
     rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
@@ -489,7 +491,10 @@ def autumn_leaf(palette):
     vein = nb.math("MULTIPLY", nb.maprange(r, 0.0, 0.8, 0.75, 1.0), 1.0)
     col = nb.mix(1.0, col, nb.comb(vein, vein, vein), "MULTIPLY")
     # per-leaf brightness jitter + crown self-shadow (inner/lower leaves darker, less saturated)
-    jit = nb.maprange(nb.noise(nb.coord("Object"), scale=9.0, detail=1.0), 0.3, 0.7, 0.55, 1.15)
+    jit = nb.maprange(nb.noise(nb.coord("Object"), scale=9.0, detail=1.0), 0.3, 0.7, 0.45, 1.1)
+    hsv = nb.new("ShaderNodeHueSaturation", inputs={"Saturation": 0.82})   # real foliage is less candy
+    nb.set(hsv, "Color", col)
+    col = hsv.outputs[0]
     ao = nb.o(nb.new("ShaderNodeAmbientOcclusion", inputs={"Distance": 1.2}), "AO")
     shade = nb.math("MULTIPLY", jit, nb.maprange(ao, 0.0, 1.0, 0.35, 1.0))
     col = nb.mix(1.0, col, nb.comb(shade, shade, shade), "MULTIPLY")

@@ -3,79 +3,168 @@
   "title": "雾气森林小木屋 / Foggy Forest Cabin",
   "card": "recipes/foggy_forest_cabin.md",
   "supports": {
-    "time_of_day": ["dawn", "morning", "dusk", "night"],
-    "weather": ["dense_fog", "fog", "light_fog"],
-    "motion": ["none", "cloud_descent"],
-    "subject": ["log_cabin"]
+    "time_of_day": [
+      "dawn",
+      "morning",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "dense_fog",
+      "fog",
+      "light_fog"
+    ],
+    "motion": [
+      "none",
+      "cloud_descent"
+    ],
+    "subject": [
+      "log_cabin"
+    ],
+    "places": [
+      "porch",
+      "door",
+      "window",
+      "yard",
+      "path"
+    ]
   },
-  "defaults": {"time_of_day": "morning", "weather": "fog", "subject": {"type": "log_cabin"},
-               "motion": {"preset": "cloud_descent"}},
-
+  "defaults": {
+    "time_of_day": "morning",
+    "weather": "fog",
+    "subject": {
+      "type": "log_cabin"
+    },
+    "motion": {
+      "preset": "cloud_descent"
+    }
+  },
   "lighting_by_time": {
     "dawn": "cold_fog_morning",
     "morning": "cold_fog_morning",
     "dusk": "golden_dusk",
     "night": "rainy_night"
   },
-
   "fog": {
     "_doc": "density is extinction per metre at ground level. Visibility ~ 3/density metres.",
-    "color": [0.74, 0.88, 0.94],
+    "color": [
+      0.74,
+      0.88,
+      0.94
+    ],
     "anisotropy": 0.8,
     "height_falloff_m": 14.0,
     "breakup_scale_m": 28.0,
     "breakup_amount": 0.55,
-    "density_by_weather": {"dense_fog": 0.034, "fog": 0.022, "light_fog": 0.012},
-    "cloud_layer": {"center_m": 42.0, "thickness_m": 14.0, "density": 0.0}
+    "density_by_weather": {
+      "dense_fog": 0.034,
+      "fog": 0.022,
+      "light_fog": 0.012
+    },
+    "cloud_layer": {
+      "center_m": 42.0,
+      "thickness_m": 14.0,
+      "density": 0.0
+    }
   },
-
   "terrain": {
-    "size_m": 260, "resolution": 200,
-    "clearing_radius_m": 11.0, "hill_amplitude_m": 5.0, "back_slope": 0.06
+    "size_m": 260,
+    "resolution": 200,
+    "clearing_radius_m": 11.0,
+    "hill_amplitude_m": 5.0,
+    "back_slope": 0.06
   },
-
   "forest": {
-    "min_spacing_m": 3.0, "extent_m": 230,
-    "clear_radius_m": 13.0, "camera_corridor_m": 5.0,
-    "height_range_m": [13.0, 27.0], "variants": 6,
-    "crown_base_ratio": [0.12, 0.3],
+    "min_spacing_m": 3.0,
+    "extent_m": 230,
+    "clear_radius_m": 13.0,
+    "camera_corridor_m": 5.0,
+    "height_range_m": [
+      13.0,
+      27.0
+    ],
+    "variants": 6,
+    "crown_base_ratio": [
+      0.12,
+      0.3
+    ],
     "snag_ratio": 0.04,
-    "sun_window_deg": 24, "sun_window_depth_m": 95
+    "sun_window_deg": 24,
+    "sun_window_depth_m": 95
   },
-
   "undergrowth": {
-    "grass_clumps": 14000, "ferns": 420, "rocks": 70, "fallen_logs": 5,
-    "leaf_cover": 14000, "twigs": 900, "moss_patches": 500, "path_width_m": 0.9,
-    "radius_m": [5.5, 45.0]
+    "grass_clumps": 14000,
+    "ferns": 420,
+    "rocks": 70,
+    "fallen_logs": 5,
+    "leaf_cover": 14000,
+    "twigs": 900,
+    "moss_patches": 500,
+    "path_width_m": 0.9,
+    "radius_m": [
+      5.5,
+      45.0
+    ]
   },
-
   "cabin": {
-    "small": {"width": 6.2, "depth": 5.0, "rows": 9},
-    "medium": {"width": 7.6, "depth": 6.0, "rows": 10},
-    "log_radius": 0.16, "row_step": 0.29, "roof_pitch_deg": 38,
-    "window_temp_k": 2400, "interior_watts": 140, "lantern_watts": 6
+    "small": {
+      "width": 6.2,
+      "depth": 5.0,
+      "rows": 9
+    },
+    "medium": {
+      "width": 7.6,
+      "depth": 6.0,
+      "rows": 10
+    },
+    "log_radius": 0.16,
+    "row_step": 0.29,
+    "roof_pitch_deg": 38,
+    "window_temp_k": 2400,
+    "interior_watts": 140,
+    "lantern_watts": 6
   },
-
-  "smoke": {"rise_speed": 0.55, "density": 24.0, "wind": [0.5, 0.25], "height_m": 14.0},
-
+  "smoke": {
+    "rise_speed": 0.55,
+    "density": 24.0,
+    "wind": [
+      0.5,
+      0.25
+    ],
+    "height_m": 14.0
+  },
   "motion": {
     "cloud_descent": {
       "_doc": "start inside a local cloud bank above the clearing; numbers are metres",
-      "start_height_m": 55.0, "start_offset": 0.3, "drop_bias": 0.5, "level_out_m": 2.5,
-      "ease": {"accel": 0.22, "decel": 0.4},
-      "cloud_density": 0.35, "cloud_thickness_m": 6.0, "cloud_below_start_m": 3.0,
+      "start_height_m": 55.0,
+      "start_offset": 0.3,
+      "drop_bias": 0.5,
+      "level_out_m": 2.5,
+      "ease": {
+        "accel": 0.22,
+        "decel": 0.4
+      },
+      "cloud_density": 0.35,
+      "cloud_thickness_m": 6.0,
+      "cloud_below_start_m": 3.0,
       "cloud_radius_m": 32.0
     }
   },
-
   "camera": {
-    "view_azimuth_deg": {"front": 0, "three_quarter_left": -28, "three_quarter_right": 28},
+    "view_azimuth_deg": {
+      "front": 0,
+      "three_quarter_left": -28,
+      "three_quarter_right": 28
+    },
     "eye_height_m": 1.65,
-    "subject_fill": {"wide": 0.24, "medium": 0.36, "close": 0.55},
+    "subject_fill": {
+      "wide": 0.24,
+      "medium": 0.36,
+      "close": 0.55
+    },
     "fstop": 2.8,
     "foreground_dressing": true
   },
-
   "assets": {
     "_doc": "Poly Haven ids (all CC0). Missing/offline -> procedural fallback of the same role.",
     "hdri": "kloofendal_misty_morning_puresky",
@@ -95,41 +184,97 @@
       "stump": "tree_stump_01"
     }
   },
-
   "post": {
     "_doc": "applied with ffmpeg after rendering; keep subtle",
-    "contrast": 1.04, "saturation": 0.92, "gamma": 1.0,
-    "shadows_rgb": [-0.02, 0.01, 0.03],
-    "highlights_rgb": [0.03, 0.01, -0.02],
-    "vignette_angle": 0.50,
+    "contrast": 1.04,
+    "saturation": 0.92,
+    "gamma": 1.0,
+    "shadows_rgb": [
+      -0.02,
+      0.01,
+      0.03
+    ],
+    "highlights_rgb": [
+      0.03,
+      0.01,
+      -0.02
+    ],
+    "vignette_angle": 0.5,
     "grain": 5
   },
-
   "checks": {
-    "mean_luma": [0.18, 0.62],
+    "mean_luma": [
+      0.18,
+      0.62
+    ],
     "clipped_highlights_max": 0.01,
     "crushed_shadows_max": 0.04,
-    "subject_area": [0.04, 0.45]
+    "subject_area": [
+      0.04,
+      0.45
+    ]
   },
-
   "review": {
-    "pass_score": 7.0, "max_rounds": 2,
+    "pass_score": 7.0,
+    "max_rounds": 2,
     "fixes": {
-      "fog_depth": ["weather: light_fog -> fog -> dense_fog (more layers)", "framing: wide (more depth visible)"],
-      "warm_cool": ["time_of_day: dawn or dusk (stronger window glow)", "subject.lights_on: true"],
-      "subject_read": ["framing: medium -> close", "weather: lighter fog", "another seed"],
-      "realism": ["view: three_quarter_left/right (front views look flat)", "another seed"],
-      "smoke": ["subject.chimney_smoke: true", "view so the chimney side faces camera"],
-      "exposure": ["weather: light_fog if too dark, dense_fog if too bright", "another seed"]
+      "fog_depth": [
+        "weather: light_fog -> fog -> dense_fog (more layers)",
+        "framing: wide (more depth visible)"
+      ],
+      "warm_cool": [
+        "time_of_day: dawn or dusk (stronger window glow)",
+        "subject.lights_on: true"
+      ],
+      "subject_read": [
+        "framing: medium -> close",
+        "weather: lighter fog",
+        "another seed"
+      ],
+      "realism": [
+        "view: three_quarter_left/right (front views look flat)",
+        "another seed"
+      ],
+      "smoke": [
+        "subject.chimney_smoke: true",
+        "view so the chimney side faces camera"
+      ],
+      "exposure": [
+        "weather: light_fog if too dark, dense_fog if too bright",
+        "another seed"
+      ]
     }
   },
-
   "rubric": [
-    {"id": "fog_depth", "weight": 3, "desc": "前中后景层次：近处清楚、中景微雾、远处树木逐渐隐入雾中"},
-    {"id": "warm_cool", "weight": 3, "desc": "冷蓝绿雾 vs 窗户暖黄光，对比明显但不刺眼"},
-    {"id": "subject_read", "weight": 2, "desc": "木屋一眼可辨，轮廓清楚，不被树挡住"},
-    {"id": "realism", "weight": 2, "desc": "材质与比例可信：圆木、石头烟囱、苔藓，不像玩具"},
-    {"id": "smoke", "weight": 1, "desc": "烟囱有柔和的烟，向上飘散"},
-    {"id": "exposure", "weight": 1, "desc": "无死黑、无大片过曝，雾不发灰发脏"}
+    {
+      "id": "fog_depth",
+      "weight": 3,
+      "desc": "前中后景层次：近处清楚、中景微雾、远处树木逐渐隐入雾中"
+    },
+    {
+      "id": "warm_cool",
+      "weight": 3,
+      "desc": "冷蓝绿雾 vs 窗户暖黄光，对比明显但不刺眼"
+    },
+    {
+      "id": "subject_read",
+      "weight": 2,
+      "desc": "木屋一眼可辨，轮廓清楚，不被树挡住"
+    },
+    {
+      "id": "realism",
+      "weight": 2,
+      "desc": "材质与比例可信：圆木、石头烟囱、苔藓，不像玩具"
+    },
+    {
+      "id": "smoke",
+      "weight": 1,
+      "desc": "烟囱有柔和的烟，向上飘散"
+    },
+    {
+      "id": "exposure",
+      "weight": 1,
+      "desc": "无死黑、无大片过曝，雾不发灰发脏"
+    }
   ]
 }

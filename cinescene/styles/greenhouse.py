@@ -153,4 +153,11 @@ def build(spec, R, q, mats, tex, hdri):
         "camera": solved, "trees": [], "sun_dir": linfo["sun_dir"],
     }
     log(f"style built in {time.time() - t0:.1f}s: {len(plant_pts)} potted plants, {len(under)} ferns")
-    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": None, "terrain": T}
+    cyaw = solved["yaw"] + math.pi
+    anchors = {
+        "aisle": [(0.25 * s_, -L / 2 + d_, 0.06, cyaw) for d_, s_ in ((3.5, 1), (6.0, -1), (8.5, 1))],
+        "bench": [(x, y, z, cyaw) for (x, y, z) in gh["bench_spots"][2:40:9]],
+        "end": [(-0.9, gh["center"][1] - 0.6, 0.0, cyaw), (0.9, gh["center"][1] - 0.6, 0.0, cyaw)],
+    }
+    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": None, "terrain": T,
+            "anchors": anchors}

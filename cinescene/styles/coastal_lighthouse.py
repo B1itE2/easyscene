@@ -111,5 +111,22 @@ def build(spec, R, q, mats, tex, hdri):
         "camera": solved, "trees": [], "sun_dir": linfo["sun_dir"],
     }
     log(f"style built in {time.time() - t0:.1f}s: {len(gpts)} grass, {len(rpts)} rocks")
+    cyaw = solved["yaw"] + math.pi
+    r0 = R["lighthouse"]["base_radius"]
+    a = -math.pi / 2
+    anchors = {
+        "door": [(math.cos(a) * (r0 + 1.0) + 0.6, math.sin(a) * (r0 + 1.0), z0, cyaw),
+                 (math.cos(a) * (r0 + 1.0) - 0.6, math.sin(a) * (r0 + 1.0), z0, cyaw)],
+        "cliff_edge": [],
+    }
+    for k in range(24):                                   # first flat spot near the edge, camera side
+        ang = solved["yaw"] + math.pi + (k - 12) * 0.05
+        for rr in range(30, 4, -1):
+            x, y = math.cos(ang + math.pi / 2) * rr, math.sin(ang + math.pi / 2) * rr
+            if T.inside(x, y) > 3.0 and T.normal(x, y).z > 0.9:
+                anchors["cliff_edge"].append((x, y, T.height(x, y), cyaw))
+                break
+        if len(anchors["cliff_edge"]) >= 2:
+            break
     return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": shot, "terrain": T,
-            "ocean": sea}
+            "ocean": sea, "anchors": anchors}

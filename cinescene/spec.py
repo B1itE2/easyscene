@@ -41,6 +41,11 @@ def _check(value, schema, path, errors):
         errors.append(f"{path}: {value} > maximum {schema['maximum']}")
     if "pattern" in schema and not re.search(schema["pattern"], value):
         errors.append(f"{path}: {value!r} does not match {schema['pattern']}")
+    if t == "array":
+        if "maxItems" in schema and len(value) > schema["maxItems"]:
+            errors.append(f"{path}: more than {schema['maxItems']} items")
+        if "items" in schema:
+            value = [_check(v, schema["items"], f"{path}[{i}]", errors) for i, v in enumerate(value)]
     if t == "object":
         props = schema.get("properties", {})
         for req in schema.get("required", []):

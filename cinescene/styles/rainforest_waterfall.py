@@ -142,7 +142,11 @@ def build(spec, R, q, mats, tex, hdri):
         "sun_dir": linfo["sun_dir"],
     }
     log(f"style built in {time.time() - t0:.1f}s: {len(pts)} trees, {len(fpts)} ferns, {len(rpts)} boulders")
-    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": None, "terrain": G}
+    cyaw = solved["yaw"] + math.pi
+    anchors = {"pool_edge": [(p[0], p[1], p[2] + 0.3, cyaw) for p in rpts[:3]],
+               "ledge": [(loc.x + fwd.x * 2.0, loc.y + fwd.y * 2.0, G.height(loc.x + fwd.x * 2.0, loc.y + fwd.y * 2.0), cyaw)]}
+    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": None, "terrain": G,
+            "anchors": anchors}
 
 
 def _spray(fog_obj, base, cfg):

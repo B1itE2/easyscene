@@ -65,6 +65,14 @@ def build_scene(spec: dict):
     res = style.build(spec, R, q, mats, tex, hdri)
     layout = res["layout"]
     shot = res["shot"]
+    if spec.get("details"):
+        from . import props
+        rep = props.place_details(spec["details"], res.get("anchors", {}))
+        layout["details"] = rep
+        for sk in rep["skipped"]:
+            log(f"detail NOT placed: {sk['item']} @ {sk['place']} - {sk['reason']}")
+        for pl in rep["placed"]:
+            log(f"detail placed: {pl['item']} @ {pl['place']}")
     if shot is not None:
         shot.apply(res["camera_obj"], R["camera"]["fstop"])
         atmosphere.key_time(shot.fps, 1, shot.frames)
@@ -188,6 +196,7 @@ def write_manifest(out: Path, spec, ctx, extra):
         "spec": spec, "seed": spec["seed"], "recipe_sha256_12": recipe_hash,
         "resolved_recipe": ctx["recipe"], "render": ctx["render"], "lighting": ctx["lighting"],
         "camera": ctx["layout"]["camera"], "motion": ctx["layout"].get("motion"),
+        "details": ctx["layout"].get("details"),
         "build_seconds": round(ctx["build_seconds"], 1),
         "assets": lic, **extra,
     }

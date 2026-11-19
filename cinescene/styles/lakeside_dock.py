@@ -124,4 +124,14 @@ def build(spec, R, q, mats, tex, hdri):
     }
     log(f"style built in {time.time() - t0:.1f}s: {len(tpts)} trees, {len(rpts)} rocks, "
         f"{len(lpts)} floating leaves")
-    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": shot, "terrain": T}
+    cyaw = solved["yaw"] + math.pi
+    ex, ey, ez = dk["end"]
+    rx, ry, _ = dk["root"]
+    anchors = {
+        "dock_end": [(ex - 0.4, ey + 1.1, ez + 0.03, cyaw), (ex + 0.4, ey + 1.3, ez + 0.03, cyaw)],
+        "dock": [(rx + 0.3, (ry + ey) / 2, ez + 0.03, cyaw)],
+        "shore": [(rx + 2.5, ry + 1.5, T.height(rx + 2.5, ry + 1.5), cyaw),
+                  (rx - 2.5, ry + 1.5, T.height(rx - 2.5, ry + 1.5), cyaw)],
+    }
+    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": shot, "terrain": T,
+            "anchors": anchors}

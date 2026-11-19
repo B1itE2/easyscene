@@ -224,4 +224,19 @@ def build(spec, R, q, mats, tex, hdri):
     }
     log(f"style built in {time.time() - t0:.1f}s: {len(tpts)} trees, {len(gpts)} grass, "
         f"{len(fpts)} ferns, {len(rpts)} rocks")
-    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": shot, "terrain": T}
+    dx, dy, dz = cab["door"]
+    cyaw = solved["yaw"] + math.pi                       # props face the camera
+    fx0_, fx1_, fy0_, fy1_ = cab["footprint"]
+    pp = T.path.points
+    anchors = {
+        "porch": [(dx + 1.0, dy - 0.8, dz, cyaw), (dx + 0.3, dy - 1.2, dz, cyaw), (dx - 1.0, dy - 1.1, dz, cyaw)],
+        "door": [(dx + 0.75, dy - 0.35, dz, cyaw)],
+        "window": [(1.35, dy - 0.45, dz, cyaw)],
+        # yard: in front of the cabin, beside the path, on the camera side (visible)
+        "yard": [(x, y, T.height(x, y), cyaw) for x, y in ((dx + 2.6, dy - 2.6), (dx + 3.5, dy - 2.2),
+                                                             (dx - 2.2, dy - 2.8))],
+        "path": [(pp[2][0] + 0.9, pp[2][1], T.height(pp[2][0] + 0.9, pp[2][1]), cyaw),
+                 (pp[3][0] - 0.9, pp[3][1], T.height(pp[3][0] - 0.9, pp[3][1]), cyaw)],
+    }
+    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": shot, "terrain": T,
+            "anchors": anchors}

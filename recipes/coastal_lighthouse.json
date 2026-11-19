@@ -3,77 +3,351 @@
   "title": "海边灯塔 / Coastal Lighthouse",
   "card": "recipes/coastal_lighthouse.md",
   "supports": {
-    "time_of_day": ["dusk", "dawn", "night"],
-    "weather": ["clear", "haze", "light_fog"],
-    "motion": ["none", "orbit"],
-    "subject": ["lighthouse"]
+    "time_of_day": [
+      "dusk",
+      "dawn",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "haze",
+      "light_fog"
+    ],
+    "motion": [
+      "none",
+      "orbit"
+    ],
+    "subject": [
+      "lighthouse"
+    ],
+    "places": [
+      "door",
+      "cliff_edge"
+    ]
   },
-  "defaults": {"time_of_day": "dusk", "weather": "haze", "subject": {"type": "lighthouse"},
-               "motion": {"preset": "orbit"}},
-
-  "lighting_by_time": {"dusk": "golden_dusk", "dawn": "golden_dusk", "night": "rainy_night"},
+  "defaults": {
+    "time_of_day": "dusk",
+    "weather": "haze",
+    "subject": {
+      "type": "lighthouse"
+    },
+    "motion": {
+      "preset": "orbit"
+    }
+  },
+  "lighting_by_time": {
+    "dusk": "golden_dusk",
+    "dawn": "golden_dusk",
+    "night": "rainy_night"
+  },
   "lighting_overrides": {
     "_doc": "sun just inside frame, off the tower: glitter path on the sea + rim light",
-    "dusk": {"sun": {"rel_azimuth": {"choice": [{"between": [-24, -14]}, {"between": [14, 24]}]},
-                     "elevation": {"between": [2.0, 7.0]}, "strength": {"between": [2.8, 3.6]},
-                     "kelvin": {"between": [2600, 3300]}, "angle": 3.0},
-             "exposure": {"between": [-0.7, -0.3]}},
-    "dawn": {"sun": {"rel_azimuth": -17, "elevation": 3.5, "strength": 3.0, "kelvin": 3300, "angle": 3.0}}
+    "dusk": {
+      "sun": {
+        "rel_azimuth": {
+          "choice": [
+            {
+              "between": [
+                -24,
+                -14
+              ]
+            },
+            {
+              "between": [
+                14,
+                24
+              ]
+            }
+          ]
+        },
+        "elevation": {
+          "between": [
+            2.0,
+            7.0
+          ]
+        },
+        "strength": {
+          "between": [
+            2.8,
+            3.6
+          ]
+        },
+        "kelvin": {
+          "between": [
+            2600,
+            3300
+          ]
+        },
+        "angle": 3.0
+      },
+      "exposure": {
+        "between": [
+          -0.7,
+          -0.3
+        ]
+      }
+    },
+    "dawn": {
+      "sun": {
+        "rel_azimuth": -17,
+        "elevation": 3.5,
+        "strength": 3.0,
+        "kelvin": 3300,
+        "angle": 3.0
+      }
+    }
   },
-
-  "headland": {"size_m": 380, "resolution": 340, "top_m": {"between": [10.0, 22.0]},
-               "radius_m": {"between": [24.0, 38.0]},
-               "sea_floor_m": -9.0, "ruggedness": {"between": [0.7, 1.4]}},
-
+  "headland": {
+    "size_m": 380,
+    "resolution": 340,
+    "top_m": {
+      "between": [
+        10.0,
+        22.0
+      ]
+    },
+    "radius_m": {
+      "between": [
+        24.0,
+        38.0
+      ]
+    },
+    "sea_floor_m": -9.0,
+    "ruggedness": {
+      "between": [
+        0.7,
+        1.4
+      ]
+    }
+  },
   "lighthouse": {
-    "tower_height": {"between": [14.0, 21.0]}, "base_radius": {"between": [2.1, 2.8]},
-    "top_radius": {"between": [1.5, 1.9]}, "bands": {"choice": [0, 3, 4, 4, 6]},
-    "palette": {"choice": [
-      {"white": [0.78, 0.77, 0.73], "band": [0.42, 0.05, 0.035]},
-      {"white": [0.78, 0.77, 0.73], "band": [0.03, 0.035, 0.04]},
-      {"white": [0.78, 0.77, 0.73], "band": [0.05, 0.12, 0.25]},
-      {"white": [0.8, 0.79, 0.74], "band": [0.8, 0.79, 0.74]}]},
-    "cottage": {"choice": [true, true, false]},
-    "lamp_kelvin": 3200, "lamp_watts": 400,
-    "beam_kelvin": 4200, "beam_strength": 0.35, "beam_length": 140.0
+    "tower_height": {
+      "between": [
+        14.0,
+        21.0
+      ]
+    },
+    "base_radius": {
+      "between": [
+        2.1,
+        2.8
+      ]
+    },
+    "top_radius": {
+      "between": [
+        1.5,
+        1.9
+      ]
+    },
+    "bands": {
+      "choice": [
+        0,
+        3,
+        4,
+        4,
+        6
+      ]
+    },
+    "palette": {
+      "choice": [
+        {
+          "white": [
+            0.78,
+            0.77,
+            0.73
+          ],
+          "band": [
+            0.42,
+            0.05,
+            0.035
+          ]
+        },
+        {
+          "white": [
+            0.78,
+            0.77,
+            0.73
+          ],
+          "band": [
+            0.03,
+            0.035,
+            0.04
+          ]
+        },
+        {
+          "white": [
+            0.78,
+            0.77,
+            0.73
+          ],
+          "band": [
+            0.05,
+            0.12,
+            0.25
+          ]
+        },
+        {
+          "white": [
+            0.8,
+            0.79,
+            0.74
+          ],
+          "band": [
+            0.8,
+            0.79,
+            0.74
+          ]
+        }
+      ]
+    },
+    "cottage": {
+      "choice": [
+        true,
+        true,
+        false
+      ]
+    },
+    "lamp_kelvin": 3200,
+    "lamp_watts": 400,
+    "beam_kelvin": 4200,
+    "beam_strength": 0.35,
+    "beam_length": 140.0
   },
-
   "ocean": {
-    "tile_m": 60, "tiles": 8, "resolution": 14, "far_m": 60000,
-    "wave_scale": {"between": [0.4, 0.9]}, "choppiness": {"between": [0.9, 1.5]},
-    "wind_m_s": {"between": [6.0, 12.0]}, "alignment": 0.3,
-    "direction_deg": {"between": [0, 360]}, "foam_coverage": 0.05, "time_speed": 1.0,
-    "deep_color": [0.004, 0.02, 0.028]
+    "tile_m": 60,
+    "tiles": 8,
+    "resolution": 14,
+    "far_m": 60000,
+    "wave_scale": {
+      "between": [
+        0.4,
+        0.9
+      ]
+    },
+    "choppiness": {
+      "between": [
+        0.9,
+        1.5
+      ]
+    },
+    "wind_m_s": {
+      "between": [
+        6.0,
+        12.0
+      ]
+    },
+    "alignment": 0.3,
+    "direction_deg": {
+      "between": [
+        0,
+        360
+      ]
+    },
+    "foam_coverage": 0.05,
+    "time_speed": 1.0,
+    "deep_color": [
+      0.004,
+      0.02,
+      0.028
+    ]
   },
-
   "fog": {
     "_doc": "thin sea haze: just enough for aerial perspective and a visible beam",
-    "color": [0.92, 0.9, 0.88],
+    "color": [
+      0.92,
+      0.9,
+      0.88
+    ],
     "anisotropy": 0.5,
     "height_falloff_m": 30.0,
     "breakup_scale_m": 80.0,
     "breakup_amount": 0.15,
-    "density_by_weather": {"clear": {"between": [0.0002, 0.0006]}, "haze": {"between": [0.0008, 0.0018]},
-                           "light_fog": {"between": [0.003, 0.005]}},
-    "cloud_layer": {"center_m": 0.0, "thickness_m": 1.0, "density": 0.0}
+    "density_by_weather": {
+      "clear": {
+        "between": [
+          0.0002,
+          0.0006
+        ]
+      },
+      "haze": {
+        "between": [
+          0.0008,
+          0.0018
+        ]
+      },
+      "light_fog": {
+        "between": [
+          0.003,
+          0.005
+        ]
+      }
+    },
+    "cloud_layer": {
+      "center_m": 0.0,
+      "thickness_m": 1.0,
+      "density": 0.0
+    }
   },
-
-  "vegetation": {"grass_clumps": 9000, "rocks": 40},
-
+  "vegetation": {
+    "grass_clumps": 9000,
+    "rocks": 40
+  },
   "motion": {
-    "orbit": {"sweep_deg": {"between": [55, 85]}, "direction": -1, "start_radius_scale": 1.15, "start_rise_m": 6.0,
-              "start_look_up_m": 0.0, "min_clearance_m": 3.0,
-              "ease": {"accel": 0.25, "decel": 0.35}}
+    "orbit": {
+      "sweep_deg": {
+        "between": [
+          55,
+          85
+        ]
+      },
+      "direction": -1,
+      "start_radius_scale": 1.15,
+      "start_rise_m": 6.0,
+      "start_look_up_m": 0.0,
+      "min_clearance_m": 3.0,
+      "ease": {
+        "accel": 0.25,
+        "decel": 0.35
+      }
+    }
   },
-
   "camera": {
-    "view_azimuth_deg": {"front": {"between": [80, 100]}, "three_quarter_left": {"between": [45, 75]},
-                         "three_quarter_right": {"between": [105, 135]}},
-    "eye_height_m": 1.7, "above_plateau_m": {"between": [6.0, 16.0]}, "aim_height": 0.05,
-    "subject_fill": {"wide": 0.22, "medium": 0.32, "close": 0.5},
-    "fstop": 5.6, "foreground_dressing": false
+    "view_azimuth_deg": {
+      "front": {
+        "between": [
+          80,
+          100
+        ]
+      },
+      "three_quarter_left": {
+        "between": [
+          45,
+          75
+        ]
+      },
+      "three_quarter_right": {
+        "between": [
+          105,
+          135
+        ]
+      }
+    },
+    "eye_height_m": 1.7,
+    "above_plateau_m": {
+      "between": [
+        6.0,
+        16.0
+      ]
+    },
+    "aim_height": 0.05,
+    "subject_fill": {
+      "wide": 0.22,
+      "medium": 0.32,
+      "close": 0.5
+    },
+    "fstop": 5.6,
+    "foreground_dressing": false
   },
-
   "assets": {
     "hdri": "qwantani_sunset_puresky",
     "textures": {
@@ -85,37 +359,95 @@
     },
     "models": {}
   },
-
   "post": {
-    "contrast": 1.08, "saturation": 1.12, "gamma": 1.0,
-    "shadows_rgb": [-0.03, 0.0, 0.04],
-    "highlights_rgb": [0.07, 0.025, -0.05],
-    "vignette_angle": 0.45, "grain": 4
+    "contrast": 1.08,
+    "saturation": 1.12,
+    "gamma": 1.0,
+    "shadows_rgb": [
+      -0.03,
+      0.0,
+      0.04
+    ],
+    "highlights_rgb": [
+      0.07,
+      0.025,
+      -0.05
+    ],
+    "vignette_angle": 0.45,
+    "grain": 4
   },
-
   "checks": {
-    "mean_luma": [0.15, 0.6], "clipped_highlights_max": 0.02, "crushed_shadows_max": 0.06,
-    "subject_area": [0.015, 0.4]
+    "mean_luma": [
+      0.15,
+      0.6
+    ],
+    "clipped_highlights_max": 0.02,
+    "crushed_shadows_max": 0.06,
+    "subject_area": [
+      0.015,
+      0.4
+    ]
   },
-
   "review": {
-    "pass_score": 7.0, "max_rounds": 2,
+    "pass_score": 7.0,
+    "max_rounds": 2,
     "fixes": {
-      "golden_light": ["time_of_day: dusk", "weather: haze (more glow)"],
-      "sea": ["weather: clear (sharper water)", "another seed (different swell)"],
-      "subject_read": ["framing: medium -> close", "view: three_quarter_left/right"],
-      "realism": ["another seed", "framing: wide"],
-      "beam": ["time_of_day: dusk or night", "weather: haze"],
-      "exposure": ["another seed", "view toward/away from sun"]
+      "golden_light": [
+        "time_of_day: dusk",
+        "weather: haze (more glow)"
+      ],
+      "sea": [
+        "weather: clear (sharper water)",
+        "another seed (different swell)"
+      ],
+      "subject_read": [
+        "framing: medium -> close",
+        "view: three_quarter_left/right"
+      ],
+      "realism": [
+        "another seed",
+        "framing: wide"
+      ],
+      "beam": [
+        "time_of_day: dusk or night",
+        "weather: haze"
+      ],
+      "exposure": [
+        "another seed",
+        "view toward/away from sun"
+      ]
     }
   },
-
   "rubric": [
-    {"id": "golden_light", "weight": 3, "desc": "日落金光：天空暖橙到冷蓝的渐变，塔身有暖色轮廓光"},
-    {"id": "sea", "weight": 3, "desc": "海面可信：有浪的起伏和高光碎片、礁石处有白浪，不像塑料平面"},
-    {"id": "subject_read", "weight": 2, "desc": "灯塔一眼可辨，站在悬崖上，轮廓衬在天空前"},
-    {"id": "realism", "weight": 2, "desc": "悬崖、草地、塔身材质与比例可信"},
-    {"id": "beam", "weight": 1, "desc": "灯室亮着，光束柔和可见"},
-    {"id": "exposure", "weight": 1, "desc": "太阳附近不大片过曝，暗部不死黑"}
+    {
+      "id": "golden_light",
+      "weight": 3,
+      "desc": "日落金光：天空暖橙到冷蓝的渐变，塔身有暖色轮廓光"
+    },
+    {
+      "id": "sea",
+      "weight": 3,
+      "desc": "海面可信：有浪的起伏和高光碎片、礁石处有白浪，不像塑料平面"
+    },
+    {
+      "id": "subject_read",
+      "weight": 2,
+      "desc": "灯塔一眼可辨，站在悬崖上，轮廓衬在天空前"
+    },
+    {
+      "id": "realism",
+      "weight": 2,
+      "desc": "悬崖、草地、塔身材质与比例可信"
+    },
+    {
+      "id": "beam",
+      "weight": 1,
+      "desc": "灯室亮着，光束柔和可见"
+    },
+    {
+      "id": "exposure",
+      "weight": 1,
+      "desc": "太阳附近不大片过曝，暗部不死黑"
+    }
   ]
 }
