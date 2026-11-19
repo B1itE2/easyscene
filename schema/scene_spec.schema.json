@@ -32,7 +32,8 @@
       "enum": [
         "foggy_forest_cabin",
         "coastal_lighthouse",
-        "lakeside_dock"
+        "lakeside_dock",
+        "greenhouse"
       ]
     },
     "subject": {
@@ -46,7 +47,8 @@
             "auto",
             "log_cabin",
             "lighthouse",
-            "dock"
+            "dock",
+            "greenhouse"
           ],
           "default": "auto"
         },
@@ -75,7 +77,8 @@
         "dawn",
         "morning",
         "dusk",
-        "night"
+        "night",
+        "noon"
       ],
       "default": "auto"
     },

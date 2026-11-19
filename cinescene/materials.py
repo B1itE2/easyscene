@@ -553,6 +553,20 @@ def boat_paint():
 
 def library(tex: dict):
     """Build every material once. ``tex`` maps role -> maps-dict or None."""
+    if tex.get("_style") == "greenhouse":
+        return {
+            "frame": painted(None, "WhiteSteel", (0.75, 0.76, 0.74), rough=0.4, streaks=0.15),
+            "glass": glass(),
+            "tiles": stone(tex.get("tiles"), name="AisleTiles", moss=0.12),
+            "gravel": stone(tex.get("gravel"), name="Gravel", moss=0.2),
+            "bench_wood": log_wood(tex.get("wood"), name="BenchWood", tint=(0.55, 0.5, 0.45), moss=0.05),
+            "terracotta": stone(tex.get("terracotta"), name="Terracotta", moss=0.1),
+            "soil": stone(None, name="Soil", moss=0.5),
+            "lawn": stone(tex.get("lawn"), name="Lawn", moss=0.0),
+            "bark": bark(None), "autumn_leaf": autumn_leaf([(0.05, 0.12, 0.02), (0.1, 0.2, 0.03),
+                                                            (0.08, 0.15, 0.04)]),
+            "fern": fern_proc(), "grass": grass(), "leafcover": leaf_cover(),
+        }
     if tex.get("_style") == "lakeside_dock":
         return {
             "deck": log_wood(tex.get("deck"), name="Deck", tint=(0.55, 0.5, 0.45), moss=0.2),

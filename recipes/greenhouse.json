@@ -1,0 +1,66 @@
+{
+  "id": "greenhouse",
+  "title": "温室花房 / Greenhouse",
+  "card": "recipes/greenhouse.md",
+  "supports": {"time_of_day": ["morning", "noon", "dusk"], "weather": ["clear", "haze"],
+               "motion": ["none"], "subject": ["greenhouse"]},
+  "defaults": {"time_of_day": "morning", "weather": "haze", "subject": {"type": "greenhouse"},
+               "motion": {"preset": "none"}},
+
+  "lighting_by_time": {"morning": "soft_daylight", "noon": "soft_daylight", "dusk": "golden_dusk"},
+  "lighting_overrides": {
+    "morning": {"sun": {"rel_azimuth": {"choice": [{"between": [120, 150]}, {"between": [-150, -120]}]},
+                        "elevation": {"between": [28, 42]}, "strength": {"between": [4.5, 6.0]},
+                        "kelvin": {"between": [4800, 5600]}, "angle": 4.0}},
+    "noon": {"sun": {"rel_azimuth": 160, "elevation": 60, "strength": 3.0, "kelvin": 5800, "angle": 4.0}}
+  },
+
+  "greenhouse": {"width": {"between": [6.5, 8.5]}, "length": {"between": [14.0, 20.0]},
+                 "wall_height": {"between": [2.6, 3.2]}, "roof_pitch_deg": {"between": [30, 40]},
+                 "bay_m": {"between": [1.6, 2.2]}, "bar": 0.06, "door_width": 1.3,
+                 "aisle_width": {"between": [1.3, 1.7]}, "bench_height": 0.8},
+
+  "plants": {
+    "_doc": "[poly haven id, size m, has its own pot]",
+    "models": [["potted_plant_01", 1.1, true], ["potted_plant_02", 0.85, true],
+               ["calathea_orbifolia_01", 0.75, false], ["anthurium_botany_01", 0.7, false],
+               ["periwinkle_plant", 0.55, false], ["fern_02", 0.8, false]],
+    "hero": "pachira_aquatica_01",
+    "empty_ratio": {"between": [0.0, 0.08]}, "under_bench": {"int_between": [90, 140]}
+  },
+
+  "fog": {"color": [1.0, 0.98, 0.95], "anisotropy": 0.6, "height_falloff_m": 6.0,
+          "breakup_scale_m": 3.0, "breakup_amount": 0.4,
+          "density_by_weather": {"clear": 0.002, "haze": {"between": [0.005, 0.009]}},
+          "cloud_layer": {"center_m": 0.0, "thickness_m": 1.0, "density": 0.0}},
+
+  "camera": {"inside_m": 0.6, "eye_height_m": {"between": [1.45, 1.7]}, "aim_z": 1.3, "fstop": 4.0},
+
+  "assets": {
+    "hdri": "kloofendal_overcast_puresky",
+    "textures": {"tiles": "terracotta_floor_tiles", "gravel": "river_small_rocks",
+                 "wood": "weathered_brown_planks", "terracotta": "clay_floor_001", "lawn": "sparse_grass"},
+    "models": {}
+  },
+
+  "post": {"contrast": 1.04, "saturation": 1.05, "gamma": 1.0,
+           "shadows_rgb": [0.0, 0.01, 0.0], "highlights_rgb": [0.03, 0.02, -0.01],
+           "vignette_angle": 0.45, "grain": 3},
+
+  "checks": {"mean_luma": [0.2, 0.7], "clipped_highlights_max": 0.04, "crushed_shadows_max": 0.04,
+             "subject_area": [0.005, 0.6]},
+
+  "review": {"pass_score": 7.0, "max_rounds": 2,
+             "fixes": {"soft_light": ["weather: haze", "time_of_day: morning"],
+                       "glass": ["another seed"], "plants": ["another seed"],
+                       "depth": ["lens_mm: 24-28"], "realism": ["another seed"], "exposure": ["time_of_day: noon"]}},
+
+  "rubric": [
+    {"id": "soft_light", "weight": 3, "desc": "柔和散射光，透过玻璃屋顶的光斑和薄雾光束"},
+    {"id": "plants", "weight": 3, "desc": "植物丰富、层次多，盆栽、蕨类、吊篮，不显得稀疏"},
+    {"id": "glass", "weight": 2, "desc": "白色钢架与玻璃结构清楚，有反射，看得出是温室"},
+    {"id": "depth", "weight": 2, "desc": "中间过道的透视纵深，视线被引到尽头的大棕榈"},
+    {"id": "realism", "weight": 1, "desc": "陶盆、木台、地砖可信"},
+    {"id": "exposure", "weight": 1, "desc": "屋顶不过曝成一片白"}
+  ]
+}

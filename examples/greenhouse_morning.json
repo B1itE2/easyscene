@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "name": "greenhouse_morning",
+  "prompt": "清晨的老式玻璃温室，阳光透过玻璃洒进来，两边摆满盆栽，尽头有一棵大棕榈",
+  "style": "greenhouse",
+  "time_of_day": "morning",
+  "weather": "haze",
+  "camera": {"aspect": "16:9", "lens_mm": 24, "framing": "medium", "view": "front"},
+  "seed": 1,
+  "quality": "preview"
+}

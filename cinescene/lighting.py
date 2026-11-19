@@ -39,6 +39,13 @@ PRESETS = {
         "practical_scale": 2.2,
         "sky": {"zenith": (0.004, 0.006, 0.012), "horizon": (0.015, 0.02, 0.03)},
     },
+    # 柔和散射光: bright overcast-ish daylight through glass, soft warm sun
+    "soft_daylight": {
+        "env_strength": 1.3, "env_tint": (1.0, 1.0, 1.0), "env_rotation_deg": 0, "env_saturation": 0.9,
+        "sun": {"rel_azimuth": 140, "elevation": 40, "strength": 2.5, "kelvin": 5200, "angle": 6.0},
+        "practical_scale": 1.0, "exposure": 0.0,
+        "sky": {"zenith": (0.5, 0.6, 0.7), "horizon": (0.8, 0.82, 0.8)},
+    },
     # 室内暖光: for interiors; very little outside light
     "interior_warm": {
         "env_strength": 0.12, "env_tint": (0.8, 0.88, 1.0), "env_rotation_deg": 0,

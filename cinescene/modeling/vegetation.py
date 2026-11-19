@@ -141,7 +141,30 @@ def fallen_log(rng, mats, name):
 
 
 # -------------------------------------------------------- Poly Haven models ---
-def load_model(asset_id, role, max_objects=8, max_size=None):
+def _join_all(objs, name):
+    """Merge several mesh objects into one (materials kept). Works headless."""
+    import bmesh
+    me = bpy.data.meshes.new(name)
+    bm = bmesh.new()
+    mats = []
+    for o in objs:
+        m = o.data.copy()
+        m.transform(o.matrix_world)
+        off = len(mats)
+        for mt in m.materials:
+            mats.append(mt)
+        for p in m.polygons:
+            p.material_index += off
+        bm.from_mesh(m)          # appends to the existing bmesh geometry
+        bpy.data.meshes.remove(m)
+    bm.to_mesh(me)
+    bm.free()
+    for mt in mats:
+        me.materials.append(mt)
+    return bpy.data.objects.new(name, me)
+
+
+def load_model(asset_id, role, max_objects=8, max_size=None, join=False):
     """Append mesh objects from a cached Poly Haven .blend, normalised so each
     sits on z=0 centred on the origin. Returns [] if unavailable."""
     path = assets.fetch_model(asset_id, role=role)
@@ -150,11 +173,11 @@ def load_model(asset_id, role, max_objects=8, max_size=None):
     with bpy.data.libraries.load(str(path), link=False, relative=False) as (src, dst):
         dst.objects = [n for n in src.objects]
     out = []
-    for o in dst.objects:
-        if o is None or o.type != "MESH":
-            continue
-        if any(t in o.name.upper() for t in ("LOD1", "LOD2", "LOD3", "LOD4")):
-            continue
+    srcs = [o for o in dst.objects if o is not None and o.type == "MESH" and
+            not any(t in o.name.upper() for t in ("LOD1", "LOD2", "LOD3", "LOD4"))]
+    if join and srcs:
+        srcs = [_join_all(srcs, asset_id)]
+    for o in srcs:
         me = o.data.copy()
         me.transform(o.matrix_world)
         xs = [v.co.x for v in me.vertices]
