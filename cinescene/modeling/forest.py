@@ -94,7 +94,7 @@ def spruce(rng, height, crown_base_ratio, mats, dead=False, name="Spruce"):
     z, Lmax = zb, height * rng.uniform(0.13, 0.17)
     while z < height - 0.3:
         u = (height - z) / (height - zb)                 # 1 at crown base, 0 at top
-        n_br = rng.randint(6, 9)
+        n_br = rng.randint(7, 10)
         a0 = rng.uniform(0, math.tau)
         for k in range(n_br):
             a = a0 + k * math.tau / n_br + rng.uniform(-0.3, 0.3)
@@ -102,7 +102,7 @@ def spruce(rng, height, crown_base_ratio, mats, dead=False, name="Spruce"):
             droop = rng.uniform(0.08, 0.22) * (0.5 + 0.7 * u)
             st = axis_at(z) + Vector((math.cos(a), math.sin(a), 0)) * r0 * (1 - 0.8 * (1 - u))
             _branch(mb, st, a, L, droop, rng)
-        z += rng.uniform(0.3, 0.42) * (0.7 + 0.3 * height / 20)
+        z += rng.uniform(0.26, 0.36) * (0.7 + 0.3 * height / 20)
     # leader tip
     for k in range(4):
         a = k * math.tau / 4 + rng.uniform(-0.3, 0.3)

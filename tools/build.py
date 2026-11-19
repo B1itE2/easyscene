@@ -25,6 +25,9 @@ def parse():
     ap.add_argument("--seed", type=int, help="override spec.seed")
     ap.add_argument("--no-render", action="store_true", help="build + save .blend only")
     ap.add_argument("--force", action="store_true", help="ignore the memory safety line")
+    ap.add_argument("--still-only", action="store_true", help="moves: render only the final frame")
+    ap.add_argument("--step", type=int, default=1,
+                    help="moves: render every N-th frame (quick look; MP4 plays at fps/N)")
     return ap.parse_args(argv)
 
 
@@ -43,11 +46,16 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
 
     ctx = build.build_scene(spec)
-    bud = build.check_budget(ctx, force=a.force)
+    shot = ctx["shot"]
+    n_frames = 1 if (shot is None or a.still_only or a.no_render) else \
+        len(range(0, shot.frames, max(1, a.step))) + 1
+    bud = build.check_budget(ctx, frames=n_frames, force=a.force)
     bpy.ops.wm.save_as_mainfile(filepath=str(out / "scene.blend"), compress=True)
     extra = {"budget": bud}
     if not a.no_render:
         extra["still"] = build.render_still(ctx, out, spec)
+        if shot is not None and not a.still_only:
+            extra["animation"] = build.render_animation(ctx, out, spec, step=max(1, a.step))
     build.write_manifest(out, spec, ctx, extra)
     print(f"[cinescene] DONE -> {out}", flush=True)
 

@@ -126,8 +126,8 @@ def frame_edge_points(solved, hfov, terrain, rng):
             p = Vector((cx, cy, 0)) + fwd * d + right * off
             pts["ground"].append((p.x, p.y))
     side = -1 if solved["shift_x"] <= 0 else 1          # trunk on the empty side
-    d = rng.uniform(9.0, 11.0)
-    p = Vector((cx, cy, 0)) + fwd * d + right * side * math.tan(hfov / 2) * d * 0.97
+    d = rng.uniform(7.0, 8.5)
+    p = Vector((cx, cy, 0)) + fwd * d + right * side * math.tan(hfov / 2) * d * 0.9
     pts["trunk"].append((p.x, p.y))
     return pts
 

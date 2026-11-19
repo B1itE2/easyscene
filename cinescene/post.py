@@ -63,3 +63,18 @@ def encode_video(frame_pattern, dst, fps: int, post: dict, seed: int, crf: int =
     run([exe, "-y", "-loglevel", "error", "-framerate", str(fps), "-i", str(frame_pattern),
          "-vf", vf, "-c:v", "libx264", "-preset", "slow", "-crf", str(crf),
          "-movflags", "+faststart", str(dst)])
+
+
+def contact_sheet(frame_pattern, dst, n_frames, cols=3, rows=2, width=1440):
+    """Thumbnail grid of evenly spaced frames, first and last always included."""
+    exe = ffmpeg_bin()
+    if exe is None or n_frames < 1:
+        return False
+    k = cols * rows
+    picks = sorted({round(i * (n_frames - 1) / (k - 1)) for i in range(k)})
+    sel = "+".join(f"eq(n\\,{p})" for p in picks)
+    tw = width // cols
+    run([exe, "-y", "-loglevel", "error", "-i", str(frame_pattern),
+         "-vf", f"select='{sel}',scale={tw}:-2,tile={cols}x{rows}:padding=4:color=white",
+         "-frames:v", "1", "-fps_mode", "vfr", str(dst)])
+    return True

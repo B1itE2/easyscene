@@ -48,26 +48,49 @@ def height_fog(extent, top, fog: dict, density: float, tint=(1, 1, 1)):
     ground = nb.math("MULTIPLY", density,
                      nb.math("EXPONENT", nb.math("DIVIDE", nb.math("MAXIMUM", z, 0.0),
                                                  -fog["height_falloff_m"])))
-    # high cloud bank (used by the cloud-descent move): gaussian layer
+    # high cloud bank (used by the cloud-descent move): gaussian layer. With
+    # center_xy/radius_m it is a *local* bank over the opening shot only, so it
+    # does not shade the low sun that lights the subject.
     cl = fog["cloud_layer"]
     g = nb.math("DIVIDE", nb.math("SUBTRACT", z, cl["center_m"]), cl["thickness_m"])
     cloud = nb.math("MULTIPLY", cl["density"],
                     nb.math("EXPONENT", nb.math("MULTIPLY", nb.math("MULTIPLY", g, g), -1.0)))
+    if cl.get("radius_m"):
+        x, y, _ = nb.sep(p)
+        cx, cy = cl["center_xy"]
+        dx, dy = nb.math("SUBTRACT", x, cx), nb.math("SUBTRACT", y, cy)
+        rr = nb.math("SQRT", nb.math("ADD", nb.math("MULTIPLY", dx, dx), nb.math("MULTIPLY", dy, dy)))
+        wob = nb.math("MULTIPLY", nb.noise(p, scale=0.05, detail=2.0), cl["radius_m"] * 0.5)
+        cloud = nb.math("MULTIPLY", cloud,
+                        nb.maprange(nb.math("ADD", rr, wob), cl["radius_m"] * 1.2,
+                                    cl["radius_m"] * 0.5, interp="SMOOTHSTEP"))
     # breakup: slow drifting 4D noise so fog has banks and holes, not a flat wall
     n = nb.noise(p, scale=1.0 / fog["breakup_scale_m"], detail=3.0, rough=0.5,
                  dims="4D", w=nb.math("MULTIPLY", t, 0.03))
     amt = fog["breakup_amount"]
     breakup = nb.maprange(n, 0.3, 0.7, 1.0 - amt, 1.0 + amt)
-    dens = nb.math("MULTIPLY", nb.math("ADD", ground, cloud), breakup)
-    dens = nb.math("MAXIMUM", dens, 0.0)
+    dens = nb.math("MAXIMUM", nb.math("MULTIPLY", ground, breakup), 0.0)
     vol = nb.new("ShaderNodeVolumePrincipled", inputs={
         "Color": tuple(c * k for c, k in zip(fog["color"], tint)),
         "Anisotropy": fog["anisotropy"]})
     nb.set(vol, "Density", dens)
+    # the cloud bank is its own shader: whiter and nearly isotropic, so it reads as
+    # bright cloud from inside instead of the dark grey that strong forward scattering gives
+    cvol = nb.new("ShaderNodeVolumePrincipled", inputs={"Color": (0.93, 0.95, 0.97),
+                                                        "Anisotropy": 0.15})
+    nb.set(cvol, "Density", nb.math("MAXIMUM", nb.math("MULTIPLY", cloud, breakup), 0.0))
+    add = nb.new("ShaderNodeAddShader")
+    nb.links.new(vol.outputs[0], add.inputs[0])
+    nb.links.new(cvol.outputs[0], add.inputs[1])
     out = nb.new("ShaderNodeOutputMaterial")
-    nb.links.new(vol.outputs[0], nb.i(out, "Volume"))
+    nb.links.new(add.outputs[0], nb.i(out, "Volume"))
     obj.data.materials.append(mat)
     return obj
+
+
+def PLUME_WIDTH(z):
+    """Gaussian radius of the plume at height z (metres)."""
+    return 0.28 + 0.16 * z
 
 
 def smoke_bounds(top_pos, smoke: dict):
@@ -79,7 +102,7 @@ def smoke_bounds(top_pos, smoke: dict):
     H = smoke["height_m"]
     wx, wy = smoke["wind"]
     dx, dy = wx * 0.25 * H ** 1.3, wy * 0.25 * H ** 1.3
-    pad = 0.6 + 0.2 * H
+    pad = 2.2 * PLUME_WIDTH(H) + 0.6 * H          # plume width + room for the warp meander
     return (top_pos[0] + min(0, dx) - pad, top_pos[0] + max(0, dx) + pad,
             top_pos[1] + min(0, dy) - pad, top_pos[1] + max(0, dy) + pad)
 
@@ -104,14 +127,14 @@ def chimney_smoke(top_pos, smoke: dict, seed: int):
     warp = nb.noise(wq, scale=1.0, detail=2.0, dims="4D", w=nb.math("MULTIPLY", t, 0.05),
                     out="Color")
     wx_, wy_, _ = nb.sep(warp)
-    amp = nb.math("MULTIPLY", nb.math("MAXIMUM", z, 0.0), 0.55)
+    amp = nb.math("MULTIPLY", nb.math("MAXIMUM", z, 0.0), 0.4)
     bend = nb.math("POWER", nb.math("MAXIMUM", z, 0.0), 1.3)
     qx = nb.math("SUBTRACT", nb.math("SUBTRACT", x, nb.math("MULTIPLY", bend, wx * 0.25)),
                  nb.math("MULTIPLY", nb.math("SUBTRACT", wx_, 0.5), amp))
     qy = nb.math("SUBTRACT", nb.math("SUBTRACT", y, nb.math("MULTIPLY", bend, wy * 0.25)),
                  nb.math("MULTIPLY", nb.math("SUBTRACT", wy_, 0.5), amp))
     r = nb.math("SQRT", nb.math("ADD", nb.math("MULTIPLY", qx, qx), nb.math("MULTIPLY", qy, qy)))
-    w = nb.math("ADD", 0.28, nb.math("MULTIPLY", z, 0.3))          # spreads as it rises
+    w = nb.math("ADD", PLUME_WIDTH(0), nb.math("MULTIPLY", z, PLUME_WIDTH(1) - PLUME_WIDTH(0)))
     rr = nb.math("DIVIDE", r, w)
     radial = nb.math("EXPONENT", nb.math("MULTIPLY", nb.math("MULTIPLY", rr, rr), -1.0))
     # puffs: contrasty noise scrolling upward (noise moves down in object space)
@@ -123,8 +146,14 @@ def chimney_smoke(top_pos, smoke: dict, seed: int):
     vert = nb.math("MULTIPLY", nb.maprange(z, 0.0, 0.1),
                    nb.math("EXPONENT", nb.math("DIVIDE", z, -H * 0.22)))
     core_ = nb.math("ADD", shape, nb.math("MULTIPLY", 0.8, nb.maprange(z, 1.5, 0.0)))  # solid start
+    # fade to zero 1.5 m before every wall and the lid: the box must never show
+    walls = None
+    for coord, lo, hi in ((x, x0, x1), (y, y0, y1), (z, -10.0, H)):
+        dmin = nb.math("MINIMUM", nb.math("SUBTRACT", coord, lo), nb.math("SUBTRACT", hi, coord))
+        f = nb.maprange(dmin, 0.0, 1.5)
+        walls = f if walls is None else nb.math("MULTIPLY", walls, f)
     dens = nb.math("MULTIPLY", nb.math("MULTIPLY", radial, core_),
-                   nb.math("MULTIPLY", vert, smoke["density"]))
+                   nb.math("MULTIPLY", nb.math("MULTIPLY", vert, smoke["density"]), walls))
     # low anisotropy: a forward-scattering plume glows like a searchlight in backlight
     vol = nb.new("ShaderNodeVolumePrincipled", inputs={"Color": (0.78, 0.79, 0.81),
                                                         "Anisotropy": 0.05})

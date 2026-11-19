@@ -19,7 +19,7 @@ PRESETS = {
     "cold_fog_morning": {
         # ambient low vs sun high: sunlit fog must out-shine skylit fog or no light shafts
         "env_strength": 0.55, "env_tint": (0.80, 0.93, 1.0), "env_rotation_deg": 110,
-        "sun": {"rel_azimuth": -30, "elevation": 24, "strength": 14.0, "kelvin": 7200, "angle": 1.0},
+        "sun": {"rel_azimuth": -30, "elevation": 24, "strength": 14.0, "kelvin": 7200, "angle": 2.5},
         "exposure": 0.2,
         "practical_scale": 1.0,
         "sky": {"zenith": (0.30, 0.42, 0.52), "horizon": (0.62, 0.70, 0.72)},

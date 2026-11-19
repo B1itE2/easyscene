@@ -18,20 +18,20 @@ from .mesh import MeshBuilder, frame
 # ------------------------------------------------------------ procedural ---
 def grass_clump(rng, mats, name):
     mb = MeshBuilder()
-    for _ in range(rng.randint(30, 50)):
+    for _ in range(rng.randint(60, 90)):
         a = rng.uniform(0, math.tau)
-        r0 = rng.uniform(0, 0.16)
+        r0 = rng.uniform(0, 0.16) ** 0.8
         base = Vector((math.cos(a) * r0, math.sin(a) * r0, -0.02))
-        h = rng.uniform(0.08, 0.38) * rng.choice((0.6, 1.0, 1.0))
-        lean = rng.uniform(0.15, 0.6)
+        h = rng.uniform(0.08, 0.32) * rng.choice((0.55, 0.8, 1.0))
+        lean = rng.uniform(0.35, 0.9)          # soft arching blades, not upright spikes
         d = Vector((math.cos(a + rng.uniform(-0.6, 0.6)), math.sin(a + rng.uniform(-0.6, 0.6)), 0))
         side = Vector((-d.y, d.x, 0))
-        w = rng.uniform(0.004, 0.008)
+        w = rng.uniform(0.0025, 0.005)
         rows = []
-        for i in range(5):
-            t = i / 4
-            c = base + d * (lean * h * t * t) + Vector((0, 0, h * t * (1 - 0.25 * t * lean)))
-            ww = w * (1 - t * 0.9)
+        for i in range(6):
+            t = i / 5
+            c = base + d * (lean * h * t * t) + Vector((0, 0, h * t * (1 - 0.45 * t * lean)))
+            ww = w * (1 - t * 0.95)
             rows.append([c - side * ww, c + side * ww])
         mb.strip(rows)
     return mb.build(name, [mats["grass"]], link=False)

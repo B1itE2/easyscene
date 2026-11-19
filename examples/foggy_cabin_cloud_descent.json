@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "foggy_cabin_cloud_descent",
+  "prompt": "用云雾下降开场，10 秒，清晨雾气森林里的小木屋",
+  "style": "foggy_forest_cabin",
+  "time_of_day": "morning",
+  "weather": "fog",
+  "camera": {"aspect": "16:9", "lens_mm": 35, "framing": "medium", "view": "three_quarter_left"},
+  "motion": {"preset": "cloud_descent", "duration_s": 10, "fps": 24},
+  "seed": 7,
+  "quality": "draft"
+}
