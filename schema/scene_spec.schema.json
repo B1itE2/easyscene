@@ -42,6 +42,6 @@
       }
     },
     "seed": {"type": "integer", "minimum": 0, "maximum": 2147483647, "default": 1},
-    "quality": {"type": "string", "enum": ["draft", "preview", "final"], "default": "preview"}
+    "quality": {"type": "string", "enum": ["draft", "preview", "final_fast", "final"], "default": "preview"}
   }
 }

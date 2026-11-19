@@ -23,6 +23,13 @@ QUALITY = {
         "max_bounces": 6, "transparent_bounces": 16, "texture_res": "1k",
         "texture_limit": "1024", "tree_density": 1.0, "undergrowth": 1.0,
     },
+    # 1080p with fewer samples + denoiser: ~4-6x faster than final, fine for social video
+    "final_fast": {
+        "short_side": 1080, "samples": 64, "denoise": True,
+        "volume_step_rate": 2.0, "volume_max_steps": 512, "volume_bounces": 1,
+        "max_bounces": 8, "transparent_bounces": 24, "texture_res": "2k",
+        "texture_limit": "2048", "tree_density": 1.0, "undergrowth": 1.0,
+    },
     "final": {
         "short_side": 1080, "samples": 256, "denoise": True,
         "volume_step_rate": 1.0, "volume_max_steps": 1024, "volume_bounces": 1,

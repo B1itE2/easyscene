@@ -21,7 +21,7 @@ def parse():
     ap = argparse.ArgumentParser(prog="tools/build.py")
     ap.add_argument("--spec", required=True, help="scene spec JSON")
     ap.add_argument("--out", help="output folder (default out/<name>)")
-    ap.add_argument("--quality", choices=["draft", "preview", "final"], help="override spec.quality")
+    ap.add_argument("--quality", choices=["draft", "preview", "final_fast", "final"], help="override spec.quality")
     ap.add_argument("--seed", type=int, help="override spec.seed")
     ap.add_argument("--no-render", action="store_true", help="build + save .blend only")
     ap.add_argument("--force", action="store_true", help="ignore the memory safety line")

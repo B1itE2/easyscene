@@ -87,7 +87,7 @@ def setup_render(scene, quality: str, aspect: str, seed: int):
     c.device = "CPU" if backend == "CPU" else "GPU"
     c.samples = q["samples"]
     c.use_adaptive_sampling = True
-    c.adaptive_threshold = 0.02 if quality != "final" else 0.01
+    c.adaptive_threshold = 0.01 if quality == "final" else 0.02
     c.seed = seed % 2147483647        # Cycles noise pattern is part of reproducibility
     c.use_animated_seed = False
     c.use_denoising = q["denoise"]

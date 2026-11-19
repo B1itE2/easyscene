@@ -56,7 +56,7 @@ def build_scene(spec: dict):
         tex[role] = assets.fetch_texture(tid, res, role=role)
         if tex[role] is None:
             log(f"texture {tid} unavailable -> procedural {role}")
-    hdri = assets.fetch_hdri(R["assets"]["hdri"], "1k" if spec["quality"] != "final" else "2k")
+    hdri = assets.fetch_hdri(R["assets"]["hdri"], q["texture_res"])
     mats = materials.library(tex)
 
     style = styles.get(spec["style"])
@@ -146,7 +146,7 @@ def render_animation(ctx, out: Path, spec: dict, step=1):
         except OSError:                       # Windows without developer mode: copy instead
             shutil.copyfile(f, dst)
     fps = max(1, round(ctx["shot"].fps / step))
-    name = {"final": "final", "preview": "preview", "draft": "draft"}[spec["quality"]]
+    name = spec["quality"]
     video = out / (f"{name}.mp4" if step == 1 else f"{name}_step{step}.mp4")
     try:
         post.encode_video(seq / "s_%04d.png", video, fps, ctx["recipe"]["post"], spec["seed"])
