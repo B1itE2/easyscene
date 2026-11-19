@@ -5,8 +5,11 @@
   "supports": {
     "time_of_day": ["dawn", "morning", "dusk", "night"],
     "weather": ["dense_fog", "fog", "light_fog"],
-    "motion": ["none", "cloud_descent"]
+    "motion": ["none", "cloud_descent"],
+    "subject": ["log_cabin"]
   },
+  "defaults": {"time_of_day": "morning", "weather": "fog", "subject": {"type": "log_cabin"},
+               "motion": {"preset": "cloud_descent"}},
 
   "lighting_by_time": {
     "dawn": "cold_fog_morning",

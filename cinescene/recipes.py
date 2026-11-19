@@ -44,6 +44,25 @@ def available():
     return sorted(p.stem for p in RECIPE_DIR.glob("*.json"))
 
 
+_FALLBACK = {"time_of_day": "morning", "weather": "fog"}
+
+
+def apply_defaults(spec: dict):
+    """Replace "auto" values with the style's defaults (recipe ``defaults`` block)."""
+    try:
+        d = load(spec["style"]).get("defaults", {})
+    except FileNotFoundError:
+        return spec
+    for key in ("time_of_day", "weather"):
+        if spec.get(key) == "auto":
+            spec[key] = d.get(key, _FALLBACK[key])
+    if spec.get("subject", {}).get("type") == "auto":
+        spec["subject"]["type"] = d.get("subject", {}).get("type", "log_cabin")
+    if spec.get("motion", {}).get("preset") == "auto":
+        spec["motion"]["preset"] = d.get("motion", {}).get("preset", "none")
+    return spec
+
+
 def check_spec_against_recipe(spec: dict):
     """Cross-field checks the schema cannot express. Returns a list of errors."""
     try:
@@ -56,6 +75,10 @@ def check_spec_against_recipe(spec: dict):
         if key in sup and spec.get(key) not in sup[key]:
             errs.append(f"spec.{key}: {spec.get(key)!r} not supported by style "
                         f"{spec['style']!r} (choose from {sup[key]})")
+    st = spec.get("subject", {}).get("type")
+    if "subject" in sup and st not in sup["subject"]:
+        errs.append(f"spec.subject.type: {st!r} not available in style {spec['style']!r} "
+                    f"(choose from {sup['subject']})")
     preset = spec.get("motion", {}).get("preset")
     if "motion" in sup and preset not in sup["motion"]:
         errs.append(f"spec.motion.preset: {preset!r} not implemented yet for this style "

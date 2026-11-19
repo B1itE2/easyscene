@@ -64,8 +64,8 @@ def solve_static(subject, terrain, cam_spec, cam_cfg):
     cx, cy, _ = subject["center"]
     x, y = cx + dist * math.sin(az), cy - dist * math.cos(az)
     terrain.flatten_segment((x, y), (cx, cy), 4.0)   # no hill between us and the subject
-    z = terrain.height(x, y) + cam_cfg["eye_height_m"]
-    target = Vector((cx, cy, hs * 0.40))
+    z = max(terrain.height(x, y) + cam_cfg["eye_height_m"], cam_cfg.get("min_z", -1e9))
+    target = Vector((cx, cy, subject.get("base_z", 0.0) + hs * cam_cfg.get("aim_height", 0.40)))
     loc = Vector((x, y, z))
     shift = {"center": 0.0, "thirds_left": 1 / 6, "thirds_right": -1 / 6}[cam_spec["composition"]]
     if budget.ASPECTS[aspect] < 1:

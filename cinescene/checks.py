@@ -37,7 +37,8 @@ def scene_checks(layout: dict, terrain=None):
     #    their bounding box touches an already-supported part (roof on logs,
     #    curtains inside the walls). Whatever is left over is floating.
     dg = bpy.context.evaluated_depsgraph_get()
-    col = bpy.data.collections.get("Cabin")
+    col = bpy.data.collections.get(layout["subject"].get("collection", "Cabin")) or \
+        bpy.data.collections.get("Lighthouse")
     parts = [o for o in (col.objects if col else []) if o.type == "MESH"]
     boxes, supported = {}, set()
     for obj in parts:

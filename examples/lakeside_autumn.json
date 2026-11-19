@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "lakeside_autumn",
+  "prompt": "秋天清晨的湖边，红叶倒映在平静的湖面上，有一座木码头，镜头贴着水面飞过去",
+  "style": "lakeside_dock",
+  "time_of_day": "morning",
+  "weather": "light_fog",
+  "camera": {"aspect": "16:9", "lens_mm": 35, "framing": "medium", "view": "three_quarter_left"},
+  "motion": {"preset": "water_skim", "duration_s": 10, "fps": 24},
+  "seed": 2,
+  "quality": "draft"
+}

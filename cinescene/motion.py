@@ -257,6 +257,75 @@ def cloud_descent(layout, terrain, cfg, duration_s, fps):
                  "cloud_center_xy": (p0.x, p0.y)})
 
 
+def orbit(layout, terrain, cfg, duration_s, fps):
+    """Circle around the subject, always looking at it, landing on the hero framing.
+
+    Radius and height interpolate from a start setting to the final camera, so
+    the move can also spiral in. Yaw changes smoothly (angular speed is checked
+    in stats); clearance above terrain is enforced per frame.
+    """
+    sub = layout["subject"]
+    fin = layout["camera"]
+    C = Vector((sub["center"][0], sub["center"][1], 0.0))
+    F = Vector(fin["location"])
+    a1 = math.atan2(F.y - C.y, F.x - C.x)
+    r1 = math.hypot(F.x - C.x, F.y - C.y)
+    sweep = math.radians(cfg["sweep_deg"]) * cfg.get("direction", 1)
+    a0 = a1 - sweep
+    r0 = r1 * cfg.get("start_radius_scale", 1.0)
+    z0 = F.z + cfg.get("start_rise_m", 0.0)
+    t_end = Vector(fin["target"])
+    t_start = t_end + Vector((0, 0, cfg.get("start_look_up_m", 0.0)))
+    ez = cfg.get("ease", {})
+    easing = Ease(ez.get("accel", 0.2), ez.get("decel", 0.3))
+    frames = int(round(duration_s * fps)) + 1
+    pos, tgt = [], []
+    for i in range(frames):
+        e = easing(i / (frames - 1))
+        a = a0 + sweep * e
+        r = r0 + (r1 - r0) * e
+        p = Vector((C.x + math.cos(a) * r, C.y + math.sin(a) * r, z0 + (F.z - z0) * smootherstep(e)))
+        g = terrain.height(p.x, p.y) + cfg.get("min_clearance_m", 2.0)
+        if p.z < g:
+            p.z = g
+        pos.append(p)
+        tgt.append(t_start.lerp(t_end, smootherstep(e)))
+    return Shot("orbit", pos, tgt, fps, {"sweep_deg": cfg["sweep_deg"], "radius_m": round(r1, 1)})
+
+
+def water_skim(layout, terrain, cfg, duration_s, fps):
+    """Glide low over calm water toward the subject, then rise gently to the hero framing.
+
+    Starts ``start_distance`` metres out along the hero sight line, ``skim_height``
+    above the water, with a slight sideways arc; never drops below
+    ``min_height_above_water``. Looks a little ahead of the subject at first
+    (horizon in frame), then settles on the hero target.
+    """
+    fin = layout["camera"]
+    F = Vector(fin["location"])
+    T1 = Vector(fin["target"])
+    d = Vector((F.x - T1.x, F.y - T1.y, 0)).normalized()
+    side = Vector((-d.y, d.x, 0)) * cfg.get("arc_m", 6.0) * cfg.get("direction", 1)
+    h = cfg["skim_height_m"]
+    S = F + d * cfg["start_distance_m"] + side
+    S.z = h
+    p1 = S.lerp(F, 0.35) - side * 0.2
+    p1.z = h
+    p2 = S.lerp(F, 0.8) - side * 0.1
+    p2.z = h + (F.z - h) * 0.25
+    route = Route([S, p1, p2, F])
+    t0 = T1 + Vector((0, 0, cfg.get("start_look_up_m", 1.5)))
+    ez = cfg.get("ease", {})
+    frames = int(round(duration_s * fps)) + 1
+    pos, tgt = _sample(route, t0, T1, frames, Ease(ez.get("accel", 0.15), ez.get("decel", 0.35)))
+    floor = cfg.get("min_height_above_water_m", 0.6)
+    for i, c in enumerate(pos):
+        g = max(terrain.height(c.x, c.y) + 1.0, floor)
+        if c.z < g:
+            pos[i] = Vector((c.x, c.y, g))
+    return Shot("water_skim", pos, tgt, fps, {"start": tuple(round(v, 2) for v in S)})
+
+
 def _reserved(name):
     def planner(*_a, **_k):
         raise NotImplementedError(f"motion preset {name!r} is reserved but not implemented yet")
@@ -265,9 +334,10 @@ def _reserved(name):
 
 PRESETS = {
     "cloud_descent": cloud_descent,
-    "orbit": _reserved("orbit"),
+    "orbit": orbit,
     "push_in": _reserved("push_in"),
     "low_flyover": _reserved("low_flyover"),
+    "water_skim": water_skim,
 }
 
 

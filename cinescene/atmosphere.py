@@ -70,6 +70,12 @@ def height_fog(extent, top, fog: dict, density: float, tint=(1, 1, 1)):
     amt = fog["breakup_amount"]
     breakup = nb.maprange(n, 0.3, 0.7, 1.0 - amt, 1.0 + amt)
     dens = nb.math("MAXIMUM", nb.math("MULTIPLY", ground, breakup), 0.0)
+    # fade out over the outer 30% of the box: a hard box face lit from behind
+    # (sun near the horizon) shows up as a bright rectangle
+    x, y, _ = nb.sep(p)
+    rxy = nb.math("MAXIMUM", nb.math("ABSOLUTE", x), nb.math("ABSOLUTE", y))
+    dens = nb.math("MULTIPLY", dens, nb.maprange(rxy, h, h * 0.7, interp="SMOOTHSTEP"))
+    dens = nb.math("MULTIPLY", dens, nb.maprange(z, top, top * 0.75, interp="SMOOTHSTEP"))
     vol = nb.new("ShaderNodeVolumePrincipled", inputs={
         "Color": tuple(c * k for c, k in zip(fog["color"], tint)),
         "Anisotropy": fog["anisotropy"]})

@@ -68,6 +68,7 @@ def validate(spec: dict) -> dict:
     out = _check(copy.deepcopy(spec), load_schema(), "spec", errors)
     if not errors:
         from . import recipes
+        recipes.apply_defaults(out)
         errors += recipes.check_spec_against_recipe(out)
     if errors:
         raise SpecError("\n".join(errors))

@@ -57,6 +57,8 @@ def build_scene(spec: dict):
         if tex[role] is None:
             log(f"texture {tid} unavailable -> procedural {role}")
     hdri = assets.fetch_hdri(R["assets"]["hdri"], q["texture_res"])
+    tex["_style"] = spec["style"]
+    tex["_leaf_palette"] = R.get("forest", {}).get("leaf_palette")
     mats = materials.library(tex)
 
     style = styles.get(spec["style"])

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "lighthouse_sunset",
+  "prompt": "日落时海边悬崖上的灯塔，金色的光洒在海面上，镜头绕着灯塔转",
+  "style": "coastal_lighthouse",
+  "time_of_day": "dusk",
+  "weather": "haze",
+  "camera": {"aspect": "16:9", "lens_mm": 35, "framing": "medium", "view": "three_quarter_left"},
+  "motion": {"preset": "orbit", "duration_s": 10, "fps": 24},
+  "seed": 3,
+  "quality": "draft"
+}

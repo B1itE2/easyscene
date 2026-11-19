@@ -412,8 +412,171 @@ def fabric(rgb=(0.35, 0.12, 0.06)):
     return mat
 
 
+def painted(maps, name, rgb, rough=0.6, streaks=0.25):
+    """Painted masonry (lighthouse tower): plaster texture tinted, with rain streaks."""
+    mat, nb = new_material(name)
+    obj = nb.coord("Object")
+    vec = nb.mapping(obj, scale=(0.5, 0.5, 0.5))
+    if maps:
+        col, r, nor = _pbr_maps(nb, maps, vec, box=True, tint=(1, 1, 1), bump=0.3)
+        col = nb.mix(0.85, col, rgb, "MULTIPLY")
+        col = nb.mix(0.55, col, rgb)
+    else:
+        col, r, nor = rgb, rough, None
+    # vertical dirt streaks: noise stretched along z
+    st = nb.noise(nb.mapping(obj, scale=(6.0, 6.0, 0.25)), detail=3.0)
+    dirt = nb.maprange(st, 0.5, 0.75, 0.0, streaks)
+    col = nb.mix(dirt, col, (0.25, 0.22, 0.18), "MULTIPLY")
+    _finish(nb, col, rough, nor)
+    return mat
+
+
+def metal(name="Metal", rgb=(0.04, 0.045, 0.05)):
+    mat, nb = new_material(name)
+    rust = nb.maprange(nb.noise(nb.coord("Object"), scale=4.0, detail=6.0), 0.55, 0.75)
+    col = nb.mix(rust, rgb, (0.12, 0.05, 0.02))
+    _finish(nb, col, nb.mixf(rust, 0.35, 0.8), extra={"Metallic": nb.mixf(rust, 0.8, 0.1)})
+    return mat
+
+
+def coast_ground(maps_grass, maps_rock, top_z):
+    """Grass on the plateau, raw rock on steep faces, dark wet band at the waterline."""
+    mat, nb = new_material("CoastGround")
+    world = nb.coord("Object")
+    _, _, z = nb.sep(world)
+    geo = nb.new("ShaderNodeNewGeometry")
+    _, _, nz = nb.sep(nb.o(geo, "Normal"))
+    vg = nb.mapping(world, scale=(0.5, 0.5, 0.5))
+    vr = nb.mapping(world, scale=(0.18, 0.18, 0.18))
+    if maps_grass:
+        cg, rg, _ = _pbr_maps(nb, maps_grass, vg, box=True, tint=(0.38, 0.5, 0.24))
+    else:
+        cg, rg = (0.08, 0.1, 0.03), 0.8
+    if maps_rock:
+        cr, rr, nr = _pbr_maps(nb, maps_rock, vr, box=True, tint=(0.8, 0.76, 0.7), bump=1.0)
+    else:
+        cr, rr, nr = _proc_stone(nb, vr)
+    wob = nb.math("MULTIPLY", nb.noise(world, scale=0.4, detail=4.0), 0.25)
+    gmask = nb.maprange(nb.math("ADD", nz, wob), 0.72, 0.86)
+    col = nb.mix(gmask, cr, cg)
+    rough = nb.mixf(gmask, rr, rg)
+    # wet rock and algae near the waterline
+    wet = nb.maprange(z, 2.0, 0.2)
+    col = nb.mix(nb.math("MULTIPLY", wet, 0.7), col, (0.02, 0.025, 0.015))
+    rough = nb.mixf(wet, rough, 0.25)
+    col = _variation(nb, col, world, scale=0.03, amount=0.2)
+    _finish(nb, col, rough, nr)
+    return mat
+
+
+def autumn_leaf(palette):
+    """Alpha-cut leaf card; colour = per-instance + per-clump random over an autumn palette."""
+    mat, nb = new_material("AutumnLeaf")
+    u, v, _ = nb.sep(nb.coord("UV"))
+    du = nb.math("MULTIPLY", nb.math("SUBTRACT", u, 0.5), 2.0)
+    dv = nb.math("MULTIPLY", nb.math("SUBTRACT", v, 0.45), 2.0)
+    # lobed leaf: radius modulated by angle (5 lobes), small stem notch
+    ang = nb.math("ARCTAN2", dv, du)
+    lobes = nb.math("ADD", 0.72, nb.math("MULTIPLY", 0.22, nb.math("ABSOLUTE", nb.math("SINE",
+                    nb.math("MULTIPLY", ang, 2.5)))))
+    r = nb.math("SQRT", nb.math("ADD", nb.math("MULTIPLY", du, du), nb.math("MULTIPLY", dv, dv)))
+    alpha = nb.math("LESS_THAN", r, lobes)
+    rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
+    clump = nb.noise(nb.coord("Object"), scale=0.8, detail=1.0)
+    k = nb.math("FRACT", nb.math("ADD", rnd, nb.math("MULTIPLY", clump, 1.7)))
+    stops = [(i / max(1, len(palette) - 1), tuple(c)) for i, c in enumerate(palette)]
+    col = nb.ramp(k, stops)
+    vein = nb.math("MULTIPLY", nb.maprange(r, 0.0, 0.8, 0.75, 1.0), 1.0)
+    col = nb.mix(1.0, col, nb.comb(vein, vein, vein), "MULTIPLY")
+    bsdf = nb.new("ShaderNodeBsdfPrincipled")
+    nb.set(bsdf, "Base Color", col)
+    nb.set(bsdf, "Roughness", 0.55)
+    nb.set(bsdf, "Specular IOR Level", 0.3)
+    tr = nb.new("ShaderNodeBsdfTranslucent")
+    nb.set(tr, "Color", nb.mix(1.0, col, (1.6, 1.3, 0.8), "MULTIPLY"))
+    ms = nb.new("ShaderNodeMixShader", inputs={0: 0.35})
+    nb.links.new(bsdf.outputs[0], ms.inputs[1])
+    nb.links.new(tr.outputs[0], ms.inputs[2])
+    tp = nb.new("ShaderNodeBsdfTransparent")
+    ma = nb.new("ShaderNodeMixShader")
+    nb.set(ma, 0, alpha)
+    nb.links.new(tp.outputs[0], ma.inputs[1])
+    nb.links.new(ms.outputs[0], ma.inputs[2])
+    out = nb.new("ShaderNodeOutputMaterial")
+    nb.links.new(ma.outputs[0], nb.i(out, "Surface"))
+    return mat
+
+
+def lake_ground(maps_land, maps_shore):
+    """Leaf-litter banks, dark wet mud + pebbles at the waterline, silt below it."""
+    mat, nb = new_material("LakeGround")
+    world = nb.coord("Object")
+    _, _, z = nb.sep(world)
+    v = nb.mapping(world, scale=(0.5, 0.5, 0.5))
+    if maps_land:
+        cl, rl, nl = _pbr_maps(nb, maps_land, v, box=True, tint=(0.75, 0.72, 0.68), bump=0.6)
+    else:
+        cl, rl, nl = _proc_ground(nb, v)
+    if maps_shore:
+        cs, rs, _ = _pbr_maps(nb, maps_shore, nb.mapping(world, scale=(0.7, 0.7, 0.7)), box=True,
+                              tint=(0.55, 0.53, 0.5))
+    else:
+        cs, rs = (0.05, 0.045, 0.04), 0.6
+    wob = nb.math("MULTIPLY", nb.noise(world, scale=0.5, detail=3.0), 0.3)
+    m = nb.maprange(nb.math("ADD", z, wob), 0.9, 0.35)
+    col = nb.mix(m, cl, cs)
+    rough = nb.mixf(m, rl, rs)
+    wet = nb.maprange(z, 0.35, 0.0)
+    col = nb.mix(nb.math("MULTIPLY", wet, 0.6), col, (0.0, 0.0, 0.0))
+    rough = nb.mixf(wet, rough, 0.2)
+    col = _variation(nb, col, world, scale=0.06, amount=0.2)
+    _finish(nb, col, rough, nl)
+    return mat
+
+
+def boat_paint():
+    mat, nb = new_material("BoatPaint")
+    obj = nb.coord("Object")
+    _, _, z = nb.sep(obj)
+    band = nb.maprange(z, 0.38, 0.42)
+    col = nb.mix(band, (0.03, 0.07, 0.09), (0.55, 0.52, 0.45))
+    worn = nb.maprange(nb.noise(obj, scale=6.0, detail=6.0), 0.6, 0.75)
+    col = nb.mix(worn, col, (0.12, 0.09, 0.06))
+    _finish(nb, col, 0.55)
+    return mat
+
+
 def library(tex: dict):
     """Build every material once. ``tex`` maps role -> maps-dict or None."""
+    if tex.get("_style") == "lakeside_dock":
+        return {
+            "deck": log_wood(tex.get("deck"), name="Deck", tint=(0.55, 0.5, 0.45), moss=0.2),
+            "log": log_wood(tex.get("deck"), name="Posts", tint=(0.32, 0.28, 0.24), moss=0.35),
+            "bark": bark(tex.get("bark")),
+            "bark_birch": bark(tex.get("bark")),
+            "needles": needles(),
+            "autumn_leaf": autumn_leaf(tex.get("_leaf_palette") or
+                                       [(0.35, 0.03, 0.01), (0.55, 0.12, 0.01), (0.7, 0.3, 0.02),
+                                        (0.6, 0.45, 0.05), (0.15, 0.2, 0.03)]),
+            "boat": boat_paint(),
+            "lantern_glow": emission("LanternGlow", (1.0, 0.6, 0.25), 8.0),
+            "grass": grass(), "rock": stone(tex.get("rock"), name="ShoreRock", moss=0.4),
+            "leafcover": leaf_cover(), "moss": moss_cushion(),
+        }
+    if tex.get("_style") == "coastal_lighthouse":
+        return {
+            "_tower_maps": tex.get("tower"),
+            "tower_white": painted(tex.get("tower"), "TowerWhite", (0.78, 0.77, 0.73)),
+            "tower_band": painted(tex.get("tower"), "TowerRed", (0.42, 0.05, 0.035)),
+            "stone": stone(tex.get("rock"), name="Plinth", moss=0.2),
+            "metal": metal(), "dark": emission("DarkRecess", (0.0, 0.0, 0.0), 0.0),
+            "cottage": painted(tex.get("cottage"), "CottageWall", (0.72, 0.71, 0.68), streaks=0.15),
+            "slate": metal("Slate", (0.025, 0.028, 0.032)),
+            "window_glow": emission("CottageWindow", (1.0, 0.62, 0.3), 6.0),
+            "glass": glass(),
+            "rock": stone(tex.get("rock"), name="SeaRock", moss=0.1),
+            "grass": grass(),
+        }
     return {
         "log": log_wood(tex.get("log")),
         "plank": log_wood(tex.get("log"), name="Plank", tint=(0.55, 0.47, 0.40), moss=0.0),

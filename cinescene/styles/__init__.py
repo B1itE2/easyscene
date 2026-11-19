@@ -9,6 +9,8 @@ import importlib
 
 STYLES = {
     "foggy_forest_cabin": "foggy_forest_cabin",
+    "coastal_lighthouse": "coastal_lighthouse",
+    "lakeside_dock": "lakeside_dock",
 }
 
 

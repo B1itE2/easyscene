@@ -26,7 +26,8 @@ PRESETS = {
     },
     # 黄昏: warm low sun, cooler sky, practicals a bit brighter
     "golden_dusk": {
-        "env_strength": 0.30, "env_tint": (1.0, 0.82, 0.68), "env_rotation_deg": 200,
+        "env_strength": 0.8, "env_tint": (1.0, 1.0, 1.0), "env_rotation_deg": 200,
+        "env_saturation": 1.15, "exposure": -0.5,
         "sun": {"rel_azimuth": 40, "elevation": 4, "strength": 3.0, "kelvin": 3000, "angle": 3.5},
         "practical_scale": 1.4,
         "sky": {"zenith": (0.20, 0.25, 0.40), "horizon": (0.95, 0.55, 0.30)},
@@ -47,15 +48,36 @@ PRESETS = {
 }
 
 
-def _world_hdri(nb, hdri_path, p):
+def hdri_sun_phi(img):
+    """Equirect azimuth (radians, Blender convention) of the brightest sky pixel."""
+    import numpy as np
+    w, h = img.size
+    px = np.empty(w * h * 4, dtype=np.float32)
+    img.pixels.foreach_get(px)
+    lum = px.reshape(h, w, 4)[..., :3] @ np.array([0.2126, 0.7152, 0.0722], dtype=np.float32)
+    lum[: h // 2] = 0                       # rows are bottom-up: keep the upper hemisphere
+    _, col = np.unravel_index(int(lum.argmax()), lum.shape)
+    return (col / w - 0.5) * math.tau
+
+
+def _world_hdri(nb, hdri_path, p, sun_dir=None):
     tc = nb.coord("Generated")
-    vec = nb.mapping(tc, rot=(0, 0, math.radians(p["env_rotation_deg"])))
     env = nb.new("ShaderNodeTexEnvironment")
     env.image = bpy.data.images.load(str(hdri_path), check_existing=True)
+    rot = math.radians(p["env_rotation_deg"])
+    if sun_dir is not None and p.get("align_hdri_sun", True):
+        # rotate the sky so the sun painted in the HDRI sits where our sun light is
+        phi_d = math.atan2(sun_dir[1], -sun_dir[0])
+        rot = phi_d - hdri_sun_phi(env.image)
+    vec = nb.mapping(tc, rot=(0, 0, rot))
+    env.interpolation = "Cubic"
     nb.set(env, "Vector", vec)
     # desaturate a little: real fog flattens sky colour
-    hsv = nb.new("ShaderNodeHueSaturation", inputs={"Saturation": 0.6})
-    nb.set(hsv, "Color", env.outputs["Color"])
+    # clamp the painted sun: the sun *lamp* lights the scene; an unclamped HDRI sun
+    # blows out into a hard-edged block at low resolution
+    clamped = nb.vmath("MINIMUM", env.outputs["Color"], (p.get("env_clamp", 6.0),) * 3)
+    hsv = nb.new("ShaderNodeHueSaturation", inputs={"Saturation": p.get("env_saturation", 0.6)})
+    nb.set(hsv, "Color", clamped)
     return nb.mix(1.0, hsv.outputs[0], p["env_tint"], "MULTIPLY")
 
 
@@ -77,7 +99,14 @@ def apply(preset_name, camera_yaw_rad, hdri_path=None, overrides=None):
     except Exception:
         pass
     nb = NB(world.node_tree)
-    col = _world_hdri(nb, hdri_path, p) if hdri_path else _world_sky(nb, p)
+    s = p.get("sun")
+    sun_d = None
+    if s:
+        # camera forward (yaw measured from +Y, counter-clockwise) rotated by rel_azimuth
+        az = camera_yaw_rad + math.radians(s["rel_azimuth"])
+        el = math.radians(s["elevation"])
+        sun_d = Vector((-math.sin(az) * math.cos(el), math.cos(az) * math.cos(el), math.sin(el)))
+    col = _world_hdri(nb, hdri_path, p, sun_d) if hdri_path else _world_sky(nb, p)
     bg = nb.new("ShaderNodeBackground", inputs={"Strength": p["env_strength"]})
     nb.set(bg, "Color", col)
     out = nb.new("ShaderNodeOutputWorld")
@@ -86,12 +115,8 @@ def apply(preset_name, camera_yaw_rad, hdri_path=None, overrides=None):
     bpy.context.scene.view_settings.exposure = p.get("exposure", 0.0)
     info = {"preset": preset_name, "hdri": bool(hdri_path),
             "practical_scale": p["practical_scale"], "sun_dir": None}
-    s = p.get("sun")
     if s:
-        # camera forward (yaw measured from +Y, counter-clockwise) rotated by rel_azimuth
-        az = camera_yaw_rad + math.radians(s["rel_azimuth"])
-        el = math.radians(s["elevation"])
-        d = Vector((-math.sin(az) * math.cos(el), math.cos(az) * math.cos(el), math.sin(el)))
+        d = sun_d
         light = bpy.data.lights.new("Sun", "SUN")
         light.energy = s["strength"]
         light.color = core.kelvin_rgb(s["kelvin"])
