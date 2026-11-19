@@ -13,7 +13,7 @@
 3. 显卡驱动更新到最新（OptiX 需要较新的驱动）。
 
 ## 2. 拿到渲染包
-Mac 上运行 `tools/make_desktop_pack.sh`，会在桌面生成 `cinescene_desktop_pack.zip`（约 35MB，内含代码和全部 CC0 素材缓存）。
+Mac 上运行 `tools/make_desktop_pack.sh`，会在桌面生成 `cinescene_desktop_pack.zip`（约 97MB，内含代码和 1k+2k 两套 CC0 素材缓存）。
 拷到台式机，解压到一个**路径里没有中文和空格**的位置，例如 `D:\cinescene`。
 
 ## 3. 开始渲染（最简单）
