@@ -83,7 +83,10 @@ def build(spec, R, q, mats, tex, hdri):
     mats["ground"] = materials.ground(tex.get("ground"), tex.get("ground_b"), path=T.path,
                                       maps_path=tex.get("path"), clearing=tc["clearing_radius_m"])
     T.build(mats["ground"])              # after the camera flattened its sight line
-    linfo = lighting.apply(preset, solved["yaw"], hdri)
+    look = R.get("weather_look", {}).get(spec["weather"], {})
+    if spec["time_of_day"] not in ("morning", "dawn"):
+        look = {k: v for k, v in look.items() if k != "lighting"}   # its sun is a morning sun
+    linfo = lighting.apply(preset, solved["yaw"], hdri, look.get("lighting"))
 
     # ---- forest -------------------------------------------------------------
     fc = R["forest"]
@@ -201,12 +204,12 @@ def build(spec, R, q, mats, tex, hdri):
         scatter.scatter("Moss", mpts2, scatter.variant_collection("MossVariants", moss_v))
 
     # ---- atmosphere ---------------------------------------------------------
-    fog_d = R["fog"]["density_by_weather"][spec["weather"]]
+    fog_d = look.get("density", R["fog"]["density_by_weather"][spec["weather"]])
     fog_top = 75.0
     if cloud is not None:
         _, cloud_bottom = atmosphere.cloud_bank(*cloud, R["fog"])
         fog_top = cloud_bottom - 0.5      # never coplanar: shared faces confuse the volume stack
-    fog_obj = atmosphere.height_fog(tc["size_m"] - 4, fog_top, R["fog"], fog_d)
+    fog_obj = atmosphere.height_fog(tc["size_m"] - 4, fog_top, dict(R["fog"], **look.get("fog", {})), fog_d)
     if sub["chimney_smoke"]:
         atmosphere.chimney_smoke(fog_obj, cab["chimney_top"], R["smoke"], seed)
 

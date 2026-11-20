@@ -1,7 +1,8 @@
 """Camera placement and composition.
 
 Rules (shared by every style):
-* distance is solved so the subject fills ``fill`` of the frame height;
+* distance is solved so the subject fills ``fill`` of a 16:9 frame height (vertical video
+  fills more; widescreen keeps the 16:9 distance), and always fits in frame;
 * the camera sits at eye height on the terrain, looking at ~40% of the
   subject's height (a touch of upward tilt reads as "standing there");
 * thirds composition uses lens shift, so verticals stay vertical;
@@ -54,18 +55,35 @@ def create(name="Camera", lens=35.0, clip_end=800.0):
 def solve_static(subject, terrain, cam_spec, cam_cfg):
     """Return dict(location, target, shift_x, focus, yaw) for a still shot."""
     lens, aspect = cam_spec["lens_mm"], cam_spec["aspect"]
-    _, vfov = fovs(lens, aspect)
+    a = budget.ASPECTS[aspect]
+    hfov, vfov = fovs(lens, aspect)
     fill = cam_cfg["subject_fill"][cam_spec["framing"]]
     hs = subject["height"]
-    dist = hs / fill / (2 * math.tan(vfov / 2))
     fx0, fx1, fy0, fy1 = subject["footprint"]
-    dist += max(fx1 - fx0, fy1 - fy0) * 0.35          # we see the near face, not the centre
+    ws = max(fx1 - fx0, fy1 - fy0)
+    # The recipes' fill values were tuned for 16:9. Other aspects keep the subject's *visual*
+    # weight instead of blindly filling the same fraction of a different frame height:
+    if a > 16 / 9 + 0.01:
+        # cinema widescreen = a 16:9 frame with top and bottom cropped: same distance as 16:9
+        # (solving on the short 2.39 frame pushed the camera back and the subject became a speck)
+        _, vfov_ref = fovs(lens, "16:9")
+        dist = hs / fill / (2 * math.tan(vfov_ref / 2))
+    else:
+        if a < 1:
+            fill = min(0.62, fill * 1.5)              # vertical video: the subject is the frame
+        dist = hs / fill / (2 * math.tan(vfov / 2))
+    # whatever the aspect, the whole subject must fit (85 % of height, 90 % of width)
+    dist = max(dist, hs / 0.85 / (2 * math.tan(vfov / 2)), ws / 0.9 / (2 * math.tan(hfov / 2)))
+    dist += ws * 0.35                                  # we see the near face, not the centre
     az = math.radians(cam_cfg["view_azimuth_deg"][cam_spec["view"]])
     cx, cy, _ = subject["center"]
     x, y = cx + dist * math.sin(az), cy - dist * math.cos(az)
     terrain.flatten_segment((x, y), (cx, cy), 4.0)   # no hill between us and the subject
     z = max(terrain.height(x, y) + cam_cfg["eye_height_m"], cam_cfg.get("min_z", -1e9))
-    target = Vector((cx, cy, subject.get("base_z", 0.0) + hs * cam_cfg.get("aim_height", 0.40)))
+    aim = cam_cfg.get("aim_height", 0.40)
+    if budget.ASPECTS[aspect] < 1:
+        aim = max(aim, 0.5)         # vertical: centre the subject, trade empty foreground for sky
+    target = Vector((cx, cy, subject.get("base_z", 0.0) + hs * aim))
     loc = Vector((x, y, z))
     shift = {"center": 0.0, "thirds_left": 1 / 6, "thirds_right": -1 / 6}[cam_spec["composition"]]
     if budget.ASPECTS[aspect] < 1:
@@ -127,7 +145,10 @@ def frame_edge_points(solved, hfov, terrain, rng):
             pts["ground"].append((p.x, p.y))
     side = -1 if solved["shift_x"] <= 0 else 1          # trunk on the empty side
     d = rng.uniform(7.0, 8.5)
-    p = Vector((cx, cy, 0)) + fwd * d + right * side * math.tan(hfov / 2) * d * 0.9
+    # at the frame edge *after* lens shift (shift moves the frame sideways by shift * width);
+    # ignoring it put the trunk a fifth of the way into the picture, blocking the view
+    u = side * 0.47 + solved["shift_x"]
+    p = Vector((cx, cy, 0)) + fwd * d + right * (u * 2 * math.tan(hfov / 2) * d)
     pts["trunk"].append((p.x, p.y))
     return pts
 

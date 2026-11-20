@@ -1,0 +1,442 @@
+{
+  "easyscene_version": "0.1.0",
+  "git_rev": "d9e401f",
+  "blender_version": "5.2.3 LTS",
+  "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+  "created_unix": 1795171963,
+  "spec": {
+    "version": 1,
+    "name": "ds_lighthouse",
+    "prompt": "傍晚海边悬崖上的灯塔，竖屏，给抖音用",
+    "style": "coastal_lighthouse",
+    "time_of_day": "dusk",
+    "weather": "haze",
+    "camera": {
+      "aspect": "9:16",
+      "lens_mm": 35,
+      "framing": "medium",
+      "view": "three_quarter_left",
+      "composition": "thirds_right"
+    },
+    "motion": {
+      "preset": "none",
+      "duration_s": 10,
+      "fps": 24
+    },
+    "details": [],
+    "seed": 1,
+    "quality": "final_fast",
+    "subject": {
+      "type": "lighthouse",
+      "size": "small",
+      "lights_on": true,
+      "chimney_smoke": true
+    }
+  },
+  "seed": 1,
+  "recipe_sha256_12": "816176af3ac9",
+  "resolved_recipe": {
+    "assets": {
+      "hdri": "qwantani_sunset_puresky",
+      "models": {},
+      "textures": {
+        "cottage": "whitewashed_brick",
+        "grass": "sparse_grass",
+        "rock": "cliff_side",
+        "searock": "seaside_rock",
+        "tower": "white_plaster_rough_01"
+      }
+    },
+    "camera": {
+      "above_plateau_m": 9.957912703918755,
+      "aim_height": 0.05,
+      "eye_height_m": 1.7,
+      "foreground_dressing": false,
+      "fstop": 5.6,
+      "subject_fill": {
+        "close": 0.5,
+        "medium": 0.32,
+        "wide": 0.22
+      },
+      "view_azimuth_deg": {
+        "front": 99.43581271768342,
+        "three_quarter_left": 70.85312646702054,
+        "three_quarter_right": 134.4315141796195
+      }
+    },
+    "card": "recipes/coastal_lighthouse.md",
+    "checks": {
+      "clipped_highlights_max": 0.02,
+      "crushed_shadows_max": 0.06,
+      "mean_luma": [
+        0.15,
+        0.6
+      ],
+      "subject_area": [
+        0.015,
+        0.4
+      ]
+    },
+    "defaults": {
+      "motion": {
+        "preset": "orbit"
+      },
+      "subject": {
+        "type": "lighthouse"
+      },
+      "time_of_day": "dusk",
+      "weather": "haze"
+    },
+    "fog": {
+      "_doc": "thin sea haze: just enough for aerial perspective and a visible beam",
+      "anisotropy": 0.5,
+      "breakup_amount": 0.15,
+      "breakup_scale_m": 80.0,
+      "cloud_layer": {
+        "center_m": 0.0,
+        "density": 0.0,
+        "thickness_m": 1.0
+      },
+      "color": [
+        0.92,
+        0.9,
+        0.88
+      ],
+      "density_by_weather": {
+        "clear": 0.0003044926038957282,
+        "haze": 0.0013787619955422195,
+        "light_fog": 0.00436427138882978
+      },
+      "height_falloff_m": 30.0
+    },
+    "headland": {
+      "radius_m": 27.607747465985444,
+      "resolution": 340,
+      "ruggedness": 0.8518676913530878,
+      "sea_floor_m": -9.0,
+      "size_m": 380,
+      "top_m": 15.019332230819538
+    },
+    "id": "coastal_lighthouse",
+    "lighthouse": {
+      "bands": 0,
+      "base_radius": 2.784802512425538,
+      "beam_kelvin": 4200,
+      "beam_length": 140.0,
+      "beam_strength": 0.35,
+      "cottage": false,
+      "lamp_kelvin": 3200,
+      "lamp_watts": 400,
+      "palette": {
+        "band": [
+          0.03,
+          0.035,
+          0.04
+        ],
+        "white": [
+          0.78,
+          0.77,
+          0.73
+        ]
+      },
+      "top_radius": 1.6807756027476697,
+      "tower_height": 14.747412921880407
+    },
+    "lighting_by_time": {
+      "dawn": "golden_dusk",
+      "dusk": "golden_dusk",
+      "night": "rainy_night"
+    },
+    "lighting_overrides": {
+      "_doc": "sun just inside frame, off the tower: glitter path on the sea + rim light",
+      "dawn": {
+        "sun": {
+          "angle": 3.0,
+          "elevation": 3.5,
+          "kelvin": 3300,
+          "rel_azimuth": -17,
+          "strength": 3.0
+        }
+      },
+      "dusk": {
+        "exposure": -0.36229304763039966,
+        "sun": {
+          "angle": 3.0,
+          "elevation": 6.145480111828645,
+          "kelvin": 2843.95462579663,
+          "rel_azimuth": -22.167619662303764,
+          "strength": 3.519414127716588
+        }
+      }
+    },
+    "motion": {
+      "orbit": {
+        "direction": -1,
+        "ease": {
+          "accel": 0.25,
+          "decel": 0.35
+        },
+        "min_clearance_m": 3.0,
+        "start_look_up_m": 0.0,
+        "start_radius_scale": 1.15,
+        "start_rise_m": 6.0,
+        "sweep_deg": 74.98006690274056
+      }
+    },
+    "ocean": {
+      "alignment": 0.3,
+      "choppiness": 1.4525793646021201,
+      "deep_color": [
+        0.004,
+        0.02,
+        0.028
+      ],
+      "direction_deg": 50.753714281052304,
+      "far_m": 60000,
+      "foam_coverage": 0.05,
+      "resolution": 14,
+      "tile_m": 60,
+      "tiles": 8,
+      "time_speed": 1.0,
+      "wave_scale": 0.6009116873702521,
+      "wind_m_s": 9.13429123490674
+    },
+    "post": {
+      "contrast": 1.08,
+      "gamma": 1.0,
+      "grain": 4,
+      "highlights_rgb": [
+        0.07,
+        0.025,
+        -0.05
+      ],
+      "saturation": 1.12,
+      "shadows_rgb": [
+        -0.03,
+        0.0,
+        0.04
+      ],
+      "vignette_angle": 0.45
+    },
+    "review": {
+      "fixes": {
+        "beam": [
+          "time_of_day: dusk or night",
+          "weather: haze"
+        ],
+        "exposure": [
+          "another seed",
+          "view toward/away from sun"
+        ],
+        "golden_light": [
+          "time_of_day: dusk",
+          "weather: haze (more glow)"
+        ],
+        "realism": [
+          "another seed",
+          "framing: wide"
+        ],
+        "sea": [
+          "weather: clear (sharper water)",
+          "another seed (different swell)"
+        ],
+        "subject_read": [
+          "framing: medium -> close",
+          "view: three_quarter_left/right"
+        ]
+      },
+      "max_rounds": 2,
+      "pass_score": 7.0
+    },
+    "rubric": [
+      {
+        "desc": "日落金光：天空暖橙到冷蓝的渐变，塔身有暖色轮廓光",
+        "id": "golden_light",
+        "weight": 3
+      },
+      {
+        "desc": "海面可信：有浪的起伏和高光碎片、礁石处有白浪，不像塑料平面",
+        "id": "sea",
+        "weight": 3
+      },
+      {
+        "desc": "灯塔一眼可辨，站在悬崖上，轮廓衬在天空前",
+        "id": "subject_read",
+        "weight": 2
+      },
+      {
+        "desc": "悬崖、草地、塔身材质与比例可信",
+        "id": "realism",
+        "weight": 2
+      },
+      {
+        "desc": "灯室亮着，光束柔和可见",
+        "id": "beam",
+        "weight": 1
+      },
+      {
+        "desc": "太阳附近不大片过曝，暗部不死黑",
+        "id": "exposure",
+        "weight": 1
+      }
+    ],
+    "supports": {
+      "motion": [
+        "none",
+        "orbit"
+      ],
+      "places": [
+        "door",
+        "cliff_edge"
+      ],
+      "subject": [
+        "lighthouse"
+      ],
+      "time_of_day": [
+        "dusk",
+        "dawn",
+        "night"
+      ],
+      "weather": [
+        "clear",
+        "haze",
+        "light_fog"
+      ]
+    },
+    "title": "海边灯塔 / Coastal Lighthouse",
+    "vegetation": {
+      "grass_clumps": 9000,
+      "rocks": 40
+    }
+  },
+  "render": {
+    "width": 1080,
+    "height": 1920,
+    "device": "METAL",
+    "samples": 64
+  },
+  "lighting": {
+    "preset": "golden_dusk",
+    "hdri": true,
+    "practical_scale": 1.4,
+    "sun_dir": [
+      -0.7467808127403259,
+      0.6563977599143982,
+      0.10705332458019257
+    ]
+  },
+  "camera": {
+    "location": [
+      38.62751388549805,
+      -13.411376953125,
+      25.40584945678711
+    ],
+    "target": [
+      0.0,
+      0.0,
+      24.764198303222656
+    ],
+    "shift_x": 0.0,
+    "focus": 40.89451786084402,
+    "yaw": 1.2366203489624228,
+    "lens": 35,
+    "aspect": "9:16"
+  },
+  "motion": null,
+  "details": null,
+  "build_seconds": 1.3,
+  "assets": [
+    {
+      "id": "cliff_side",
+      "name": "Cliff Side",
+      "authors": [
+        "Dario Barresi",
+        "James Ray Cock",
+        "Jenelle van Heerden"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/cliff_side",
+      "type": "texture",
+      "role": "rock"
+    },
+    {
+      "id": "qwantani_sunset_puresky",
+      "name": "Qwantani Sunset (Pure Sky)",
+      "authors": [
+        "Greg Zaal",
+        "Jarod Guest"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/qwantani_sunset_puresky",
+      "type": "hdri",
+      "role": "environment"
+    },
+    {
+      "id": "seaside_rock",
+      "name": "Seaside Rock",
+      "authors": [
+        "Dimitrios Savva"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/seaside_rock",
+      "type": "texture",
+      "role": "searock"
+    },
+    {
+      "id": "sparse_grass",
+      "name": "Sparse Grass",
+      "authors": [
+        "Amal Kumar"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/sparse_grass",
+      "type": "texture",
+      "role": "grass"
+    },
+    {
+      "id": "white_plaster_rough_01",
+      "name": "White Plaster Rough 01",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/white_plaster_rough_01",
+      "type": "texture",
+      "role": "tower"
+    },
+    {
+      "id": "whitewashed_brick",
+      "name": "Whitewashed Brick",
+      "authors": [
+        "Charlotte Baglioni"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/whitewashed_brick",
+      "type": "texture",
+      "role": "cottage"
+    }
+  ],
+  "budget": {
+    "unique_tris": 406514,
+    "instances": 9040,
+    "texture_mpx": 33.6,
+    "est_memory_gb": 1.33,
+    "mem_limit_gb": 8.0,
+    "est_seconds": 88,
+    "estimate_is_guess": false
+  },
+  "still": {
+    "raw": "/Users/jinling/cinescene/out/ds_lighthouse/still_raw.png",
+    "final": "/Users/jinling/cinescene/out/ds_lighthouse/still.png",
+    "render_seconds": 20.8
+  },
+  "checks": {
+    "passed": true,
+    "n": 11,
+    "failed": [],
+    "geometry": {
+      "subject_area": 0.17387371385819783,
+      "subject_center_x": 0.5093836188316345
+    }
+  }
+}

@@ -276,5 +276,33 @@
       "weight": 1,
       "desc": "无死黑、无大片过曝，雾不发灰发脏"
     }
-  ]
+  ],
+  "weather_look": {
+    "_doc": "per-weather tweaks. Dense fog in cold blue light reads as horror; keep it a soft, milky, warm morning.",
+    "dense_fog": {
+      "fog": {
+        "color": [
+          0.95,
+          0.95,
+          0.93
+        ]
+      },
+      "density": 0.028,
+      "lighting": {
+        "sun": {
+          "rel_azimuth": -30,
+          "elevation": 22,
+          "strength": 18.0,
+          "kelvin": 5600,
+          "angle": 2.5
+        },
+        "env_tint": [
+          1.0,
+          0.98,
+          0.95
+        ],
+        "exposure": 0.6
+      }
+    }
+  }
 }

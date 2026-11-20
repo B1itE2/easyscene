@@ -1,0 +1,570 @@
+{
+  "easyscene_version": "0.1.0",
+  "git_rev": "d9e401f",
+  "blender_version": "5.2.3 LTS",
+  "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+  "created_unix": 1795172397,
+  "spec": {
+    "version": 1,
+    "name": "ds_cabin",
+    "prompt": "起大雾的清晨，森林里的小木屋，门廊上有把摇椅，近景",
+    "style": "foggy_forest_cabin",
+    "time_of_day": "morning",
+    "weather": "dense_fog",
+    "camera": {
+      "aspect": "16:9",
+      "lens_mm": 35,
+      "framing": "close",
+      "view": "three_quarter_left",
+      "composition": "thirds_right"
+    },
+    "motion": {
+      "preset": "none",
+      "duration_s": 10,
+      "fps": 24
+    },
+    "details": [
+      {
+        "item": "rocking_chair",
+        "place": "porch"
+      }
+    ],
+    "seed": 1,
+    "quality": "final_fast",
+    "subject": {
+      "type": "log_cabin",
+      "size": "small",
+      "lights_on": true,
+      "chimney_smoke": true
+    }
+  },
+  "seed": 1,
+  "recipe_sha256_12": "76db5d761911",
+  "resolved_recipe": {
+    "assets": {
+      "_doc": "Poly Haven ids (all CC0). Missing/offline -> procedural fallback of the same role.",
+      "hdri": "kloofendal_misty_morning_puresky",
+      "models": {
+        "fern": "fern_02",
+        "rocks": "rock_moss_set_01",
+        "stump": "tree_stump_01"
+      },
+      "textures": {
+        "bark": "pine_bark",
+        "ground": "forest_leaves_02",
+        "ground_b": "forest_leaves_04",
+        "log": "weathered_brown_planks",
+        "path": "mud_forest",
+        "rock": "mossy_rock",
+        "roof": "roof_planks",
+        "stone": "stacked_stone_wall"
+      }
+    },
+    "cabin": {
+      "interior_watts": 140,
+      "lantern_watts": 6,
+      "log_radius": 0.16,
+      "medium": {
+        "depth": 6.0,
+        "rows": 10,
+        "width": 7.6
+      },
+      "roof_pitch_deg": 38,
+      "row_step": 0.29,
+      "small": {
+        "depth": 5.0,
+        "rows": 9,
+        "width": 6.2
+      },
+      "window_temp_k": 2400
+    },
+    "camera": {
+      "eye_height_m": 1.65,
+      "foreground_dressing": true,
+      "fstop": 2.8,
+      "subject_fill": {
+        "close": 0.55,
+        "medium": 0.36,
+        "wide": 0.24
+      },
+      "view_azimuth_deg": {
+        "front": 0,
+        "three_quarter_left": -28,
+        "three_quarter_right": 28
+      }
+    },
+    "card": "recipes/foggy_forest_cabin.md",
+    "checks": {
+      "clipped_highlights_max": 0.01,
+      "crushed_shadows_max": 0.04,
+      "mean_luma": [
+        0.18,
+        0.62
+      ],
+      "subject_area": [
+        0.04,
+        0.45
+      ]
+    },
+    "defaults": {
+      "motion": {
+        "preset": "cloud_descent"
+      },
+      "subject": {
+        "type": "log_cabin"
+      },
+      "time_of_day": "morning",
+      "weather": "fog"
+    },
+    "fog": {
+      "_doc": "density is extinction per metre at ground level. Visibility ~ 3/density metres.",
+      "anisotropy": 0.8,
+      "breakup_amount": 0.55,
+      "breakup_scale_m": 28.0,
+      "cloud_layer": {
+        "center_m": 42.0,
+        "density": 0.0,
+        "thickness_m": 14.0
+      },
+      "color": [
+        0.74,
+        0.88,
+        0.94
+      ],
+      "density_by_weather": {
+        "dense_fog": 0.034,
+        "fog": 0.022,
+        "light_fog": 0.012
+      },
+      "height_falloff_m": 14.0
+    },
+    "forest": {
+      "camera_corridor_m": 5.0,
+      "clear_radius_m": 13.0,
+      "crown_base_ratio": [
+        0.12,
+        0.3
+      ],
+      "extent_m": 230,
+      "height_range_m": [
+        13.0,
+        27.0
+      ],
+      "min_spacing_m": 3.0,
+      "snag_ratio": 0.04,
+      "sun_window_deg": 24,
+      "sun_window_depth_m": 95,
+      "variants": 6
+    },
+    "id": "foggy_forest_cabin",
+    "lighting_by_time": {
+      "dawn": "cold_fog_morning",
+      "dusk": "golden_dusk",
+      "morning": "cold_fog_morning",
+      "night": "rainy_night"
+    },
+    "motion": {
+      "cloud_descent": {
+        "_doc": "start inside a local cloud bank above the clearing; numbers are metres",
+        "cloud_below_start_m": 3.0,
+        "cloud_density": 0.35,
+        "cloud_radius_m": 32.0,
+        "cloud_thickness_m": 6.0,
+        "drop_bias": 0.5,
+        "ease": {
+          "accel": 0.22,
+          "decel": 0.4
+        },
+        "level_out_m": 2.5,
+        "start_height_m": 55.0,
+        "start_offset": 0.3
+      }
+    },
+    "post": {
+      "_doc": "applied with ffmpeg after rendering; keep subtle",
+      "contrast": 1.04,
+      "gamma": 1.0,
+      "grain": 5,
+      "highlights_rgb": [
+        0.03,
+        0.01,
+        -0.02
+      ],
+      "saturation": 0.92,
+      "shadows_rgb": [
+        -0.02,
+        0.01,
+        0.03
+      ],
+      "vignette_angle": 0.5
+    },
+    "review": {
+      "fixes": {
+        "exposure": [
+          "weather: light_fog if too dark, dense_fog if too bright",
+          "another seed"
+        ],
+        "fog_depth": [
+          "weather: light_fog -> fog -> dense_fog (more layers)",
+          "framing: wide (more depth visible)"
+        ],
+        "realism": [
+          "view: three_quarter_left/right (front views look flat)",
+          "another seed"
+        ],
+        "smoke": [
+          "subject.chimney_smoke: true",
+          "view so the chimney side faces camera"
+        ],
+        "subject_read": [
+          "framing: medium -> close",
+          "weather: lighter fog",
+          "another seed"
+        ],
+        "warm_cool": [
+          "time_of_day: dawn or dusk (stronger window glow)",
+          "subject.lights_on: true"
+        ]
+      },
+      "max_rounds": 2,
+      "pass_score": 7.0
+    },
+    "rubric": [
+      {
+        "desc": "前中后景层次：近处清楚、中景微雾、远处树木逐渐隐入雾中",
+        "id": "fog_depth",
+        "weight": 3
+      },
+      {
+        "desc": "冷蓝绿雾 vs 窗户暖黄光，对比明显但不刺眼",
+        "id": "warm_cool",
+        "weight": 3
+      },
+      {
+        "desc": "木屋一眼可辨，轮廓清楚，不被树挡住",
+        "id": "subject_read",
+        "weight": 2
+      },
+      {
+        "desc": "材质与比例可信：圆木、石头烟囱、苔藓，不像玩具",
+        "id": "realism",
+        "weight": 2
+      },
+      {
+        "desc": "烟囱有柔和的烟，向上飘散",
+        "id": "smoke",
+        "weight": 1
+      },
+      {
+        "desc": "无死黑、无大片过曝，雾不发灰发脏",
+        "id": "exposure",
+        "weight": 1
+      }
+    ],
+    "smoke": {
+      "density": 24.0,
+      "height_m": 14.0,
+      "rise_speed": 0.55,
+      "wind": [
+        0.5,
+        0.25
+      ]
+    },
+    "supports": {
+      "motion": [
+        "none",
+        "cloud_descent"
+      ],
+      "places": [
+        "porch",
+        "door",
+        "window",
+        "yard",
+        "path"
+      ],
+      "subject": [
+        "log_cabin"
+      ],
+      "time_of_day": [
+        "dawn",
+        "morning",
+        "dusk",
+        "night"
+      ],
+      "weather": [
+        "dense_fog",
+        "fog",
+        "light_fog"
+      ]
+    },
+    "terrain": {
+      "back_slope": 0.06,
+      "clearing_radius_m": 11.0,
+      "hill_amplitude_m": 5.0,
+      "resolution": 200,
+      "size_m": 260
+    },
+    "title": "雾气森林小木屋 / Foggy Forest Cabin",
+    "undergrowth": {
+      "fallen_logs": 5,
+      "ferns": 420,
+      "grass_clumps": 14000,
+      "leaf_cover": 14000,
+      "moss_patches": 500,
+      "path_width_m": 0.9,
+      "radius_m": [
+        5.5,
+        45.0
+      ],
+      "rocks": 70,
+      "twigs": 900
+    },
+    "weather_look": {
+      "_doc": "per-weather tweaks. Dense fog in cold blue light reads as horror; keep it a soft, milky, warm morning.",
+      "dense_fog": {
+        "density": 0.028,
+        "fog": {
+          "color": [
+            0.95,
+            0.95,
+            0.93
+          ]
+        },
+        "lighting": {
+          "env_tint": [
+            1.0,
+            0.98,
+            0.95
+          ],
+          "exposure": 0.6,
+          "sun": {
+            "angle": 2.5,
+            "elevation": 22,
+            "kelvin": 5600,
+            "rel_azimuth": -30,
+            "strength": 18.0
+          }
+        }
+      }
+    }
+  },
+  "render": {
+    "width": 1920,
+    "height": 1080,
+    "device": "METAL",
+    "samples": 64
+  },
+  "lighting": {
+    "preset": "cold_fog_morning",
+    "hdri": true,
+    "practical_scale": 1.0,
+    "sun_dir": [
+      0.7862964868545532,
+      0.4913325905799866,
+      0.37460657954216003
+    ]
+  },
+  "camera": {
+    "location": [
+      -9.938770294189453,
+      -18.692108154296875,
+      1.6113052368164062
+    ],
+    "target": [
+      0.0,
+      0.0,
+      2.2847940921783447
+    ],
+    "shift_x": -0.16666666666666666,
+    "focus": 21.180831820574507,
+    "yaw": -0.48869218600594977,
+    "lens": 35,
+    "aspect": "16:9"
+  },
+  "motion": null,
+  "details": {
+    "placed": [
+      {
+        "item": "rocking_chair",
+        "place": "porch",
+        "at": [
+          -0.05,
+          -3.3,
+          0.35
+        ]
+      }
+    ],
+    "skipped": []
+  },
+  "build_seconds": 9.4,
+  "assets": [
+    {
+      "id": "Rockingchair_01",
+      "name": "Rockingchair 01",
+      "authors": [
+        "Jorge Camacho"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/Rockingchair_01",
+      "type": "model",
+      "role": "prop:rocking_chair"
+    },
+    {
+      "id": "fern_02",
+      "name": "Fern 02",
+      "authors": [
+        "Rico Cilliers",
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/fern_02",
+      "type": "model",
+      "role": "fern"
+    },
+    {
+      "id": "forest_leaves_02",
+      "name": "Forest Leaves 02",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/forest_leaves_02",
+      "type": "texture",
+      "role": "ground"
+    },
+    {
+      "id": "forest_leaves_04",
+      "name": "Forest Leaves 04",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/forest_leaves_04",
+      "type": "texture",
+      "role": "ground_b"
+    },
+    {
+      "id": "kloofendal_misty_morning_puresky",
+      "name": "Kloofendal Misty Morning (Pure Sky)",
+      "authors": [
+        "Greg Zaal"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/kloofendal_misty_morning_puresky",
+      "type": "hdri",
+      "role": "environment"
+    },
+    {
+      "id": "mossy_rock",
+      "name": "Mossy Rock",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/mossy_rock",
+      "type": "texture",
+      "role": "rock"
+    },
+    {
+      "id": "mud_forest",
+      "name": "Mud Forest",
+      "authors": [
+        "eye-candy.xyz"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/mud_forest",
+      "type": "texture",
+      "role": "path"
+    },
+    {
+      "id": "pine_bark",
+      "name": "Pine Bark",
+      "authors": [
+        "Dimitrios Savva"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/pine_bark",
+      "type": "texture",
+      "role": "bark"
+    },
+    {
+      "id": "rock_moss_set_01",
+      "name": "Rock Moss Set 01",
+      "authors": [
+        "Kless Gyzen"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/rock_moss_set_01",
+      "type": "model",
+      "role": "rocks"
+    },
+    {
+      "id": "roof_planks",
+      "name": "Roof Planks",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/roof_planks",
+      "type": "texture",
+      "role": "roof"
+    },
+    {
+      "id": "stacked_stone_wall",
+      "name": "Stacked Stone Wall",
+      "authors": [
+        "Dimitrios Savva"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/stacked_stone_wall",
+      "type": "texture",
+      "role": "stone"
+    },
+    {
+      "id": "tree_stump_01",
+      "name": "Tree Stump 01",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/tree_stump_01",
+      "type": "model",
+      "role": "stump"
+    },
+    {
+      "id": "weathered_brown_planks",
+      "name": "Weathered Brown Planks",
+      "authors": [
+        "Dimitrios Savva",
+        "Rico Cilliers"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/weathered_brown_planks",
+      "type": "texture",
+      "role": "log"
+    }
+  ],
+  "budget": {
+    "unique_tris": 2741999,
+    "instances": 33278,
+    "texture_mpx": 86.0,
+    "est_memory_gb": 2.1,
+    "mem_limit_gb": 8.0,
+    "est_seconds": 82,
+    "estimate_is_guess": false
+  },
+  "still": {
+    "raw": "/Users/jinling/cinescene/out/ds_cabin/still_raw.png",
+    "final": "/Users/jinling/cinescene/out/ds_cabin/still.png",
+    "render_seconds": 87.2
+  },
+  "checks": {
+    "passed": true,
+    "n": 11,
+    "failed": [],
+    "geometry": {
+      "subject_area": 0.24029062969136783,
+      "subject_center_x": 0.684393048286438
+    }
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "passed": true,
+  "n": 11,
+  "failed": [],
+  "checks": [
+    {
+      "id": "textures_present",
+      "ok": true,
+      "value": [],
+      "limit": [],
+      "hint": ""
+    },
+    {
+      "id": "subject_grounded",
+      "ok": true,
+      "value": [],
+      "limit": "every part connected to the ground",
+      "hint": ""
+    },
+    {
+      "id": "no_trees_in_subject",
+      "ok": true,
+      "value": 0,
+      "limit": 0,
+      "hint": ""
+    },
+    {
+      "id": "camera_clears_trunks",
+      "ok": true,
+      "value": 1000000000.0,
+      "limit": "> 0.6 m",
+      "hint": ""
+    },
+    {
+      "id": "camera_above_ground",
+      "ok": true,
+      "value": 31.4,
+      "limit": "> 0.8 m",
+      "hint": ""
+    },
+    {
+      "id": "subject_in_frame",
+      "ok": true,
+      "value": [
+        0.326,
+        0.693,
+        0.252,
+        0.747
+      ],
+      "limit": "all corners inside [0,1]",
+      "hint": ""
+    },
+    {
+      "id": "exposure_mean",
+      "ok": true,
+      "value": 0.446,
+      "limit": [
+        0.15,
+        0.6
+      ],
+      "hint": ""
+    },
+    {
+      "id": "clipped_highlights",
+      "ok": true,
+      "value": 0.0004,
+      "limit": "<= 0.02",
+      "hint": ""
+    },
+    {
+      "id": "crushed_shadows",
+      "ok": true,
+      "value": 0.0054,
+      "limit": "<= 0.06",
+      "hint": ""
+    },
+    {
+      "id": "subject_area",
+      "ok": true,
+      "value": 0.174,
+      "limit": [
+        0.015,
+        0.4
+      ],
+      "hint": ""
+    },
+    {
+      "id": "tonal_range",
+      "ok": true,
+      "value": 0.728,
+      "limit": ">= 0.25",
+      "hint": ""
+    }
+  ],
+  "geometry": {
+    "subject_area": 0.17387371385819783,
+    "subject_center_x": 0.5093836188316345
+  }
+}

@@ -477,21 +477,29 @@ def autumn_leaf(palette):
     dv = nb.math("MULTIPLY", nb.math("SUBTRACT", v, 0.45), 2.0)
     # lobed leaf: radius modulated by angle (5 lobes), small stem notch
     ang = nb.math("ARCTAN2", dv, du)
-    lobes = nb.math("ADD", 0.55, nb.math("MULTIPLY", 0.4, nb.math("POWER", nb.math("ABSOLUTE",
-                    nb.math("SINE", nb.math("MULTIPLY", ang, 2.5))), 3.0)))
-    serr = nb.math("MULTIPLY", 0.05, nb.math("SINE", nb.math("MULTIPLY", ang, 24.0)))
+    # soft rounded lobes (a sharp |sin|^3 profile read as a five-point star sticker up close)
+    lobes = nb.math("ADD", 0.66, nb.math("MULTIPLY", 0.24, nb.math("POWER", nb.math("ABSOLUTE",
+                    nb.math("SINE", nb.math("MULTIPLY", ang, 2.5))), 0.7)))
+    serr = nb.math("MULTIPLY", 0.025, nb.math("SINE", nb.math("MULTIPLY", ang, 24.0)))
     lobes = nb.math("ADD", lobes, serr)
     r = nb.math("SQRT", nb.math("ADD", nb.math("MULTIPLY", du, du), nb.math("MULTIPLY", dv, dv)))
-    alpha = nb.math("LESS_THAN", r, lobes)
+    # blade outline: a slim pointed oval (beech/birch-like). Lobed outlines read as stars or
+    # pentagons at landscape distance; a plain oval just reads as "leaves".
+    due = nb.math("MULTIPLY", du, 1.6)
+    taper = nb.maprange(dv, -0.2, 0.95, 1.0, 0.55)                 # narrower toward the tip
+    re_ = nb.math("SQRT", nb.math("ADD", nb.math("MULTIPLY", nb.math("DIVIDE", due, taper),
+                                                     nb.math("DIVIDE", due, taper)),
+                                     nb.math("MULTIPLY", dv, dv)))
+    alpha = nb.math("LESS_THAN", re_, nb.math("ADD", 0.86, serr))
     rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
-    clump = nb.noise(nb.coord("Object"), scale=0.8, detail=1.0)
+    clump = nb.noise(nb.coord("Object"), scale=0.3, detail=1.0)   # colour in big patches, not confetti
     k = nb.math("FRACT", nb.math("ADD", rnd, nb.math("MULTIPLY", clump, 1.7)))
     stops = [(i / max(1, len(palette) - 1), tuple(c)) for i, c in enumerate(palette)]
     col = nb.ramp(k, stops)
     vein = nb.math("MULTIPLY", nb.maprange(r, 0.0, 0.8, 0.75, 1.0), 1.0)
     col = nb.mix(1.0, col, nb.comb(vein, vein, vein), "MULTIPLY")
     # per-leaf brightness jitter + crown self-shadow (inner/lower leaves darker, less saturated)
-    jit = nb.maprange(nb.noise(nb.coord("Object"), scale=9.0, detail=1.0), 0.3, 0.7, 0.45, 1.1)
+    jit = nb.maprange(nb.noise(nb.coord("Object"), scale=9.0, detail=1.0), 0.3, 0.7, 0.72, 1.05)
     hsv = nb.new("ShaderNodeHueSaturation", inputs={"Saturation": 0.82})   # real foliage is less candy
     nb.set(hsv, "Color", col)
     col = hsv.outputs[0]

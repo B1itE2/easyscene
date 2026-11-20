@@ -172,7 +172,7 @@ def render_checks(image_path, limits: dict, subject_area=None):
     # contrast: a fog scene must not be a flat grey card
     p5, p95 = np.percentile(y, [5, 95])
     out.append(_c("tonal_range", (p95 - p5) >= 0.25, round(float(p95 - p5), 3), ">= 0.25",
-                  "image is flat: weather 'fog' instead of 'dense_fog'"))
+                  "image is flat (fog washes it out): use a lighter weather (dense_fog -> fog -> light_fog -> clear/haze, whichever the style supports) or another seed"))
     return out
 
 

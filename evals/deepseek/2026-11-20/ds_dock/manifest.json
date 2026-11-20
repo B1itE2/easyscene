@@ -1,0 +1,515 @@
+{
+  "easyscene_version": "0.1.0",
+  "git_rev": "d9e401f",
+  "blender_version": "5.2.3 LTS",
+  "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+  "created_unix": 1795172558,
+  "spec": {
+    "version": 1,
+    "name": "ds_dock",
+    "prompt": "秋天湖边的木码头，码头尽头放个水桶和一盏灯笼，宽银幕",
+    "style": "lakeside_dock",
+    "time_of_day": "morning",
+    "weather": "light_fog",
+    "camera": {
+      "aspect": "2.39:1",
+      "lens_mm": 35,
+      "framing": "medium",
+      "view": "three_quarter_left",
+      "composition": "thirds_right"
+    },
+    "motion": {
+      "preset": "none",
+      "duration_s": 10,
+      "fps": 24
+    },
+    "details": [
+      {
+        "item": "bucket",
+        "place": "dock_end"
+      },
+      {
+        "item": "lantern",
+        "place": "dock_end"
+      }
+    ],
+    "seed": 1,
+    "quality": "final_fast",
+    "subject": {
+      "type": "dock",
+      "size": "small",
+      "lights_on": true,
+      "chimney_smoke": true
+    }
+  },
+  "seed": 1,
+  "recipe_sha256_12": "ef23bb7b1bb0",
+  "resolved_recipe": {
+    "assets": {
+      "hdri": "kloofendal_misty_morning_puresky",
+      "models": {},
+      "textures": {
+        "bark": "bark_brown_02",
+        "deck": "weathered_brown_planks",
+        "land": "forest_leaves_04",
+        "rock": "mossy_rock",
+        "shore": "river_small_rocks"
+      }
+    },
+    "camera": {
+      "aim_height": 0.6,
+      "eye_height_m": 1.4,
+      "foreground_dressing": false,
+      "fstop": 4.0,
+      "min_z": 1.3,
+      "subject_fill": {
+        "close": 0.46,
+        "medium": 0.33,
+        "wide": 0.2
+      },
+      "view_azimuth_deg": {
+        "front": -1.667339673729991,
+        "three_quarter_left": -20.423140461737432,
+        "three_quarter_right": 32.92656323351027
+      }
+    },
+    "card": "recipes/lakeside_dock.md",
+    "checks": {
+      "clipped_highlights_max": 0.02,
+      "crushed_shadows_max": 0.05,
+      "mean_luma": [
+        0.18,
+        0.65
+      ],
+      "subject_area": [
+        0.01,
+        0.35
+      ]
+    },
+    "defaults": {
+      "motion": {
+        "preset": "water_skim"
+      },
+      "subject": {
+        "type": "dock"
+      },
+      "time_of_day": "morning",
+      "weather": "light_fog"
+    },
+    "dock": {
+      "boat": true,
+      "deck_z": 0.55,
+      "lantern_watts": 10,
+      "length": 14.828620568175243,
+      "width": 2.147257197325332
+    },
+    "fog": {
+      "_doc": "morning mist hugging the water: very low height falloff",
+      "anisotropy": 0.6,
+      "breakup_amount": 0.7,
+      "breakup_scale_m": 18.0,
+      "cloud_layer": {
+        "center_m": 0.0,
+        "density": 0.0,
+        "thickness_m": 1.0
+      },
+      "color": [
+        0.88,
+        0.9,
+        0.92
+      ],
+      "density_by_weather": {
+        "clear": 0.002,
+        "fog": 0.026821356944148902,
+        "light_fog": 0.01606156998056311
+      },
+      "height_falloff_m": 3.042384611975314
+    },
+    "forest": {
+      "autumn_variants": 6,
+      "band_m": [
+        6.0,
+        70.0
+      ],
+      "conifer_height_m": [
+        12.0,
+        22.0
+      ],
+      "conifer_ratio": 0.20456942147540702,
+      "conifer_variants": 3,
+      "crown_base_ratio": [
+        0.3,
+        0.5
+      ],
+      "extent_m": 240,
+      "height_range_m": [
+        9.0,
+        17.0
+      ],
+      "leaf_palette": [
+        [
+          0.38,
+          0.03,
+          0.01
+        ],
+        [
+          0.6,
+          0.1,
+          0.01
+        ],
+        [
+          0.75,
+          0.32,
+          0.02
+        ],
+        [
+          0.65,
+          0.5,
+          0.05
+        ],
+        [
+          0.16,
+          0.22,
+          0.03
+        ]
+      ],
+      "min_spacing_m": 2.6,
+      "snag_ratio": 0.0,
+      "variants": 3
+    },
+    "id": "lakeside_dock",
+    "lake": {
+      "bay": 0.005913157213860218,
+      "depth": 3.5,
+      "hills": 7.6951493721301745,
+      "resolution": 260,
+      "size_m": 320
+    },
+    "lighting_by_time": {
+      "dawn": "cold_fog_morning",
+      "dusk": "golden_dusk",
+      "morning": "cold_fog_morning"
+    },
+    "lighting_overrides": {
+      "_doc": "sun behind/beside the camera: autumn crowns are front-lit and glow, the far bank mirrors in the lake",
+      "dawn": {
+        "env_strength": 0.6,
+        "sun": {
+          "angle": 2.0,
+          "elevation": 4,
+          "kelvin": 3600,
+          "rel_azimuth": 30,
+          "strength": 4.0
+        }
+      },
+      "dusk": {
+        "sun": {
+          "angle": 3.0,
+          "elevation": 3.5,
+          "kelvin": 2900,
+          "rel_azimuth": 22.81714820697222,
+          "strength": 3.0
+        }
+      },
+      "morning": {
+        "env_strength": 1.0,
+        "exposure": 0.3,
+        "sun": {
+          "angle": 2.0,
+          "elevation": 15.57245606820424,
+          "kelvin": 4589.623828678135,
+          "rel_azimuth": 137.1977312898315,
+          "strength": 5.544243313894129
+        }
+      }
+    },
+    "motion": {
+      "water_skim": {
+        "arc_m": 4.099428202617741,
+        "direction": -1,
+        "ease": {
+          "accel": 0.12,
+          "decel": 0.4
+        },
+        "min_height_above_water_m": 0.6,
+        "skim_height_m": 1.0330011150456762,
+        "start_distance_m": 48.814484115053006,
+        "start_look_up_m": 1.5
+      }
+    },
+    "post": {
+      "contrast": 1.05,
+      "gamma": 1.0,
+      "grain": 4,
+      "highlights_rgb": [
+        0.04,
+        0.02,
+        -0.02
+      ],
+      "saturation": 1.05,
+      "shadows_rgb": [
+        -0.02,
+        0.0,
+        0.02
+      ],
+      "vignette_angle": 0.45
+    },
+    "review": {
+      "fixes": {
+        "autumn_color": [
+          "another seed (different palette)",
+          "time_of_day: morning"
+        ],
+        "exposure": [
+          "another seed"
+        ],
+        "mist": [
+          "weather: light_fog -> fog",
+          "time_of_day: dawn"
+        ],
+        "realism": [
+          "another seed"
+        ],
+        "reflection": [
+          "weather: clear or light_fog (fog hides reflections)",
+          "view: front"
+        ],
+        "subject_read": [
+          "framing: medium -> close"
+        ]
+      },
+      "max_rounds": 2,
+      "pass_score": 7.0
+    },
+    "rubric": [
+      {
+        "desc": "红叶层次：红、橙、黄、少量常绿，色块成片而不是均匀撒点",
+        "id": "autumn_color",
+        "weight": 3
+      },
+      {
+        "desc": "水面平静，清晰倒映树林和码头，有轻微波纹",
+        "id": "reflection",
+        "weight": 3
+      },
+      {
+        "desc": "晨雾贴着水面，远岸逐渐变淡",
+        "id": "mist",
+        "weight": 2
+      },
+      {
+        "desc": "码头一眼可辨，伸入湖中，引导视线",
+        "id": "subject_read",
+        "weight": 2
+      },
+      {
+        "desc": "木头、小船、岸边石头可信",
+        "id": "realism",
+        "weight": 1
+      },
+      {
+        "desc": "无死黑、无大片过曝",
+        "id": "exposure",
+        "weight": 1
+      }
+    ],
+    "supports": {
+      "motion": [
+        "none",
+        "water_skim"
+      ],
+      "places": [
+        "dock_end",
+        "dock",
+        "shore"
+      ],
+      "subject": [
+        "dock"
+      ],
+      "time_of_day": [
+        "dawn",
+        "morning",
+        "dusk"
+      ],
+      "weather": [
+        "clear",
+        "light_fog",
+        "fog"
+      ]
+    },
+    "title": "湖边秋日码头 / Autumn Lakeside Dock"
+  },
+  "render": {
+    "width": 2582,
+    "height": 1080,
+    "device": "METAL",
+    "samples": 64
+  },
+  "lighting": {
+    "preset": "cold_fog_morning",
+    "hdri": true,
+    "practical_scale": 1.0,
+    "sun_dir": [
+      -0.8600130677223206,
+      -0.4339452385902405,
+      0.26845675706863403
+    ]
+  },
+  "camera": {
+    "location": [
+      -8.498737335205078,
+      -29.5916690826416,
+      1.2999999523162842
+    ],
+    "target": [
+      0.0,
+      -6.7674736976623535,
+      1.649999976158142
+    ],
+    "shift_x": -0.16666666666666666,
+    "focus": 24.35764658627502,
+    "yaw": -0.3564510596701814,
+    "lens": 35,
+    "aspect": "2.39:1"
+  },
+  "motion": null,
+  "details": {
+    "placed": [
+      {
+        "item": "bucket",
+        "place": "dock_end",
+        "at": [
+          -0.4,
+          -12.34,
+          0.58
+        ]
+      },
+      {
+        "item": "lantern",
+        "place": "dock_end",
+        "at": [
+          0.4,
+          -12.14,
+          0.58
+        ]
+      }
+    ],
+    "skipped": []
+  },
+  "build_seconds": 4.3,
+  "assets": [
+    {
+      "id": "bark_brown_02",
+      "name": "Bark Brown 02",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/bark_brown_02",
+      "type": "texture",
+      "role": "bark"
+    },
+    {
+      "id": "forest_leaves_04",
+      "name": "Forest Leaves 04",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/forest_leaves_04",
+      "type": "texture",
+      "role": "land"
+    },
+    {
+      "id": "kloofendal_misty_morning_puresky",
+      "name": "Kloofendal Misty Morning (Pure Sky)",
+      "authors": [
+        "Greg Zaal"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/kloofendal_misty_morning_puresky",
+      "type": "hdri",
+      "role": "environment"
+    },
+    {
+      "id": "mossy_rock",
+      "name": "Mossy Rock",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/mossy_rock",
+      "type": "texture",
+      "role": "rock"
+    },
+    {
+      "id": "river_small_rocks",
+      "name": "River Small Rocks",
+      "authors": [
+        "Rico Cilliers",
+        "Rob Tuytel"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/river_small_rocks",
+      "type": "texture",
+      "role": "shore"
+    },
+    {
+      "id": "weathered_brown_planks",
+      "name": "Weathered Brown Planks",
+      "authors": [
+        "Dimitrios Savva",
+        "Rico Cilliers"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/weathered_brown_planks",
+      "type": "texture",
+      "role": "deck"
+    },
+    {
+      "id": "wooden_bucket_01",
+      "name": "Wooden Bucket 01",
+      "authors": [
+        "James Ray Cock"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/wooden_bucket_01",
+      "type": "model",
+      "role": "prop:bucket"
+    },
+    {
+      "id": "wooden_lantern_01",
+      "name": "Wooden Lantern 01",
+      "authors": [
+        "James Ray Cock"
+      ],
+      "license": "CC0-1.0",
+      "source": "https://polyhaven.com/a/wooden_lantern_01",
+      "type": "model",
+      "role": "prop:lantern"
+    }
+  ],
+  "budget": {
+    "unique_tris": 1994931,
+    "instances": 7334,
+    "texture_mpx": 52.4,
+    "est_memory_gb": 1.91,
+    "mem_limit_gb": 8.0,
+    "est_seconds": 119,
+    "estimate_is_guess": false
+  },
+  "still": {
+    "raw": "/Users/jinling/cinescene/out/ds_dock/still_raw.png",
+    "final": "/Users/jinling/cinescene/out/ds_dock/still.png",
+    "render_seconds": 127.3
+  },
+  "checks": {
+    "passed": true,
+    "n": 11,
+    "failed": [],
+    "geometry": {
+      "subject_area": 0.09531692836857975,
+      "subject_center_x": 0.6975849866867065
+    }
+  }
+}
