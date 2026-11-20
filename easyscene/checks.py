@@ -31,7 +31,7 @@ def scene_checks(layout: dict, terrain=None):
                if img.source == "FILE" and not img.packed_file
                and not os.path.exists(bpy.path.abspath(img.filepath))]
     out.append(_c("textures_present", not missing, missing, [],
-                  "re-run `python3 -m cinescene.assets STYLE` or set CINESCENE_OFFLINE=1"))
+                  "re-run `python3 -m easyscene.assets STYLE` or set EASYSCENE_OFFLINE=1"))
 
     # 2. floating subject parts. A part is grounded if one of its lowest points
     #    touches the ground (or is buried); other parts count as supported when

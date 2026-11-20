@@ -18,7 +18,7 @@ from ..modeling import coast, lighthouse, vegetation
 
 
 def log(msg):
-    print(f"[cinescene] {msg}", flush=True)
+    print(f"[easyscene] {msg}", flush=True)
 
 
 def build(spec, R, q, mats, tex, hdri):

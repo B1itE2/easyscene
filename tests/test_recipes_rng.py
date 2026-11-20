@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from cinescene import recipes, rng  # noqa: E402
+from easyscene import recipes, rng  # noqa: E402
 
 
 class TestResolve(unittest.TestCase):

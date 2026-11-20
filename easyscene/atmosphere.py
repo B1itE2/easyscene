@@ -27,7 +27,7 @@ def _box(name, xmin, xmax, ymin, ymax, zmin, zmax, origin=(0, 0, 0)):
 
 def _time_node(nb):
     t = nb.new("ShaderNodeValue")
-    t.name = t.label = "cinescene_time"
+    t.name = t.label = "easyscene_time"
     t.outputs[0].default_value = 0.0
     return t.outputs[0]
 
@@ -171,7 +171,7 @@ def chimney_smoke(fog_obj, top_pos, smoke: dict, seed: int):
     nb = NB(mat.node_tree, clear=False)
     p = nb.vmath("SUBTRACT", nb.coord("Object"), tuple(top_pos))   # plume-local coords
     x, y, z = nb.sep(p)
-    t = mat.node_tree.nodes["cinescene_time"].outputs[0]
+    t = mat.node_tree.nodes["easyscene_time"].outputs[0]
     rise = nb.math("MULTIPLY", t, -smoke["rise_speed"])
     off = (seed % 97, seed % 89, seed % 83)
     # domain warp: a slow 3D noise pushes the plume sideways, more the higher it gets,
@@ -226,11 +226,11 @@ def _time_owners():
 
 
 def key_time(fps: int, frame_start: int, frame_end: int):
-    """Key every 'cinescene_time' node linearly in seconds over the shot."""
+    """Key every 'easyscene_time' node linearly in seconds over the shot."""
     for mat in _time_owners():
         if not mat.node_tree:
             continue
-        node = mat.node_tree.nodes.get("cinescene_time")
+        node = mat.node_tree.nodes.get("easyscene_time")
         if node is None:
             continue
         sock = node.outputs[0]
@@ -259,5 +259,5 @@ def _fcurves(action):
 def set_time(seconds: float):
     """For stills: freeze every drift at a given time."""
     for mat in _time_owners():
-        if mat.node_tree and (n := mat.node_tree.nodes.get("cinescene_time")):
+        if mat.node_tree and (n := mat.node_tree.nodes.get("easyscene_time")):
             n.outputs[0].default_value = seconds

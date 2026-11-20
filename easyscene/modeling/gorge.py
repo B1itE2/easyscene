@@ -156,7 +156,7 @@ class Gorge:
         return mb.build("Terrain", [material])
 
 
-def waterfall_material(time_node_name="cinescene_time"):
+def waterfall_material(time_node_name="easyscene_time"):
     """White-water sheet: vertical streaks scrolling down, translucent edges."""
     mat, nb = new_material("Waterfall")
     uv = nb.coord("UV")

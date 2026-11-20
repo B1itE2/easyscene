@@ -58,7 +58,7 @@ def water_material(name="Water", deep=(0.004, 0.018, 0.024), rough=0.035, foam_a
     mat, nb = new_material(name)
     world = nb.o(nb.new("ShaderNodeNewGeometry"), "Position")   # world space: tiles are offset
     t = nb.new("ShaderNodeValue")
-    t.name = t.label = "cinescene_time"
+    t.name = t.label = "easyscene_time"
     # small capillary ripples on top of the big waves
     rip = nb.noise(world, scale=ripple_scale, detail=8.0, rough=0.65, dims="4D",
                    w=nb.math("MULTIPLY", t.outputs[0], 0.4))

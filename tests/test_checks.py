@@ -10,7 +10,7 @@ sys.path.insert(0, str(ROOT))
 import numpy as np  # noqa: E402
 from PIL import Image  # noqa: E402
 
-from cinescene import checks  # noqa: E402
+from easyscene import checks  # noqa: E402
 
 LIMITS = {"mean_luma": [0.15, 0.6], "clipped_highlights_max": 0.02,
           "crushed_shadows_max": 0.06, "subject_area": [0.015, 0.4]}

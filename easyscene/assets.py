@@ -4,7 +4,7 @@ Pure Python (urllib only). Every function returns ``None`` instead of
 raising when the network or an asset is unavailable, so the builder can
 fall back to procedural materials and still produce an image.
 
-Cache layout (``$CINESCENE_CACHE`` or ``~/.cache/cinescene``)::
+Cache layout (``$EASYSCENE_CACHE`` or ``~/.cache/easyscene``)::
 
     polyhaven/<id>/<files...>
     polyhaven/<id>/info.json      # name, authors, license, source url
@@ -20,7 +20,7 @@ import urllib.request
 from pathlib import Path
 
 API = "https://api.polyhaven.com"
-UA = {"User-Agent": "cinescene/0.1 (+https://github.com/cinescene)"}
+UA = {"User-Agent": "easyscene/0.1 (+https://github.com/B1itE2/easyscene)"}
 TIMEOUT = 30
 
 # Assets actually used during this process; written into the run manifest.
@@ -28,17 +28,17 @@ LEDGER = {}
 
 
 def cache_dir() -> Path:
-    d = Path(os.environ.get("CINESCENE_CACHE", Path.home() / ".cache" / "cinescene"))
+    d = Path(os.environ.get("EASYSCENE_CACHE", Path.home() / ".cache" / "easyscene"))
     d.mkdir(parents=True, exist_ok=True)
     return d
 
 
 def offline() -> bool:
-    return os.environ.get("CINESCENE_OFFLINE", "") not in ("", "0")
+    return os.environ.get("EASYSCENE_OFFLINE", "") not in ("", "0")
 
 
 def log(msg):
-    print(f"[cinescene.assets] {msg}", flush=True)
+    print(f"[easyscene.assets] {msg}", flush=True)
 
 
 def _get_json(url):
@@ -195,7 +195,7 @@ def ledger_records():
 
 
 def prefetch(recipe: dict, res="1k"):
-    """Download everything a recipe may use. CLI: python3 -m cinescene.assets STYLE."""
+    """Download everything a recipe may use. CLI: python3 -m easyscene.assets STYLE."""
     a = recipe.get("assets", {})
     ok = bool(fetch_hdri(a["hdri"], res)) if a.get("hdri") else True
     for role, tid in a.get("textures", {}).items():

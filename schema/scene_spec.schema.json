@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/cinescene/cinescene/schema/scene_spec.schema.json",
-  "title": "cinescene scene spec v1",
+  "$id": "https://github.com/B1itE2/easyscene/schema/scene_spec.schema.json",
+  "title": "easyscene scene spec v1",
   "description": "What the AI writes after reading the user's sentence. Every field is a multiple-choice answer; code does the rest.",
   "type": "object",
   "additionalProperties": false,
@@ -213,7 +213,7 @@
         "properties": {
           "item": {
             "type": "string",
-            "description": "one of cinescene.props.LIBRARY"
+            "description": "one of easyscene.props.LIBRARY"
           },
           "place": {
             "type": "string",

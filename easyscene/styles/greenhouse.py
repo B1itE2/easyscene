@@ -18,7 +18,7 @@ from ..modeling.mesh import MeshBuilder, frame
 
 
 def log(msg):
-    print(f"[cinescene] {msg}", flush=True)
+    print(f"[easyscene] {msg}", flush=True)
 
 
 class Flat:

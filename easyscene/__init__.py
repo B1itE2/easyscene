@@ -1,4 +1,4 @@
-"""cinescene — one sentence in, a cinematic realistic Blender scene out.
+"""easyscene — one sentence in, a cinematic realistic Blender scene out.
 
 Package layout
 --------------

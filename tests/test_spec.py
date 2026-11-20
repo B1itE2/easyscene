@@ -5,8 +5,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from cinescene import spec  # noqa: E402
-from cinescene.spec import SpecError  # noqa: E402
+from easyscene import spec  # noqa: E402
+from easyscene.spec import SpecError  # noqa: E402
 
 
 def base(**kw):

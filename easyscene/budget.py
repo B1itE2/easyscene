@@ -41,7 +41,7 @@ QUALITY = {
 ASPECTS = {"16:9": 16 / 9, "9:16": 9 / 16, "1:1": 1.0, "2.39:1": 2.39}
 
 # Safety line for total Blender memory on this machine (GB). Overridable.
-DEFAULT_MEM_LIMIT_GB = float(os.environ.get("CINESCENE_MEM_LIMIT_GB", "8"))
+DEFAULT_MEM_LIMIT_GB = float(os.environ.get("EASYSCENE_MEM_LIMIT_GB", "8"))
 
 
 def resolution(aspect: str, quality: str):

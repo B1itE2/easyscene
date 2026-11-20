@@ -1,7 +1,7 @@
-# cinescene
+# easyscene
 
-**一句话 → 写实、有电影感的 3D 场景（Blender）。**
-**One sentence → a realistic, cinematic 3D scene rendered in Blender.**
+**一句话 → 写实、有电影感的 3D 场景（Blender）。不挑模型：DeepSeek、Kimi、GPT、Claude 都能出好图。**
+**One sentence → a realistic, cinematic 3D scene rendered in Blender. Works with any AI model — DeepSeek, Kimi, GPT, Claude.**
 
 ![wall](docs/showcase/foggy_cabin_morning.png)
 
@@ -19,7 +19,7 @@
 ### 它是什么
 一个给 Claude Code / Codex 等 AI 编程助手用的 skill。你说一句话，比如"清晨森林里有座小木屋，起雾了，窗户亮着暖光"，AI 把它翻译成一份**场景说明书**（JSON），代码负责建模、布光、材质、构图、渲染、后期。
 
-核心理念：**把"做得好"需要的判断写进代码和配方卡里，AI 只做选择题。** 所以不同的 AI 用它都能出稳定的效果。
+核心理念：**把"做得好"需要的判断写进代码和配方卡里，AI 只做选择题。** 所以**不挑模型**：不需要最强、最贵的 AI，DeepSeek、Kimi 这类日常模型也能做出同样好的 3D 场景；也不用花钱调用 AI 生成 3D 模型，素材全部免费。
 
 ### 特点
 - **5 种写实风格**，每种都有配方卡、标准参考图、常见错误清单
@@ -32,8 +32,8 @@
 
 ### 安装
 1. 安装 [Blender 5.2](https://www.blender.org/download/)、Python 3.9+、[ffmpeg](https://ffmpeg.org/)（用于后期和视频）
-2. 下载本仓库，把文件夹放到你的 skills 目录（Claude Code：`~/.claude/skills/cinescene`）
-3. 可选：预先下载素材 `python3 -m cinescene.assets foggy_forest_cabin`
+2. 下载本仓库，把文件夹放到你的 skills 目录（Claude Code：`~/.claude/skills/easyscene`）
+3. 可选：预先下载素材 `python3 -m easyscene.assets foggy_forest_cabin`
 
 ### 示例提示词
 - 清晨森林里有座小木屋，起雾了，窗户亮着暖光，用云雾下降开场，10 秒
@@ -57,7 +57,7 @@
 ## English
 
 ### What it is
-A skill for AI coding agents (Claude Code, Codex, …). The user says one sentence; the agent fills in a JSON **scene spec**; tested code does the modelling, lighting, materials, composition, rendering and grading. The agent never writes Blender code — it only makes choices, so results are stable across agents.
+A skill for AI coding agents (Claude Code, Codex, …). The user says one sentence; the agent fills in a JSON **scene spec**; tested code does the modelling, lighting, materials, composition, rendering and grading. The agent never writes Blender code — it only makes choices, so **it works with any model**: everyday models like DeepSeek or Kimi get the same quality as the strongest ones, and there are no paid 3D-generation calls.
 
 ### Features
 - **5 realistic styles**, each with a recipe card, reference render and a common-mistakes list
@@ -70,8 +70,8 @@ A skill for AI coding agents (Claude Code, Codex, …). The user says one senten
 
 ### Install
 1. Install [Blender 5.2](https://www.blender.org/download/), Python 3.9+, [ffmpeg](https://ffmpeg.org/)
-2. Put this folder in your skills directory (Claude Code: `~/.claude/skills/cinescene`)
-3. Optional: prefetch assets `python3 -m cinescene.assets foggy_forest_cabin`
+2. Put this folder in your skills directory (Claude Code: `~/.claude/skills/easyscene`)
+3. Optional: prefetch assets `python3 -m easyscene.assets foggy_forest_cabin`
 
 ### Example prompts
 - A small cabin in a misty forest at dawn, warm light in the windows, open with a cloud descent, 10 seconds

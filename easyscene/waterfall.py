@@ -31,7 +31,7 @@ def white_water_material(name="WhiteWater", top=20.0):
     uv = nb.coord("UV")
     u, v, _ = nb.sep(uv)
     t = nb.new("ShaderNodeValue")
-    t.name = t.label = "cinescene_time"
+    t.name = t.label = "easyscene_time"
     tt = t.outputs[0]
     ul = nb.math("FRACT", u)                                  # 0..1 across this strand
     sid = nb.math("FLOOR", u)                                 # strand id -> decorrelate noise
@@ -262,7 +262,7 @@ def add_mist(fog_obj, fall: dict, cfg: dict):
     mat = fog_obj.data.materials[0]
     nb = NB(mat.node_tree, clear=False)
     P = nb.coord("Object")
-    t = mat.node_tree.nodes["cinescene_time"].outputs[0]
+    t = mat.node_tree.nodes["easyscene_time"].outputs[0]
     total = None
     for (x, y, z, r) in fall["impacts"]:
         p = nb.vmath("SUBTRACT", P, (x, y, z))
@@ -303,7 +303,7 @@ def pool_material(impacts, deep=(0.01, 0.03, 0.025)):
     mat = water_material("PlungePool", deep=deep, rough=0.02, ripple=0.25)
     nb = NB(mat.node_tree, clear=False)
     world = nb.o(nb.new("ShaderNodeNewGeometry"), "Position")
-    t = mat.node_tree.nodes["cinescene_time"].outputs[0]
+    t = mat.node_tree.nodes["easyscene_time"].outputs[0]
     near = None
     for (x, y, _z, r) in impacts:
         d = nb.vmath("DISTANCE", world, (x, y, 0.0), out="Value")

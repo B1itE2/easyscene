@@ -37,7 +37,7 @@ def filter_chain(post: dict, seed: int, animated: bool = False) -> str:
 
 
 def run(cmd):
-    print("[cinescene.post] " + " ".join(cmd), flush=True)
+    print("[easyscene.post] " + " ".join(cmd), flush=True)
     r = subprocess.run(cmd, capture_output=True, text=True)
     if r.returncode != 0:
         raise RuntimeError(f"ffmpeg failed:\n{r.stderr[-2000:]}")
@@ -47,7 +47,7 @@ def grade_still(src, dst, post: dict, seed: int):
     exe = ffmpeg_bin()
     if exe is None:
         shutil.copyfile(src, dst)
-        print("[cinescene.post] ffmpeg not found: wrote ungraded image")
+        print("[easyscene.post] ffmpeg not found: wrote ungraded image")
         return False
     run([exe, "-y", "-loglevel", "error", "-i", str(src),
          "-vf", filter_chain(post, seed) + ",format=rgb24", "-frames:v", "1", str(dst)])

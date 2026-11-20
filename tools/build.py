@@ -33,7 +33,7 @@ def parse():
 
 def main():
     import bpy
-    from cinescene import build, spec as specmod
+    from easyscene import build, spec as specmod
 
     a = parse()
     raw = json.loads(Path(a.spec).read_text(encoding="utf-8"))
@@ -59,7 +59,7 @@ def main():
     still = extra.get("still", {}).get("final")
     extra["checks"] = {k: v for k, v in build.run_checks(ctx, out, still).items() if k != "checks"}
     build.write_manifest(out, spec, ctx, extra)
-    print(f"[cinescene] DONE -> {out}", flush=True)
+    print(f"[easyscene] DONE -> {out}", flush=True)
 
 
 if __name__ == "__main__":

@@ -90,11 +90,11 @@ def load(path) -> dict:
 
 
 def main(argv=None):
-    """CLI: ``python3 -m cinescene.spec examples/foo.json`` -> prints the filled spec."""
+    """CLI: ``python3 -m easyscene.spec examples/foo.json`` -> prints the filled spec."""
     import sys
     args = argv if argv is not None else sys.argv[1:]
     if not args:
-        print("usage: python3 -m cinescene.spec SPEC.json [...]")
+        print("usage: python3 -m easyscene.spec SPEC.json [...]")
         return 2
     code = 0
     for p in args:

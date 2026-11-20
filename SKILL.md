@@ -1,14 +1,14 @@
 ---
-name: cinescene
-description: Turn one sentence into a realistic, cinematic 3D scene rendered in Blender (foggy forest cabin, coastal lighthouse, autumn lakeside dock, greenhouse, rainforest waterfall). Use when the user asks for a realistic 3D scene, landscape render, cinematic still or short camera move from a text description. The agent only fills in a JSON scene spec; all modelling, lighting and rendering is done by tested code.
+name: easyscene
+description: Turn one sentence into a realistic, cinematic 3D scene rendered in Blender — works with any AI model, not just the strongest ones (foggy forest cabin, coastal lighthouse, autumn lakeside dock, greenhouse, rainforest waterfall). Use when the user asks for a realistic 3D scene, landscape render, cinematic still or short camera move from a text description. The agent only fills in a JSON scene spec; all modelling, lighting and rendering is done by tested code, so ordinary models (DeepSeek, Kimi, GPT, Claude, …) get the same quality.
 ---
 
-# cinescene
+# easyscene
 
 You never write Blender code. You translate the user's sentence into a **scene spec** (JSON),
 run one command, check the result, and adjust the spec if needed.
 
-All commands are run from the cinescene folder. `BLENDER` means the Blender 5.2 executable:
+All commands are run from the easyscene folder. `BLENDER` means the Blender 5.2 executable:
 - macOS: `/Applications/Blender.app/Contents/MacOS/Blender`
 - Windows: `"C:\Program Files\Blender Foundation\Blender 5.2\blender.exe"`
 - Linux: `blender`
@@ -62,7 +62,7 @@ Translation rules:
 ## Step 3 — Validate the spec
 
 ```
-python3 -m cinescene.spec examples/my_scene.json
+python3 -m easyscene.spec examples/my_scene.json
 ```
 `OK` → continue. Otherwise each error line names the field and the allowed values; fix and re-run.
 
@@ -116,6 +116,6 @@ placed, and the license note: all assets are CC0 (listed in `ASSET_LICENSES.md`)
 ---
 
 ### Rules
-- Never edit files in `cinescene/` to fix a picture. Change the spec.
+- Never edit files in `easyscene/` to fix a picture. Change the spec.
 - Never run two Blender renders at the same time.
 - Same spec + same seed = same scene. Mention the seed when you report.

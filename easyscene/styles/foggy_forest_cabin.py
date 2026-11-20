@@ -15,7 +15,7 @@ from ..modeling import cabin, forest, terrain, vegetation
 
 
 def log(msg):
-    print(f"[cinescene] {msg}", flush=True)
+    print(f"[easyscene] {msg}", flush=True)
 
 
 def _tree_dims(obj):
