@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "name": "greenhouse_push_in",
+  "prompt": "清晨的老式玻璃温室，镜头从门外慢慢推进去，两边摆满盆栽",
+  "style": "greenhouse",
+  "time_of_day": "morning",
+  "weather": "haze",
+  "camera": {"aspect": "16:9", "lens_mm": 24, "framing": "medium", "view": "front"},
+  "motion": {"preset": "push_in", "duration_s": 10, "fps": 24},
+  "seed": 1,
+  "quality": "preview"
+}

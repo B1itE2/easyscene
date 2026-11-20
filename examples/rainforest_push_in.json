@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "name": "rainforest_push_in",
+  "prompt": "热带雨林深处的瀑布，镜头慢慢推近瀑布",
+  "style": "rainforest_waterfall",
+  "time_of_day": "morning",
+  "weather": "haze",
+  "camera": {
+    "aspect": "16:9",
+    "lens_mm": 28,
+    "framing": "medium",
+    "view": "front"
+  },
+  "seed": 1,
+  "quality": "preview",
+  "motion": {
+    "preset": "push_in",
+    "duration_s": 10,
+    "fps": 24
+  }
+}

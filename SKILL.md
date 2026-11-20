@@ -24,8 +24,8 @@ Choose exactly one. If nothing fits, tell the user which styles exist; do not in
 | `foggy_forest_cabin` | log cabin in a misty spruce forest, warm windows, chimney smoke | `morning` / `fog` | `cloud_descent` |
 | `coastal_lighthouse` | lighthouse on a sea cliff at sunset, waves, light beam | `dusk` / `haze` | `orbit` |
 | `lakeside_dock` | wooden dock on a calm autumn lake, red leaves, reflections | `morning` / `light_fog` | `water_skim` |
-| `greenhouse` | Victorian glasshouse full of potted plants, soft daylight | `morning` / `haze` | none (still) |
-| `rainforest_waterfall` | jungle waterfall, light shafts through mist, mossy rocks | `morning` / `haze` | none (still) |
+| `greenhouse` | Victorian glasshouse full of potted plants, soft daylight | `morning` / `haze` | `push_in` |
+| `rainforest_waterfall` | jungle waterfall, light shafts through mist, mossy rocks | `morning` / `haze` | `push_in` |
 
 Allowed values for each style are in `recipes/<style>.json` → `"supports"`.
 

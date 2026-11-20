@@ -1,4 +1,4 @@
-"""Style: greenhouse / conservatory (温室花房). Still image only (no camera move).
+"""Style: greenhouse / conservatory (温室花房). Still, or ``push_in`` through the door.
 
 The camera stands just inside the door looking down the central aisle:
 benches of potted plants on both sides, hanging baskets, a tall palm and an
@@ -69,6 +69,13 @@ def build(spec, R, q, mats, tex, hdri):
     solved = {"location": tuple(loc), "target": tuple(target), "shift_x": 0.0,
               "focus": (target - loc).length, "yaw": camera.yaw_of(tuple(target - loc)),
               "lens": cs["lens_mm"], "aspect": cs["aspect"]}
+
+    shot = None
+    mv = spec["motion"]
+    if mv["preset"] != "none":
+        from .. import motion
+        shot = motion.plan(mv["preset"], {"subject": {"center": gh["center"]}, "camera": solved}, T,
+                           R["motion"][mv["preset"]], mv["duration_s"], mv["fps"])
 
     linfo = lighting.apply(R["lighting_by_time"][spec["time_of_day"]], solved["yaw"], hdri,
                            R.get("lighting_overrides", {}).get(spec["time_of_day"]))
@@ -159,5 +166,5 @@ def build(spec, R, q, mats, tex, hdri):
         "bench": [(x, y, z, cyaw) for (x, y, z) in gh["bench_spots"][2:40:9]],
         "end": [(-0.9, gh["center"][1] - 0.6, 0.0, cyaw), (0.9, gh["center"][1] - 0.6, 0.0, cyaw)],
     }
-    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": None, "terrain": T,
+    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": shot, "terrain": T,
             "anchors": anchors}

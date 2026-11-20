@@ -12,7 +12,8 @@
       "light_fog"
     ],
     "motion": [
-      "none"
+      "none",
+      "push_in"
     ],
     "subject": [
       "waterfall"
@@ -29,7 +30,7 @@
       "type": "waterfall"
     },
     "motion": {
-      "preset": "none"
+      "preset": "push_in"
     }
   },
   "lighting_by_time": {
@@ -361,5 +362,39 @@
       1,
       3
     ]
+  },
+  "motion": {
+    "push_in": {
+      "start_back_m": {
+        "between": [
+          12.0,
+          16.0
+        ]
+      },
+      "start_rise_m": {
+        "between": [
+          1.0,
+          2.0
+        ]
+      },
+      "side_m": {
+        "between": [
+          2.0,
+          4.0
+        ]
+      },
+      "direction": {
+        "choice": [
+          -1,
+          1
+        ]
+      },
+      "start_look_up_m": 2.0,
+      "min_clearance_m": 2.0,
+      "ease": {
+        "accel": 0.2,
+        "decel": 0.45
+      }
+    }
   }
 }

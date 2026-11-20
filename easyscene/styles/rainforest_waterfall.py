@@ -1,4 +1,4 @@
-"""Style: rainforest waterfall (雨林瀑布). Still image only.
+"""Style: rainforest waterfall (雨林瀑布). Still, or ``push_in`` toward the falls.
 
 Gorge -> waterfall sheet -> camera on the near bank -> light from above and
 behind the falls (shafts through the canopy gap) -> plunge pool -> jungle
@@ -53,6 +53,12 @@ def build(spec, R, q, mats, tex, hdri):
     solved = {"location": tuple(loc), "target": tuple(target), "shift_x": 0.0,
               "focus": (target - loc).length, "yaw": camera.yaw_of(tuple(target - loc)),
               "lens": cs["lens_mm"], "aspect": cs["aspect"]}
+    shot = None
+    mv = spec["motion"]
+    if mv["preset"] != "none":
+        from .. import motion
+        shot = motion.plan(mv["preset"], {"subject": {"center": base}, "camera": solved}, G,
+                           R["motion"][mv["preset"]], mv["duration_s"], mv["fps"])
 
     gmat = materials.jungle_ground(tex.get("rock"), tex.get("moss_ground"),
                                    wet_zone=(fall["lip"][0], gc["cliff_y"], gc["fall_width"] * 1.6))
@@ -93,6 +99,14 @@ def build(spec, R, q, mats, tex, hdri):
             continue
         pts.append((x, y, h - 0.3, 0, 0, f_rng.uniform(0, math.tau), f_rng.uniform(0.8, 1.3),
                     f_rng.randrange(len(tvars))))
+    if shot is not None:                                        # nothing solid on the camera route
+        def _dims(o):
+            vs = o.data.vertices
+            h = max(v.co.z for v in vs)
+            return h, max((v.co.x ** 2 + v.co.y ** 2) ** 0.5 for v in vs), h * 0.35
+        n0 = len(pts)
+        pts = shot.clear_trees(pts, [_dims(o) for o in tvars], margin=2.0)
+        log(f"camera route: cleared {n0 - len(pts)} trees in its way")
     scatter.scatter("Forest", pts, tcol)
 
     u_rng = rngmod.stream(seed, "undergrowth")
@@ -178,7 +192,7 @@ def build(spec, R, q, mats, tex, hdri):
     cyaw = solved["yaw"] + math.pi
     anchors = {"pool_edge": [(p[0], p[1], p[2] + 0.3, cyaw) for p in rpts[:3]],
                "ledge": [(loc.x + fwd.x * 2.0, loc.y + fwd.y * 2.0, G.height(loc.x + fwd.x * 2.0, loc.y + fwd.y * 2.0), cyaw)]}
-    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": None, "terrain": G,
+    return {"layout": layout, "lighting": linfo, "camera_obj": cam_obj, "shot": shot, "terrain": G,
             "anchors": anchors}
 
 

@@ -9,7 +9,7 @@ points (camera position + look target). The shared machinery then
   no sudden head turns), and
 * clears trees whose crowns/trunks come too close to the route.
 
-Presets: cloud_descent (implemented); orbit, push_in, low_flyover (reserved).
+Presets: cloud_descent, orbit, water_skim, push_in (implemented); low_flyover (reserved).
 """
 
 import math
@@ -326,6 +326,36 @@ def water_skim(layout, terrain, cfg, duration_s, fps):
     return Shot("water_skim", pos, tgt, fps, {"start": tuple(round(v, 2) for v in S)})
 
 
+def push_in(layout, terrain, cfg, duration_s, fps):
+    """Slow dolly toward the subject along the hero sight line, ending on the hero framing.
+
+    Starts ``start_back_m`` behind the hero camera (optionally raised by ``start_rise_m``
+    and offset sideways by ``side_m``), glides in on a gentle curve with dolly easing and
+    lands exactly on the hero position and target. Yaw barely changes, so there are no
+    head turns; clearance above the terrain is enforced per frame.
+    """
+    fin = layout["camera"]
+    F = Vector(fin["location"])
+    T1 = Vector(fin["target"])
+    d = Vector((F.x - T1.x, F.y - T1.y, 0)).normalized()          # pointing back, away from subject
+    side = Vector((-d.y, d.x, 0)) * cfg.get("side_m", 0.0) * cfg.get("direction", 1)
+    S = F + d * cfg["start_back_m"] + side + Vector((0, 0, cfg.get("start_rise_m", 0.0)))
+    p1 = S.lerp(F, 0.35) + side * 0.15
+    p2 = S.lerp(F, 0.75) - side * 0.05
+    route = Route([S, p1, p2, F])
+    t0 = T1 + Vector((0, 0, cfg.get("start_look_up_m", 0.0)))
+    ez = cfg.get("ease", {})
+    frames = int(round(duration_s * fps)) + 1
+    pos, tgt = _sample(route, t0, T1, frames, Ease(ez.get("accel", 0.2), ez.get("decel", 0.45)))
+    clear = cfg.get("min_clearance_m", 1.2)
+    for i, c in enumerate(pos):
+        g = terrain.height(c.x, c.y) + clear
+        if c.z < g:
+            pos[i] = Vector((c.x, c.y, g))
+    return Shot("push_in", pos, tgt, fps, {"start": tuple(round(v, 2) for v in S),
+                                           "travel_m": round(route.length, 1)})
+
+
 def _reserved(name):
     def planner(*_a, **_k):
         raise NotImplementedError(f"motion preset {name!r} is reserved but not implemented yet")
@@ -335,7 +365,7 @@ def _reserved(name):
 PRESETS = {
     "cloud_descent": cloud_descent,
     "orbit": orbit,
-    "push_in": _reserved("push_in"),
+    "push_in": push_in,
     "low_flyover": _reserved("low_flyover"),
     "water_skim": water_skim,
 }
