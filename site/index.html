@@ -1,0 +1,56 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>cinescene · 一句话生成写实 3D 场景</title>
+<style>
+:root{--bg:#0e1012;--fg:#e8e6e1;--mute:#9a9790;--line:#24272b;--acc:#d9a35b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 -apple-system,"PingFang SC","Helvetica Neue",sans-serif}
+header{max-width:1240px;margin:0 auto;padding:56px 24px 24px;display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap}
+h1{font-size:44px;letter-spacing:-.02em;margin:0}header p{color:var(--mute);margin:8px 0 0;max-width:620px}
+.lang{background:none;border:1px solid var(--line);color:var(--fg);padding:6px 14px;border-radius:999px;cursor:pointer}
+main{max-width:1240px;margin:0 auto;padding:12px 24px 80px;display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px}
+.card{background:#15181b;border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.card img,.card video,.ph{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#1b1f23}
+.ph{background:repeating-linear-gradient(135deg,#171a1d 0 12px,#1b1f23 12px 24px)}
+.body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px}h2{font-size:20px;margin:0}
+.mood{color:var(--mute);margin:0;font-size:14px}.soon h2{color:var(--mute)}
+.prompt{display:flex;gap:8px;align-items:flex-start;background:#0f1214;border:1px solid var(--line);border-radius:8px;padding:10px}
+.prompt code{flex:1;font:13px/1.5 inherit;color:#cfcac0;white-space:normal}
+button.copy,button.seeds{background:none;border:1px solid var(--line);color:var(--fg);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:13px;white-space:nowrap}
+button.seeds{align-self:flex-start;border-color:var(--acc);color:var(--acc)}
+dialog{border:0;padding:0;background:#000;max-width:96vw}dialog img{max-width:96vw;max-height:90vh;display:block}dialog::backdrop{background:rgba(0,0,0,.8)}
+footer{max-width:1240px;margin:0 auto;padding:0 24px 48px;color:var(--mute);font-size:13px}
+[data-l]{display:none}html[lang=zh] [data-l=zh],html[lang=en] [data-l=en]{display:revert}
+</style></head><body>
+<header><div><h1>cinescene</h1>
+<p data-l="zh">一句话生成写实、有电影感的 3D 场景。AI 只填一份场景说明书，建模、布光、构图、渲染全部交给代码。素材全部 CC0。</p>
+<p data-l="en">One sentence in, a realistic cinematic 3D scene out. The AI only fills in a scene spec; modelling, lighting, composition and rendering are done by code. All assets CC0.</p></div>
+<button class="lang" id="lang">EN</button></header>
+<main><article class="card"><video src="media/cabin.mp4" poster="media/foggy_cabin_morning.jpg" muted loop playsinline preload="none"></video>
+<div class="body"><h2><span data-l="zh">雾气森林小木屋</span><span data-l="en">Foggy Forest Cabin</span></h2>
+<p class="mood"><span data-l="zh">清晨冷雾、窗户暖光、炊烟</span><span data-l="en">Cold morning fog, warm windows, chimney smoke</span></p>
+<div class="prompt"><code data-l="zh">清晨森林里有座小木屋，起雾了，窗户亮着暖光，用云雾下降开场，10 秒</code><code data-l="en">A small cabin in a misty forest at dawn, warm windows, open with a cloud descent, 10 seconds</code><button class="copy" data-l="zh">复制</button><button class="copy" data-l="en">Copy</button></div>
+</div></article><article class="card"><video src="media/lighthouse.mp4" poster="media/lighthouse_sunset.jpg" muted loop playsinline preload="none"></video>
+<div class="body"><h2><span data-l="zh">海边灯塔</span><span data-l="en">Coastal Lighthouse</span></h2>
+<p class="mood"><span data-l="zh">日落金光、海面反射、灯塔光束</span><span data-l="en">Golden sunset, glittering sea, sweeping beam</span></p>
+<div class="prompt"><code data-l="zh">日落时海边悬崖上的灯塔，金色的光洒在海面上，镜头绕着灯塔转</code><code data-l="en">A lighthouse on a sea cliff at sunset, golden light on the sea, the camera orbits it</code><button class="copy" data-l="zh">复制</button><button class="copy" data-l="en">Copy</button></div>
+<button class="seeds" data-img="media/lighthouse_seeds.jpg"><span data-l="zh">5 个种子对比</span><span data-l="en">5 seeds</span></button></div></article><article class="card"><video src="media/lakeside.mp4" poster="media/lakeside_autumn.jpg" muted loop playsinline preload="none"></video>
+<div class="body"><h2><span data-l="zh">湖边秋日码头</span><span data-l="en">Autumn Lakeside Dock</span></h2>
+<p class="mood"><span data-l="zh">晨雾、红叶、平静水面倒影</span><span data-l="en">Morning mist, red leaves, mirror-calm water</span></p>
+<div class="prompt"><code data-l="zh">秋天清晨的湖边，红叶倒映在平静的湖面上，有一座木码头</code><code data-l="en">An autumn lake at dawn, red trees mirrored in calm water, a wooden dock</code><button class="copy" data-l="zh">复制</button><button class="copy" data-l="en">Copy</button></div>
+<button class="seeds" data-img="media/lakeside_seeds.jpg"><span data-l="zh">5 个种子对比</span><span data-l="en">5 seeds</span></button></div></article><article class="card"><img src="media/greenhouse_morning.jpg" alt="Greenhouse" loading="lazy">
+<div class="body"><h2><span data-l="zh">温室花房</span><span data-l="en">Greenhouse</span></h2>
+<p class="mood"><span data-l="zh">柔和散射光、玻璃、植物</span><span data-l="en">Soft light, glass and green</span></p>
+<div class="prompt"><code data-l="zh">清晨的老式玻璃温室，阳光透过玻璃洒进来，两边摆满盆栽</code><code data-l="en">An old glasshouse in the morning, sunlight through the glass, potted plants on both sides</code><button class="copy" data-l="zh">复制</button><button class="copy" data-l="en">Copy</button></div>
+</div></article><article class="card"><img src="media/rainforest_waterfall.jpg" alt="Rainforest Waterfall" loading="lazy">
+<div class="body"><h2><span data-l="zh">雨林瀑布</span><span data-l="en">Rainforest Waterfall</span></h2>
+<p class="mood"><span data-l="zh">光束穿过水雾、苔藓、湿石头</span><span data-l="en">Sunbeams through spray, moss and wet stone</span></p>
+<div class="prompt"><code data-l="zh">热带雨林深处的瀑布，阳光从树冠缝隙照下来，穿过水雾</code><code data-l="en">A jungle waterfall, sunbeams through the canopy and the spray</code><button class="copy" data-l="zh">复制</button><button class="copy" data-l="en">Copy</button></div>
+</div></article><article class="card soon"><div class="ph"></div><div class="body"><h2><span data-l="zh">沙漠星空营地</span><span data-l="en">Desert Starlit Camp</span></h2><p class="mood"><span data-l="zh">即将推出</span><span data-l="en">Coming soon</span></p></div></article><article class="card soon"><div class="ph"></div><div class="body"><h2><span data-l="zh">雪山木屋</span><span data-l="en">Snowy Mountain Cabin</span></h2><p class="mood"><span data-l="zh">即将推出</span><span data-l="en">Coming soon</span></p></div></article></main>
+<footer><span data-l="zh">悬停播放运镜 · 同一句话换一个种子就是另一个场景 · 代码 Apache-2.0，素材 CC0（Poly Haven）</span><span data-l="en">Hover to play the camera move · a new seed gives a new scene · code Apache-2.0, assets CC0 (Poly Haven)</span></footer>
+<dialog id="dlg"><img alt=""></dialog>
+<script>
+const h=document.documentElement,b=document.getElementById('lang');
+b.onclick=()=>{h.lang=h.lang==='zh'?'en':'zh';b.textContent=h.lang==='zh'?'EN':'中文'};
+document.querySelectorAll('video').forEach(v=>{const c=v.closest('.card');c.onmouseenter=()=>v.play();c.onmouseleave=()=>{v.pause();v.currentTime=0}});
+document.querySelectorAll('button.copy').forEach(x=>x.onclick=()=>{const t=x.parentElement.querySelector('code[data-l='+h.lang+']').textContent;navigator.clipboard.writeText(t);const o=x.textContent;x.textContent='✓';setTimeout(()=>x.textContent=o,1200)});
+const d=document.getElementById('dlg');document.querySelectorAll('button.seeds').forEach(x=>x.onclick=()=>{d.querySelector('img').src=x.dataset.img;d.showModal()});d.onclick=()=>d.close();
+</script></body></html>
