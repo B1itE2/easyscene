@@ -247,17 +247,17 @@ def ground(maps_a, maps_b, path=None, maps_path=None, clearing=12.0):
     return mat
 
 
-def bark(maps):
+def bark(maps, tint=(0.7, 0.68, 0.66), moss=0.3):
     mat, nb = new_material("Bark")
     # trunk UVs run u=along the trunk; bark furrows are vertical in the image: rotate 90°
     vec = nb.mapping(nb.coord("UV"), scale=(1.2, 1.2, 1), rot=(0, 0, 1.5708))
     if maps:
-        col, rough, nor = _pbr_maps(nb, maps, vec, tint=(0.7, 0.68, 0.66))
+        col, rough, nor = _pbr_maps(nb, maps, vec, tint=tint)
     else:
         col, rough, nor = _proc_bark(nb, vec)
     rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
     col = nb.mix(1.0, col, nb.comb(*(nb.maprange(rnd, 0, 1, 0.8, 1.15),) * 3), "MULTIPLY")
-    col, rough = _moss(nb, col, rough, amount=0.3, scale=3.0, up_only=False)
+    col, rough = _moss(nb, col, rough, amount=moss, scale=3.0, up_only=False)
     _finish(nb, col, rough, nor)
     return mat
 
@@ -500,8 +500,8 @@ def autumn_leaf(palette):
     col = nb.mix(1.0, col, nb.comb(shade, shade, shade), "MULTIPLY")
     bsdf = nb.new("ShaderNodeBsdfPrincipled")
     nb.set(bsdf, "Base Color", col)
-    nb.set(bsdf, "Roughness", 0.55)
-    nb.set(bsdf, "Specular IOR Level", 0.3)
+    nb.set(bsdf, "Roughness", nb.maprange(nb.noise(nb.coord("Object"), scale=6.0, detail=1.0), 0.3, 0.7, 0.62, 0.85))
+    nb.set(bsdf, "Specular IOR Level", 0.15)
     tr = nb.new("ShaderNodeBsdfTranslucent")
     nb.set(tr, "Color", nb.mix(1.0, col, (1.6, 1.3, 0.8), "MULTIPLY"))
     ms = nb.new("ShaderNodeMixShader", inputs={0: 0.35})
@@ -556,24 +556,56 @@ def boat_paint():
     return mat
 
 
+def stem():
+    """Green, slightly fibrous leaf stalk (not the near-black grass shader)."""
+    mat, nb = new_material("Stem")
+    _, v, _ = nb.sep(nb.coord("UV"))
+    rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
+    col = nb.ramp(rnd, [(0.0, (0.05, 0.09, 0.025)), (1.0, (0.09, 0.12, 0.04))])
+    fib = nb.maprange(nb.noise(nb.mapping(nb.coord("UV"), scale=(2.0, 40.0, 1.0)), detail=3.0), 0.3, 0.7, 0.8, 1.1)
+    col = nb.mix(1.0, col, nb.comb(fib, fib, fib), "MULTIPLY")
+    _finish(nb, col, 0.7, extra={"Specular IOR Level": 0.15})
+    return mat
+
+
 def jungle_leaf():
     """Large tropical leaf: smooth oval blade with a pale midrib, glossy, translucent."""
     mat, nb = new_material("JungleLeaf")
     u, v, _ = nb.sep(nb.coord("UV"))
     x = nb.math("ABSOLUTE", nb.math("MULTIPLY", nb.math("SUBTRACT", u, 0.5), 2.0))
     prof = nb.math("POWER", nb.math("SINE", nb.math("MULTIPLY", nb.maprange(v, 0, 1, 0.05, 1.0), 3.1416)), 0.6)
-    alpha = nb.math("LESS_THAN", x, prof)
+    tear = nb.maprange(nb.noise(nb.mapping(nb.coord("UV"), scale=(3.0, 6.0, 1.0)), detail=3.0), 0.0, 1.0, 0.8, 1.05)
+    alpha = nb.math("LESS_THAN", x, nb.math("MULTIPLY", prof, tear))
+    holes = nb.math("GREATER_THAN", nb.noise(nb.mapping(nb.coord("UV"), scale=(9.0, 14.0, 1.0)), detail=1.0), 0.28)
+    alpha = nb.math("MULTIPLY", alpha, holes)
     rnd = nb.o(nb.new("ShaderNodeObjectInfo"), "Random")
-    col = nb.ramp(rnd, [(0.0, (0.02, 0.07, 0.012)), (1.0, (0.05, 0.12, 0.02))])
+    pos = nb.noise(nb.coord("Object"), scale=0.9, detail=1.0)          # per-leaf variation
+    k = nb.math("FRACT", nb.math("ADD", rnd, nb.math("MULTIPLY", pos, 2.3)))
+    col = nb.ramp(k, [(0.0, (0.015, 0.045, 0.01)), (0.55, (0.035, 0.085, 0.015)),
+                      (0.85, (0.06, 0.1, 0.02)), (1.0, (0.12, 0.11, 0.03))])
+    spots = nb.maprange(nb.noise(nb.mapping(nb.coord("UV"), scale=(5.0, 8.0, 1.0)), detail=4.0), 0.6, 0.75)
+    col = nb.mix(nb.math("MULTIPLY", spots, 0.6), col, (0.09, 0.07, 0.02))
     rib = nb.maprange(x, 0.0, 0.05, 1.0, 0.0)
     col = nb.mix(nb.math("MULTIPLY", rib, 0.6), col, (0.15, 0.22, 0.06))
     veins = nb.maprange(nb.math("SINE", nb.math("SUBTRACT", nb.math("MULTIPLY", v, 40.0),
                                                   nb.math("MULTIPLY", x, 12.0))), 0.85, 1.0, 1.0, 0.8)
     col = nb.mix(1.0, col, nb.comb(veins, veins, veins), "MULTIPLY")
+    # edges and tips age first: darker, slightly yellow-brown rim
+    rim = nb.maprange(nb.math("DIVIDE", x, nb.math("MAXIMUM", prof, 0.05)), 0.75, 1.0)
+    col = nb.mix(nb.math("MULTIPLY", rim, 0.5), col, (0.05, 0.05, 0.012))
+    # mottled tone across each blade so no two leaves are the same flat green
+    mott = nb.maprange(nb.noise(nb.mapping(nb.coord("UV"), scale=(2.0, 3.0, 1.0)), detail=3.0), 0.3, 0.7, 0.7, 1.15)
+    col = nb.mix(1.0, col, nb.comb(mott, mott, mott), "MULTIPLY")
+    # dull, dusty/wet patches: roughness varies a lot within a leaf
+    dull = nb.noise(nb.mapping(nb.coord("UV"), scale=(4.0, 6.0, 1.0)), detail=5.0)
     bsdf = nb.new("ShaderNodeBsdfPrincipled")
     nb.set(bsdf, "Base Color", col)
-    nb.set(bsdf, "Roughness", 0.35)
+    nb.set(bsdf, "Roughness", nb.maprange(dull, 0.3, 0.7, 0.62, 0.9))
+    nb.set(bsdf, "Specular IOR Level", 0.1)
     nb.set(bsdf, "Alpha", alpha)
+    lb = nb.new("ShaderNodeBump", inputs={"Strength": 0.5, "Distance": 0.01})
+    nb.set(lb, "Height", veins)
+    nb.set(bsdf, "Normal", lb.outputs[0])
     tr = nb.new("ShaderNodeBsdfTranslucent")
     nb.set(tr, "Color", nb.mix(1.0, col, (1.4, 2.0, 0.9), "MULTIPLY"))
     ms = nb.new("ShaderNodeMixShader", inputs={0: 0.3})
@@ -589,7 +621,7 @@ def jungle_leaf():
     return mat
 
 
-def jungle_ground(maps_rock, maps_moss):
+def jungle_ground(maps_rock, maps_moss, wet_zone=None):
     """Wet dark rock on steep faces, thick moss on anything not vertical, slick near water."""
     mat, nb = new_material("JungleGround")
     world = nb.coord("Object")
@@ -607,11 +639,11 @@ def jungle_ground(maps_rock, maps_moss):
     else:
         cm, rm = (0.03, 0.06, 0.01), 0.9
     # horizontal strata on the rock: bands along z, warped so they are not ruler-straight
-    warp = nb.math("MULTIPLY", nb.noise(world, scale=0.15, detail=3.0), 2.5)
-    strata = nb.math("SINE", nb.math("MULTIPLY", nb.math("ADD", z, warp), 2.2))
-    band = nb.maprange(strata, -1.0, 1.0, 0.65, 1.15)
+    warp = nb.math("MULTIPLY", nb.noise(world, scale=0.15, detail=3.0), 4.0)
+    strata = nb.math("SINE", nb.math("MULTIPLY", nb.math("ADD", z, warp), 1.3))
+    band = nb.maprange(strata, -1.0, 1.0, 0.85, 1.08)
     cr = nb.mix(1.0, cr, nb.comb(band, band, band), "MULTIPLY")
-    ledge = nb.maprange(strata, 0.75, 0.95)                    # thin moss-filled ledges
+    ledge = nb.maprange(strata, 0.85, 0.98)                    # thin moss-filled ledges
     wob = nb.math("MULTIPLY", nb.noise(world, scale=0.8, detail=5.0), 0.5)
     m = nb.math("MAXIMUM", nb.maprange(nb.math("ADD", nz, wob), 0.35, 0.65),
                 nb.math("MULTIPLY", ledge, 0.8))
@@ -619,8 +651,27 @@ def jungle_ground(maps_rock, maps_moss):
     hsv = nb.new("ShaderNodeHueSaturation", inputs={"Hue": 0.54, "Saturation": 0.9, "Value": 0.7})
     nb.set(hsv, "Color", col)                     # shift the ground away from yellow toward moss green
     col = hsv.outputs[0]
-    rough = nb.mixf(m, nb.math("MULTIPLY", rr, 0.5), rm)          # wet rock is glossy
+    # damp rock is satin, not mirror: big glossy blobs read as melted plastic
+    rough = nb.mixf(m, nb.math("MAXIMUM", nb.math("MULTIPLY", rr, 0.85), 0.5), rm)
     col, rough = _moss(nb, col, rough, amount=0.5, scale=1.5, up_only=False)
+    # moss pads on every shelf top and dark lichen streaks down the faces
+    shelf = nb.maprange(nz, 0.25, 0.6)
+    pad = nb.maprange(nb.noise(world, scale=2.5, detail=5.0), 0.35, 0.55)
+    col = nb.mix(nb.math("MULTIPLY", shelf, pad), col, (0.03, 0.06, 0.012))
+    rough = nb.mixf(nb.math("MULTIPLY", shelf, pad), rough, 0.9)
+    lich = nb.maprange(nb.noise(nb.mapping(world, scale=(2.5, 2.5, 0.2)), detail=3.0), 0.55, 0.7)
+    col = nb.mix(nb.math("MULTIPLY", lich, 0.5), col, (0.02, 0.025, 0.018))
+    if wet_zone:
+        # rock around the falls is soaked: darker, almost mirror-glossy, with drip streaks
+        wx, wy, ww = wet_zone
+        x, y, _ = nb.sep(world)
+        dxz = nb.math("ABSOLUTE", nb.math("SUBTRACT", x, wx))
+        streaks = nb.noise(nb.mapping(world, scale=(3.0, 3.0, 0.12)), detail=4.0)
+        reach = nb.math("ADD", ww * 0.5, nb.math("MULTIPLY", streaks, ww * 0.5))
+        wet = nb.maprange(nb.math("SUBTRACT", reach, dxz), 0.0, 2.5)
+        wet = nb.math("MULTIPLY", wet, nb.maprange(y, wy - 12.0, wy - 2.0))
+        col = nb.mix(nb.math("MULTIPLY", wet, 0.4), col, (0.0, 0.0, 0.0))
+        rough = nb.mixf(wet, rough, 0.3)
     _finish(nb, col, rough, nr)
     return mat
 
@@ -629,12 +680,14 @@ def library(tex: dict):
     """Build every material once. ``tex`` maps role -> maps-dict or None."""
     if tex.get("_style") == "rainforest_waterfall":
         return {
-            "bark": bark(tex.get("bark")), "bark_birch": bark(tex.get("bark")),
+            # rainforest bark is soaked and mossy: darker, never pale grey
+            "bark": bark(tex.get("bark"), tint=(0.38, 0.36, 0.32), moss=0.55),
+            "bark_birch": bark(tex.get("bark"), tint=(0.38, 0.36, 0.32), moss=0.55),
             "autumn_leaf": autumn_leaf(tex.get("_leaf_palette") or
                                        [(0.02, 0.07, 0.01), (0.04, 0.11, 0.015), (0.07, 0.15, 0.02)]),
             "fern": fern_proc(), "grass": grass(), "leafcover": leaf_cover(),
             "rock": stone(tex.get("rock"), name="WetRock", moss=0.6), "moss": moss_cushion(),
-            "jungle_leaf": jungle_leaf(),
+            "jungle_leaf": jungle_leaf(), "stem": stem(),
         }
     if tex.get("_style") == "greenhouse":
         return {

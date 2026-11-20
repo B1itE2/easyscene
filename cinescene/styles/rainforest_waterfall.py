@@ -13,6 +13,7 @@ from mathutils import Vector
 
 from .. import atmosphere, camera, lighting, materials, scatter, water
 from .. import rng as rngmod
+from .. import waterfall as wf
 from ..modeling import deciduous, gorge, vegetation
 from ..nodes import NB
 
@@ -28,7 +29,13 @@ def build(spec, R, q, mats, tex, hdri):
     G = gorge.Gorge(rngmod.stream(seed, "terrain"), size=gc["size_m"], resolution=gc["resolution"],
                     pool_r=gc["pool_r"], cliff_y=gc["cliff_y"], cliff_h=gc["cliff_h"], width=gc["width"])
     w_rng = rngmod.stream(seed, "waterfall")
-    fall, base, top = gorge.waterfall(G, w_rng.uniform(-2.0, 2.0), gc["fall_width"], w_rng)
+    top = gc["cliff_h"] + 0.3
+    lip_x = w_rng.uniform(-2.0, 2.0)
+    G.set_alcove(lip_x, gc["fall_width"] * 1.4)
+    fall = wf.build(G, w_rng, {"width": gc["fall_width"], "side_min": R["waterfall"]["side_strands"][0],
+                               "side_max": R["waterfall"]["side_strands"][1], "pool_z": -0.15},
+                    lip_x, top, gc["cliff_y"] + 2.5, gc["cliff_y"] - 8.0)
+    base = (fall["lip"][0], fall["impacts"][0][1], 0.0)
 
     # ---- camera on the near bank ---------------------------------------------------
     cs = spec["camera"]
@@ -47,10 +54,17 @@ def build(spec, R, q, mats, tex, hdri):
               "focus": (target - loc).length, "yaw": camera.yaw_of(tuple(target - loc)),
               "lens": cs["lens_mm"], "aspect": cs["aspect"]}
 
-    G.build(materials.jungle_ground(tex.get("rock"), tex.get("moss_ground")))
+    gmat = materials.jungle_ground(tex.get("rock"), tex.get("moss_ground"),
+                                   wet_zone=(fall["lip"][0], gc["cliff_y"], gc["fall_width"] * 1.6))
+    G.build(gmat)
+    wall_half = gc["width"] * 0.62
+    G.build_wall(gmat, x_half=wall_half)
+    if fall["outcrop"] is not None:
+        fall["outcrop"].data.materials.append(gmat)
     linfo = lighting.apply(R["lighting_by_time"][spec["time_of_day"]], solved["yaw"], hdri,
                            R.get("lighting_overrides", {}).get(spec["time_of_day"]))
-    water.calm_water("Pool", 300.0, level=-0.15, deep=(0.01, 0.03, 0.025), ripple=0.35)
+    pool = water.calm_water("Pool", 300.0, level=-0.15, deep=(0.01, 0.03, 0.025), ripple=0.35)
+    pool.data.materials[0] = wf.pool_material(fall["impacts"])
 
     # ---- jungle on the rims and banks ----------------------------------------------------
     hfov, _ = camera.fovs(cs["lens_mm"], cs["aspect"])
@@ -68,6 +82,14 @@ def build(spec, R, q, mats, tex, hdri):
         if (Vector((x, y, 0)) - Vector((loc.x, loc.y, 0))).length < 3.0:
             continue
         if sight(x, y):                                         # nothing between us and the falls
+            continue
+        # no lone trees on the near banks inside the frame: cut by the frame edge and leaning
+        # into the shot they read as a stray prop. Near trees are fine just *outside* the frame.
+        dx, dy = x - loc.x, y - loc.y
+        dist = math.hypot(dx, dy)
+        ang = abs((math.atan2(dx, dy) - math.atan2(target.x - loc.x, target.y - loc.y) + math.pi)
+                  % math.tau - math.pi)
+        if dist < 48.0 and ang < hfov * 0.5 + math.radians(14):
             continue
         pts.append((x, y, h - 0.3, 0, 0, f_rng.uniform(0, math.tau), f_rng.uniform(0.8, 1.3),
                     f_rng.randrange(len(tvars))))
@@ -93,7 +115,7 @@ def build(spec, R, q, mats, tex, hdri):
         side = u_rng.uniform(-1.0, 1.0) * d * 0.8
         x = loc.x + fwd.x * d - fwd.y * side
         y = loc.y + fwd.y * d + fwd.x * side
-        if abs(side) < d * 0.3:                                  # keep a window down the middle
+        if abs(side) < d * 0.45:                                 # keep a window down the middle
             continue
         fpts.append((x, y, G.height(x, y), 0, 0, u_rng.uniform(0, math.tau), u_rng.uniform(1.2, 2.0),
                      u_rng.randrange(len(fern_v))))
@@ -115,10 +137,21 @@ def build(spec, R, q, mats, tex, hdri):
         for k in range(3):
             # we stand ~5 m up looking level: the frame's bottom edge meets the ground ~20 m out
             d = u_rng.uniform(19.0, 26.0)
-            p = loc + fwd * d + right * side * d * u_rng.uniform(0.3, 0.42)
+            p = loc + fwd * d + right * side * d * u_rng.uniform(0.4, 0.55)   # corners, not centre
             lpts.append((p.x, p.y, G.height(p.x, p.y) - 0.05, 0, 0, u_rng.uniform(0, math.tau),
                          u_rng.uniform(1.8, 2.6), u_rng.randrange(len(ledge_v))))
     scatter.scatter("LedgePlants", lpts, scatter.variant_collection("LedgeVariants", [o.copy() for o in ledge_v]))
+    # ledge garden: ferns and big leaves on the shelves of the wall; some hang down
+    avoid = [(s[0], s[3] + 1.2) for s in fall["impacts"]] + [(fall["lip"][0], gc["fall_width"] * 1.1)]
+    lspots = G.ledge_spots(u_rng, R["undergrowth"]["ledge_plants"], wall_half * 0.95, avoid)
+    wall_v = fern_v + big_v
+    wpts = []
+    for (x, y, z) in lspots:
+        hang = u_rng.random() < 0.35
+        wpts.append((x, y, z, (u_rng.uniform(1.2, 1.9) if hang else u_rng.uniform(-0.2, 0.2)), 0,
+                     u_rng.uniform(-0.6, 0.6) + math.pi, u_rng.uniform(0.7, 1.4), u_rng.randrange(len(wall_v))))
+    scatter.scatter("LedgeGarden", wpts, scatter.variant_collection("LedgeGardenVariants",
+                                                                     [o.copy() for o in wall_v]))
     rock_v = vegetation.load_model("rock_moss_set_01", "rocks", max_objects=6, max_size=2.4) or \
         [vegetation.rock(u_rng, mats, f"Rock{i}") for i in range(5)]
     rpts = vegetation.place(u_rng, R["undergrowth"]["boulders"], (gc["pool_r"] * 0.7, gc["pool_r"] + 5), G,
@@ -130,7 +163,7 @@ def build(spec, R, q, mats, tex, hdri):
     # ---- humid haze + spray mist at the base of the falls ------------------------------
     fog_d = R["fog"]["density_by_weather"][spec["weather"]]
     fog_obj = atmosphere.height_fog(gc["size_m"] * 1.2, gc["cliff_h"] + 30, R["fog"], fog_d)
-    _spray(fog_obj, base, R["spray"])
+    wf.add_mist(fog_obj, fall, R["spray"])
 
     layout = {
         "subject": {"center": (base[0], base[1], top / 2), "height": top,
